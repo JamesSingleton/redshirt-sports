@@ -158,7 +158,7 @@ describe("POST /api/webhooks/auth", () => {
       lastName: "Doe",
       organization: undefined,
       organizationRole: undefined,
-      isAdmin: false,
+      isAdmin: undefined,
       isVoter: false,
       roles: [],
     });
@@ -213,8 +213,8 @@ describe("POST /api/webhooks/auth", () => {
       organizationRole: "Analyst",
       isAdmin: true,
       isVoter: true,
-      // The old flag counts as the admin role.
-      roles: ["admin"],
+      // Admin is the flag, not a role.
+      roles: [],
     });
   });
 
@@ -227,7 +227,7 @@ describe("POST /api/webhooks/auth", () => {
         last_name: "McKinnell",
         public_metadata: {
           isVoter: true,
-          roles: ["ballots", "portal", "superuser"],
+          roles: ["ballots", "portal", "admin", "superuser"],
         },
       },
     });
@@ -235,7 +235,7 @@ describe("POST /api/webhooks/auth", () => {
     expect(mockUpdateUser).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "user_8",
-        isAdmin: false,
+        isAdmin: undefined,
         isVoter: true,
         // In order, and nothing that isn't a role.
         roles: ["portal", "ballots"],
@@ -245,7 +245,6 @@ describe("POST /api/webhooks/auth", () => {
       expect.objectContaining({
         properties: expect.objectContaining({
           staff_roles: ["portal", "ballots"],
-          is_admin: false,
         }),
       }),
     );

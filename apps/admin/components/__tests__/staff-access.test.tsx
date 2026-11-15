@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 
 const mocks = vi.hoisted(() => ({
   findPeople: vi.fn(),
-  setStaffRoles: vi.fn(),
+  setStaffAccess: vi.fn(),
   success: vi.fn(),
   error: vi.fn(),
   getBallotYears: vi.fn(),
@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/actions/staff", () => ({
   findPeople: mocks.findPeople,
-  setStaffRoles: mocks.setStaffRoles,
+  setStaffAccess: mocks.setStaffAccess,
 }));
 vi.mock("@/actions/ballots", () => ({
   getBallotYears: mocks.getBallotYears,
@@ -203,6 +203,7 @@ const zach = {
   name: "Zach McKinnell",
   organization: "Sports Illustrated",
   isVoter: true,
+  isAdmin: false,
   roles: ["portal" as const],
 };
 const me = {
@@ -210,7 +211,8 @@ const me = {
   name: "James Singleton",
   organization: null,
   isVoter: false,
-  roles: ["admin" as const],
+  isAdmin: true,
+  roles: [],
 };
 
 describe("staff manager", () => {
@@ -219,16 +221,35 @@ describe("staff manager", () => {
   });
   afterEach(() => vi.clearAllMocks());
 
+  it("shows admin from isAdmin and the roles beside it", () => {
+    render(<StaffManager me="user_me" staff={[me, zach]} />);
+    expect(
+      screen.getByRole("checkbox", { name: "Admin for James Singleton" }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Admin for Zach McKinnell" }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole("checkbox", {
+        name: "Transfer portal for Zach McKinnell",
+      }),
+    ).toBeChecked();
+  });
+
   it("saves a role when its box is ticked", async () => {
-    mocks.setStaffRoles.mockResolvedValue(["portal", "ballots"]);
+    mocks.setStaffAccess.mockResolvedValue({
+      isAdmin: false,
+      roles: ["portal", "ballots"],
+    });
     render(<StaffManager me="user_me" staff={[me, zach]} />);
     const box = screen.getByRole("checkbox", {
       name: "Ballot viewer for Zach McKinnell",
     });
     await userEvent.click(box);
     await waitFor(() =>
-      expect(mocks.setStaffRoles).toHaveBeenCalledWith({
+      expect(mocks.setStaffAccess).toHaveBeenCalledWith({
         userId: "user_zach",
+        isAdmin: false,
         roles: ["portal", "ballots"],
       }),
     );
@@ -236,8 +257,28 @@ describe("staff manager", () => {
     expect(mocks.success).toHaveBeenCalledWith("Saved Zach McKinnell");
   });
 
+  it("makes someone an admin through isAdmin, keeping their roles", async () => {
+    mocks.setStaffAccess.mockResolvedValue({
+      isAdmin: true,
+      roles: ["portal"],
+    });
+    render(<StaffManager me="user_me" staff={[me, zach]} />);
+    const box = screen.getByRole("checkbox", {
+      name: "Admin for Zach McKinnell",
+    });
+    await userEvent.click(box);
+    await waitFor(() =>
+      expect(mocks.setStaffAccess).toHaveBeenCalledWith({
+        userId: "user_zach",
+        isAdmin: true,
+        roles: ["portal"],
+      }),
+    );
+    await waitFor(() => expect(box).toBeChecked());
+  });
+
   it("unticks, reports failures, and locks your own admin box", async () => {
-    mocks.setStaffRoles.mockRejectedValueOnce(new Error("Clerk is down"));
+    mocks.setStaffAccess.mockRejectedValueOnce(new Error("Clerk is down"));
     render(<StaffManager me="user_me" staff={[me, zach]} />);
     expect(
       screen.getByRole("checkbox", { name: "Admin for James Singleton" }),
@@ -251,8 +292,9 @@ describe("staff manager", () => {
     await waitFor(() =>
       expect(mocks.error).toHaveBeenCalledWith("Clerk is down"),
     );
-    expect(mocks.setStaffRoles).toHaveBeenCalledWith({
+    expect(mocks.setStaffAccess).toHaveBeenCalledWith({
       userId: "user_zach",
+      isAdmin: false,
       roles: [],
     });
   });
@@ -282,7 +324,7 @@ describe("staff manager", () => {
   });
 
   it("shows a generic message when saving fails without one", async () => {
-    mocks.setStaffRoles.mockRejectedValueOnce("nope");
+    mocks.setStaffAccess.mockRejectedValueOnce("nope");
     mocks.findPeople.mockRejectedValue(new Error("x"));
     render(<StaffManager me="user_me" staff={[zach]} />);
     await userEvent.click(

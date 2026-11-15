@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ADMIN_INFO,
   STAFF_ROLE_INFO,
   STAFF_ROLES,
   type StaffRole,
@@ -12,7 +13,18 @@ import { Input } from "@redshirt-sports/ui/components/input";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { findPeople, type StaffMember, setStaffRoles } from "@/actions/staff";
+import { findPeople, type StaffMember, setStaffAccess } from "@/actions/staff";
+
+type Column = "admin" | StaffRole;
+
+/** Admin first, then the limited roles. */
+const COLUMNS: { id: Column; label: string; description: string }[] = [
+  { id: "admin", ...ADMIN_INFO },
+  ...STAFF_ROLES.map((role) => ({ id: role, ...STAFF_ROLE_INFO[role] })),
+];
+
+const hasColumn = (person: StaffMember, column: Column) =>
+  column === "admin" ? person.isAdmin : person.roles.includes(column);
 
 /**
  * Who can do what in the admin. Ticking a box saves at once. Changes reach
@@ -46,16 +58,23 @@ export function StaffManager({
     };
   }, [query]);
 
-  function toggle(person: StaffMember, role: StaffRole, on: boolean) {
-    const roles = on
-      ? [...person.roles, role]
-      : person.roles.filter((r) => r !== role);
+  /** Admin (`isAdmin`) or one staff role, switched on or off. */
+  function toggle(person: StaffMember, column: Column, on: boolean) {
+    const next =
+      column === "admin"
+        ? { isAdmin: on, roles: person.roles }
+        : {
+            isAdmin: person.isAdmin,
+            roles: on
+              ? [...person.roles, column]
+              : person.roles.filter((r) => r !== column),
+          };
     startTransition(async () => {
       try {
-        const saved = await setStaffRoles({ userId: person.id, roles });
+        const saved = await setStaffAccess({ userId: person.id, ...next });
         setStaff((current) =>
           current.map((row) =>
-            row.id === person.id ? { ...row, roles: saved } : row,
+            row.id === person.id ? { ...row, ...saved } : row,
           ),
         );
         toast.success(`Saved ${person.name}`);
@@ -77,11 +96,11 @@ export function StaffManager({
   return (
     <div className="flex flex-col gap-6">
       <dl className="grid gap-3 md:grid-cols-3">
-        {STAFF_ROLES.map((role) => (
-          <div key={role} className="rounded-xl border p-4">
-            <dt className="font-medium">{STAFF_ROLE_INFO[role].label}</dt>
+        {COLUMNS.map((column) => (
+          <div key={column.id} className="rounded-xl border p-4">
+            <dt className="font-medium">{column.label}</dt>
             <dd className="text-muted-foreground mt-1 text-sm">
-              {STAFF_ROLE_INFO[role].description}
+              {column.description}
             </dd>
           </div>
         ))}
@@ -93,9 +112,9 @@ export function StaffManager({
           <thead>
             <tr className="text-muted-foreground border-b text-left text-xs tracking-wide uppercase">
               <th className="p-3 font-medium">Person</th>
-              {STAFF_ROLES.map((role) => (
-                <th key={role} className="p-3 text-center font-medium">
-                  {STAFF_ROLE_INFO[role].label}
+              {COLUMNS.map((column) => (
+                <th key={column.id} className="p-3 text-center font-medium">
+                  {column.label}
                 </th>
               ))}
             </tr>
@@ -115,17 +134,18 @@ export function StaffManager({
                     ) : null}
                   </span>
                 </th>
-                {STAFF_ROLES.map((role) => (
-                  <td key={role} className="p-3 text-center">
+                {COLUMNS.map((column) => (
+                  <td key={column.id} className="p-3 text-center">
                     <Checkbox
-                      checked={person.roles.includes(role)}
+                      checked={hasColumn(person, column.id)}
+                      // An admin can't lock themselves out.
                       disabled={
-                        pending || (person.id === me && role === "admin")
+                        pending || (person.id === me && column.id === "admin")
                       }
                       onCheckedChange={(on) =>
-                        toggle(person, role, on === true)
+                        toggle(person, column.id, on === true)
                       }
-                      aria-label={`${STAFF_ROLE_INFO[role].label} for ${person.name}`}
+                      aria-label={`${column.label} for ${person.name}`}
                     />
                   </td>
                 ))}

@@ -11,7 +11,7 @@ type ClerkUserFields = {
   organizationRole?: string | null;
   isAdmin?: boolean;
   isVoter?: boolean;
-  /** Staff roles from Clerk public metadata; omitted keeps the stored value. */
+  /** Limited staff roles from Clerk public metadata; omitted keeps the stored value. */
   roles?: string[];
 };
 
@@ -79,7 +79,7 @@ const staffColumns = {
   roles: usersTable.roles,
 };
 
-/** Everyone with a staff role (or the old `isAdmin` flag), by last name. */
+/** Admins and everyone with a staff role, by last name. */
 export function listStaffUsers() {
   return db
     .select(staffColumns)
@@ -107,7 +107,7 @@ export function searchUsersByName(query: string, limit = 10) {
 }
 
 /**
- * Store a user's staff roles right away, so the Staff page is current before
+ * Store a user's admin flag and staff roles right away, so the Staff page is current before
  * Clerk's webhook arrives (which then writes the same values).
  */
 export async function setUserRoles(input: {

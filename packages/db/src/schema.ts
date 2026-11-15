@@ -143,7 +143,7 @@ export const usersTable = pgTable(
   (table) => [
     check(
       "users_table_roles_check",
-      sql`${table.roles} <@ array['admin', 'portal', 'ballots']::text[]`,
+      sql`${table.roles} <@ array['portal', 'ballots']::text[]`,
     ),
   ],
 );

@@ -22,6 +22,10 @@ function optionalString(value: unknown) {
   return typeof value === "string" ? value : undefined;
 }
 
+function optionalBoolean(value: unknown) {
+  return typeof value === "boolean" ? value : undefined;
+}
+
 /** Postgres-facing fields from a Clerk user payload's names and public metadata. */
 function clerkUserFields(data: {
   first_name: string | null;
@@ -29,16 +33,15 @@ function clerkUserFields(data: {
   public_metadata?: Record<string, unknown>;
 }) {
   const metadata = data.public_metadata ?? {};
-  // Same reading as the admin app: `roles`, plus the old `isAdmin` flag.
-  const roles = staffRoles(metadata);
   return {
     firstName: data.first_name ?? "",
     lastName: data.last_name ?? "",
     organization: optionalString(metadata.organization),
     organizationRole: optionalString(metadata.organizationRole),
-    isAdmin: roles.includes("admin"),
+    isAdmin: optionalBoolean(metadata.isAdmin),
     isVoter: metadata.isVoter === true,
-    roles,
+    // Limited staff roles (portal, ballots); admin is `isAdmin`.
+    roles: staffRoles(metadata),
   };
 }
 
@@ -142,7 +145,7 @@ export async function POST(req: Request) {
           event: "user_updated",
           properties: {
             source: "clerk_webhook",
-            is_admin: isAdmin,
+            is_admin: data.public_metadata.isAdmin,
             is_voter: data.public_metadata.isVoter,
             staff_roles: roles,
             organization: data.public_metadata.organization,

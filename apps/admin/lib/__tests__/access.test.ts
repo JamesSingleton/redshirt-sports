@@ -21,7 +21,11 @@ vi.mock("react", async (importOriginal) => ({
   cache: <T>(fn: T) => fn,
 }));
 
-import { STAFF_ROLE_INFO, staffRoles } from "@redshirt-sports/auth/roles";
+import {
+  isAdminMetadata,
+  STAFF_ROLE_INFO,
+  staffRoles,
+} from "@redshirt-sports/auth/roles";
 
 import { areasFor, requireArea, requireStaff } from "@/lib/access";
 
@@ -32,34 +36,38 @@ const signedIn = (metadata: unknown) =>
   });
 
 describe("staff roles", () => {
-  it("reads roles from metadata, dropping anything unknown", () => {
+  it("reads the limited roles from metadata, dropping anything unknown", () => {
     expect(staffRoles({ roles: ["ballots", "portal"] })).toEqual([
       "portal",
       "ballots",
     ]);
-    expect(staffRoles({ roles: ["portal", "superuser", 7] })).toEqual([
+    // Admin isn't a role: it's `isAdmin`.
+    expect(staffRoles({ roles: ["portal", "admin", "superuser", 7] })).toEqual([
       "portal",
     ]);
-    // The old flag still means admin, once.
-    expect(staffRoles({ isAdmin: true, roles: ["admin"] })).toEqual(["admin"]);
-    expect(staffRoles({ isAdmin: "true" })).toEqual([]);
-    expect(staffRoles({ roles: "admin" })).toEqual([]);
+    expect(staffRoles({ roles: "portal" })).toEqual([]);
     expect(staffRoles(null)).toEqual([]);
     expect(staffRoles(undefined)).toEqual([]);
   });
 
+  it("takes only a real true as admin", () => {
+    expect(isAdminMetadata({ isAdmin: true })).toBe(true);
+    expect(isAdminMetadata({ isAdmin: "true" })).toBe(false);
+    expect(isAdminMetadata({ isAdmin: false })).toBe(false);
+    expect(isAdminMetadata(null)).toBe(false);
+  });
+
   it("describes every role", () => {
-    expect(Object.keys(STAFF_ROLE_INFO)).toEqual([
-      "admin",
-      "portal",
-      "ballots",
-    ]);
+    expect(Object.keys(STAFF_ROLE_INFO)).toEqual(["portal", "ballots"]);
   });
 
   it("gives admins every area and others only theirs", () => {
-    expect([...areasFor(["admin"])]).toEqual(["admin", "portal", "ballots"]);
-    expect([...areasFor(["portal", "ballots"])]).toEqual(["portal", "ballots"]);
-    expect(areasFor([]).size).toBe(0);
+    expect([...areasFor(true, [])]).toEqual(["admin", "portal", "ballots"]);
+    expect([...areasFor(false, ["portal", "ballots"])]).toEqual([
+      "portal",
+      "ballots",
+    ]);
+    expect(areasFor(false, []).size).toBe(0);
   });
 });
 
@@ -70,17 +78,19 @@ describe("access checks", () => {
     signedIn({ roles: ["portal"] });
     await expect(requireArea("portal")).resolves.toMatchObject({
       userId: "user_1",
+      isAdmin: false,
       roles: ["portal"],
     });
     await expect(requireArea("admin")).rejects.toThrow("NEXT_NOT_FOUND");
     await expect(requireArea("ballots")).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("lets admins in everywhere, including by the old flag", async () => {
-    signedIn({ isAdmin: true });
+  it("lets admins in everywhere", async () => {
+    signedIn({ isAdmin: true, isVoter: true });
     for (const area of ["admin", "portal", "ballots"] as const) {
       await expect(requireArea(area)).resolves.toMatchObject({
-        roles: ["admin"],
+        isAdmin: true,
+        roles: [],
       });
     }
   });

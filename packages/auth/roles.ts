@@ -1,25 +1,20 @@
 /**
- * Staff roles: what someone can do in the admin app. They live in a Clerk
- * user's public metadata as `roles`, which only our backend can write, and
- * reach the server in the session token. Voting is separate: `isVoter` plus a
- * poll assignment, checked by the web app.
+ * Who can do what in the admin app, from a Clerk user's public metadata
+ * (which only our backend can write, and which the session token carries):
  *
- *   { "isVoter": true, "roles": ["portal", "ballots"] }
+ *   { "isAdmin": false, "isVoter": true, "roles": ["portal", "ballots"] }
  *
- * `isAdmin: true` still means admin, so existing admins keep access while
- * roles move over.
+ * - `isAdmin`: full access, as it has always been.
+ * - `roles`: limited staff roles for helpers who shouldn't see everything.
+ * - `isVoter`: voting on the web app. Separate from both.
  */
-export const STAFF_ROLES = ["admin", "portal", "ballots"] as const;
+export const STAFF_ROLES = ["portal", "ballots"] as const;
 export type StaffRole = (typeof STAFF_ROLES)[number];
 
 export const STAFF_ROLE_INFO: Record<
   StaffRole,
   { label: string; description: string }
 > = {
-  admin: {
-    label: "Admin",
-    description: "Everything, including publishing polls and managing staff.",
-  },
   portal: {
     label: "Transfer portal",
     description:
@@ -32,18 +27,33 @@ export const STAFF_ROLE_INFO: Record<
   },
 };
 
+export const ADMIN_INFO = {
+  label: "Admin",
+  description: "Everything, including publishing polls and managing staff.",
+};
+
 export function isStaffRole(value: unknown): value is StaffRole {
   return STAFF_ROLES.includes(value as StaffRole);
 }
 
+function fields(metadata: unknown) {
+  return metadata && typeof metadata === "object"
+    ? (metadata as { roles?: unknown; isAdmin?: unknown })
+    : {};
+}
+
+/** Only a real `true` makes someone an admin: a typo'd string doesn't. */
+export function isAdminMetadata(metadata: unknown): boolean {
+  return fields(metadata).isAdmin === true;
+}
+
 /**
  * The staff roles in a user's public metadata (or the session claim that
- * copies it). Unknown values are dropped, so a typo grants nothing.
+ * copies it), in a fixed order. Unknown values are dropped, so a typo grants
+ * nothing.
  */
 export function staffRoles(metadata: unknown): StaffRole[] {
-  if (!metadata || typeof metadata !== "object") return [];
-  const { roles, isAdmin } = metadata as { roles?: unknown; isAdmin?: unknown };
-  const listed = Array.isArray(roles) ? roles.filter(isStaffRole) : [];
-  const all = isAdmin === true ? ["admin" as const, ...listed] : listed;
-  return STAFF_ROLES.filter((role) => all.includes(role));
+  const { roles } = fields(metadata);
+  const listed = Array.isArray(roles) ? roles : [];
+  return STAFF_ROLES.filter((role) => listed.includes(role));
 }

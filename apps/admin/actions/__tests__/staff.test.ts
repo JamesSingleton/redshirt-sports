@@ -29,7 +29,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
 
-import { findPeople, getStaff, setStaffRoles } from "@/actions/staff";
+import { findPeople, getStaff, setStaffAccess } from "@/actions/staff";
 
 const row = (overrides: Record<string, unknown> = {}) => ({
   id: "user_zach",
@@ -48,7 +48,7 @@ describe("staff actions", () => {
     mockRequireArea.mockResolvedValue({ userId: "user_me" });
   });
 
-  it("lists staff with their roles, counting the old admin flag", async () => {
+  it("lists admins and staff with their roles", async () => {
     mockListStaff.mockResolvedValue([
       row(),
       row({ id: "user_me", firstName: "Me", roles: [], isAdmin: true }),
@@ -63,9 +63,10 @@ describe("staff actions", () => {
           name: "Zach McKinnell",
           organization: "Sports Illustrated",
           isVoter: true,
+          isAdmin: false,
           roles: ["portal"],
         },
-        expect.objectContaining({ id: "user_me", roles: ["admin"] }),
+        expect.objectContaining({ id: "user_me", isAdmin: true, roles: [] }),
       ],
     });
   });
@@ -80,14 +81,16 @@ describe("staff actions", () => {
     expect(mockRequireArea).toHaveBeenCalledWith("admin");
   });
 
-  it("writes roles to Clerk and Postgres, in order, without junk", async () => {
-    const saved = await setStaffRoles({
+  it("writes the admin flag and roles to Clerk and Postgres, without junk", async () => {
+    const saved = await setStaffAccess({
       userId: "user_zach",
-      roles: ["ballots", "superuser", "portal"],
+      isAdmin: false,
+      roles: ["ballots", "admin", "superuser", "portal"],
     });
-    expect(saved).toEqual(["portal", "ballots"]);
+    expect(saved).toEqual({ isAdmin: false, roles: ["portal", "ballots"] });
+    // isVoter isn't touched: Clerk merges the keys it's given.
     expect(mockUpdateMetadata).toHaveBeenCalledWith("user_zach", {
-      publicMetadata: { roles: ["portal", "ballots"], isAdmin: false },
+      publicMetadata: { isAdmin: false, roles: ["portal", "ballots"] },
     });
     expect(mockSetRoles).toHaveBeenCalledWith({
       id: "user_zach",
@@ -97,20 +100,20 @@ describe("staff actions", () => {
     expect(mockRevalidatePath).toHaveBeenCalledWith("/staff");
   });
 
-  it("keeps the admin flag in step with the admin role", async () => {
-    await setStaffRoles({ userId: "user_zach", roles: ["admin"] });
+  it("makes someone an admin with isAdmin", async () => {
+    await setStaffAccess({ userId: "user_zach", isAdmin: true, roles: [] });
     expect(mockUpdateMetadata).toHaveBeenCalledWith("user_zach", {
-      publicMetadata: { roles: ["admin"], isAdmin: true },
+      publicMetadata: { isAdmin: true, roles: [] },
     });
   });
 
-  it("won't let an admin remove their own admin role", async () => {
+  it("won't let an admin remove their own admin access", async () => {
     await expect(
-      setStaffRoles({ userId: "user_me", roles: ["portal"] }),
-    ).rejects.toThrow("You can't remove your own admin role.");
-    await expect(setStaffRoles({ userId: "", roles: [] })).rejects.toThrow(
-      "userId is required",
-    );
+      setStaffAccess({ userId: "user_me", isAdmin: false, roles: ["portal"] }),
+    ).rejects.toThrow("You can't remove your own admin access.");
+    await expect(
+      setStaffAccess({ userId: "", isAdmin: false, roles: [] }),
+    ).rejects.toThrow("userId is required");
     expect(mockUpdateMetadata).not.toHaveBeenCalled();
   });
 });

@@ -175,7 +175,7 @@ describe("staff roles", () => {
     await resetDatabase();
   });
 
-  it("lists staff by role or the old admin flag, by last name", async () => {
+  it("lists admins and anyone with a role, by last name", async () => {
     await createUser({ id: "u1", firstName: "Zach", lastName: "McKinnell" });
     await createUser({
       id: "u2",
@@ -214,10 +214,14 @@ describe("staff roles", () => {
     expect((await getUser("u1"))?.roles).toEqual(["portal"]);
   });
 
-  it("rejects anything that isn't a staff role", async () => {
+  it("rejects anything that isn't a staff role, including admin", async () => {
     await createUser({ id: "u1", firstName: "A", lastName: "B" });
     await expect(
       setUserRoles({ id: "u1", roles: ["superuser"], isAdmin: false }),
+    ).rejects.toThrow();
+    // Admin is `isAdmin`, not a role.
+    await expect(
+      setUserRoles({ id: "u1", roles: ["admin"], isAdmin: true }),
     ).rejects.toThrow();
   });
 
@@ -226,7 +230,7 @@ describe("staff roles", () => {
       id: "u1",
       firstName: "A",
       lastName: "B",
-      roles: ["admin"],
+      roles: ["portal"],
       isAdmin: true,
     });
     await deactivateUser("u1");
