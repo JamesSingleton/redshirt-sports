@@ -10,14 +10,17 @@ import {
   SidebarMenuItem,
 } from "@redshirt-sports/ui/components/sidebar";
 import {
+  type Icon,
   IconBinaryTree,
   IconChartBar,
+  IconChecklist,
   IconDatabase,
   IconHome,
   IconId,
   IconListDetails,
   IconTransfer,
   IconTrophy,
+  IconUserShield,
   IconUsers,
 } from "@tabler/icons-react";
 import Image from "next/image";
@@ -26,58 +29,65 @@ import type * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
+import type { Area } from "@/lib/access";
 
-const data = {
-  navMain: [
-    {
-      title: "Home",
-      url: "/",
-      icon: IconHome,
-    },
-    {
-      title: "Publish rankings",
-      url: "/rankings",
-      icon: IconTrophy,
-    },
-    {
-      title: "Voting panels",
-      url: "/voters",
-      icon: IconUsers,
-    },
-    {
-      title: "Polls",
-      url: "/polls",
-      icon: IconListDetails,
-    },
-    {
-      title: "Transfer portal",
-      url: "/portal",
-      icon: IconTransfer,
-    },
-    {
-      title: "Ratings & SOS",
-      url: "/ratings",
-      icon: IconChartBar,
-    },
-    {
-      title: "School IDs",
-      url: "/school-ids",
-      icon: IconId,
-    },
-    {
-      title: "Playoff brackets",
-      url: "/brackets",
-      icon: IconBinaryTree,
-    },
-    {
-      title: "Development",
-      url: "/development",
-      icon: IconDatabase,
-    },
-  ],
-};
+/**
+ * Every page in the nav and the area it belongs to. Items outside the
+ * signed-in user's areas are left out; the pages 404 for them anyway.
+ */
+export const NAV_ITEMS: {
+  title: string;
+  url: string;
+  icon: Icon;
+  area: Area | null;
+}[] = [
+  { title: "Home", url: "/", icon: IconHome, area: null },
+  {
+    title: "Publish rankings",
+    url: "/rankings",
+    icon: IconTrophy,
+    area: "admin",
+  },
+  { title: "Ballots", url: "/ballots", icon: IconChecklist, area: "ballots" },
+  { title: "Voting panels", url: "/voters", icon: IconUsers, area: "admin" },
+  { title: "Polls", url: "/polls", icon: IconListDetails, area: "admin" },
+  {
+    title: "Transfer portal",
+    url: "/portal",
+    icon: IconTransfer,
+    area: "portal",
+  },
+  {
+    title: "Ratings & SOS",
+    url: "/ratings",
+    icon: IconChartBar,
+    area: "admin",
+  },
+  { title: "School IDs", url: "/school-ids", icon: IconId, area: "admin" },
+  {
+    title: "Playoff brackets",
+    url: "/brackets",
+    icon: IconBinaryTree,
+    area: "admin",
+  },
+  { title: "Staff", url: "/staff", icon: IconUserShield, area: "admin" },
+  {
+    title: "Development",
+    url: "/development",
+    icon: IconDatabase,
+    area: "admin",
+  },
+];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+/** The nav for someone with these areas. Home is everyone's. */
+export function navItemsFor(areas: readonly Area[]) {
+  return NAV_ITEMS.filter((item) => !item.area || areas.includes(item.area));
+}
+
+export function AppSidebar({
+  areas,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { areas: Area[] }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -104,7 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navItemsFor(areas)} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

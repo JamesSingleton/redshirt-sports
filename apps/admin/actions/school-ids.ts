@@ -9,12 +9,12 @@ import {
 import { revalidatePath } from "next/cache";
 
 import type { RatingsActionResult } from "@/actions/ratings";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireArea } from "@/lib/access";
 import { teamCatalog } from "@/lib/team-catalog";
 
 /** Schools with no team id, each with suggested teams, plus overall coverage. */
 export async function getSchoolIdReview() {
-  await requireAdmin();
+  await requireArea("admin");
   return unmappedSchools(await teamCatalog());
 }
 
@@ -22,7 +22,7 @@ export type SchoolIdReview = Awaited<ReturnType<typeof getSchoolIdReview>>;
 
 /** Save every confident match (mutual best, same mascot, clear margin). Never overwrites. */
 export async function saveConfidentTeamIds(): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   try {
     const plan = await planUnmappedSchools(await teamCatalog());
     const { inserted, skipped } = await applyTeamIdMappings(plan.accepted);
@@ -46,6 +46,6 @@ export async function saveConfidentTeamIds(): Promise<RatingsActionResult> {
 
 /** The provider team behind an id an admin typed, so they can check it before saving. */
 export async function lookUpTeam(externalId: string) {
-  await requireAdmin();
+  await requireArea("admin");
   return previewTeam(externalId.trim());
 }

@@ -10,6 +10,7 @@
     "./keys": "./keys.ts",
     "./provider": "./provider.tsx",
     "./proxy": "./proxy.ts",
+    "./roles": "./roles.ts",
     "./server": "./server.ts"
   },
   "scripts": {

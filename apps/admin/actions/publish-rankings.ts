@@ -22,8 +22,8 @@ import {
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 
+import { requireArea } from "@/lib/access";
 import { buildNudgeMessage } from "@/lib/nudge";
-import { requireAdmin } from "@/lib/require-admin";
 import { revalidateWebRankingsCache } from "@/lib/revalidate-web-rankings";
 
 const SPORT_PARAMS = new Set<SportParam>([
@@ -40,7 +40,7 @@ function asSportParam(slug: string): SportParam {
 }
 
 export async function getPublishRankingsBootstrap() {
-  await requireAdmin();
+  await requireArea("admin");
   const polls = await listPolls();
   return {
     polls: polls.map((poll) => ({
@@ -55,7 +55,7 @@ export async function getPublishRankingsBootstrap() {
 }
 
 export async function getYearsForPollSport(sportId: string) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!sportId) throw new Error("sportId is required");
   return listSeasonYearsForSport(sportId);
 }
@@ -67,7 +67,7 @@ export async function getWeeksForPollSportYear({
   sportId: string;
   year: number;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!sportId || !year) throw new Error("sportId and year are required");
   return listLegacyWeeksForSportYear({ sportId, year });
 }
@@ -83,7 +83,7 @@ export async function previewRankingsPublish({
   year: number;
   weekKey: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!weekKey) throw new Error("weekKey is required");
   return getPollRankingPublishPreview({
     sport: asSportParam(sportSlug),
@@ -104,7 +104,7 @@ export async function publishRankings({
   year: number;
   weekKey: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!weekKey) throw new Error("weekKey is required");
   const result = await publishPollRankingsForWeek({
     sport: asSportParam(sportSlug),
@@ -137,7 +137,7 @@ export async function unpublishRankings({
   year: number;
   weekKey: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!weekKey) throw new Error("weekKey is required");
   const sport = asSportParam(sportSlug);
   const result = await unpublishPollRankingsForWeek({
@@ -185,7 +185,7 @@ export async function getVoterNudgeMailto({
   sportSlug: string;
   division: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!userId) throw new Error("userId is required");
 
   const client = await clerkClient();
@@ -225,7 +225,7 @@ export async function reassignVoterBallotWeek({
   fromWeekKey: string;
   toWeekKey: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!pollId || !sportId || !year || !userId || !fromWeekKey || !toWeekKey) {
     throw new Error(
       "pollId, sportId, year, userId, fromWeekKey, and toWeekKey are required",

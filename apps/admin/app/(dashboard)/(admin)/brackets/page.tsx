@@ -17,15 +17,15 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { BracketCreateForm } from "@/components/bracket-create-form";
+import { requireArea } from "@/lib/access";
 import {
   bracketEditionName,
   bracketFormatLabel,
   currentFootballSeasonYear,
 } from "@/lib/bracket-season";
-import { requireAdmin } from "@/lib/require-admin";
 
 async function loadBracketsDesk() {
-  await requireAdmin();
+  await requireArea("admin");
   const year = currentFootballSeasonYear();
   const [editions, formats] = await Promise.all([
     listBracketEditions(),

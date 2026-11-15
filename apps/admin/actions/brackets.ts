@@ -16,8 +16,8 @@ import {
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 
+import { requireArea } from "@/lib/access";
 import { easternInputToDate } from "@/lib/bracket-season";
-import { requireAdmin } from "@/lib/require-admin";
 import { revalidateWebBracketsCache } from "@/lib/revalidate-web-brackets";
 
 export type BracketActionResult = {
@@ -54,7 +54,7 @@ export async function createBracketEditionAction(input: {
   weekId: string | null;
   copySlotsFrom: string | null;
 }): Promise<BracketActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   try {
     const editionId = await createBracketEdition(input);
     revalidatePath("/brackets");
@@ -71,7 +71,7 @@ export async function saveBracketSlotAction(input: {
   bidType: "auto" | "at-large" | null;
   bidLabel: string | null;
 }): Promise<BracketActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   try {
     const { swappedWith } = await setBracketSlot({
       ...input,
@@ -96,7 +96,7 @@ export async function saveBracketGameAction(input: {
   sideAScore: number | null;
   sideBScore: number | null;
 }): Promise<BracketActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const kickoffAt = input.kickoffAt
     ? easternInputToDate(input.kickoffAt)
     : null;
@@ -121,7 +121,7 @@ export async function saveBracketDetailsAction(input: {
   articleUrl: string;
   publicNote: string;
 }): Promise<BracketActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   try {
     await updateBracketEditionDetails({
       editionId: input.editionId,
@@ -139,7 +139,7 @@ export async function setBracketStatusAction(input: {
   editionId: string;
   status: BracketStatus;
 }): Promise<BracketActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const { userId } = await auth();
   try {
     await setBracketEditionStatus({ ...input, userId: userId ?? null });
@@ -156,7 +156,7 @@ export async function setBracketStatusAction(input: {
 export async function deleteBracketEditionAction(
   editionId: string,
 ): Promise<BracketActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   try {
     await deleteDraftBracketEdition(editionId);
     revalidatePath("/brackets");

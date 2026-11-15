@@ -9,11 +9,11 @@ import {
 } from "@redshirt-sports/db/queries";
 import { revalidatePath } from "next/cache";
 
+import { requireArea } from "@/lib/access";
 import { describeAutoPublish } from "@/lib/auto-publish-label";
-import { requireAdmin } from "@/lib/require-admin";
 
 export async function getPollsManagerData() {
-  await requireAdmin();
+  await requireArea("admin");
   const [polls, sports, schedule] = await Promise.all([
     listPolls({ activeOnly: false }),
     listSports(),
@@ -50,7 +50,7 @@ export async function createPollAction({
   name: string;
   isActive?: boolean;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   const created = await createPoll({ sportId, slug, name, isActive });
   revalidatePath("/polls");
   revalidatePath("/rankings");
@@ -72,7 +72,7 @@ export async function updatePollAction({
   isActive?: boolean;
   autoPublish?: boolean;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   const updated = await updatePoll({ id, slug, name, isActive, autoPublish });
   revalidatePath("/polls");
   revalidatePath("/rankings");

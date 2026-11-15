@@ -32,7 +32,7 @@ import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { requireAdmin } from "@/lib/require-admin";
+import { requireArea } from "@/lib/access";
 import { expireWebPortalTags } from "@/lib/revalidate-web-portal";
 
 export type PortalActionResult = {
@@ -175,7 +175,7 @@ export async function getPortalDesk(input: {
   pendingOnly?: boolean;
   beforeId?: number;
 }) {
-  await requireAdmin();
+  await requireArea("portal");
   const [sports, pending, players] = await Promise.all([
     listPortalSports(),
     getPortalPendingSummary(),
@@ -189,8 +189,14 @@ export async function getPortalDesk(input: {
 
 export type PortalDesk = Awaited<ReturnType<typeof getPortalDesk>>;
 
+/** Saves waiting for Push to site, for the home page. */
+export async function getPortalPending() {
+  await requireArea("portal");
+  return getPortalPendingSummary();
+}
+
 export async function getPortalPlayerPage(id: number) {
-  await requireAdmin();
+  await requireArea("portal");
   const [player, sports, pending] = await Promise.all([
     getPortalPlayer(id),
     listPortalSports(),
@@ -205,12 +211,12 @@ export type PortalPlayerPage = NonNullable<
 
 /** Existing players whose names look like this one, shown before creating a new one. */
 export async function findPortalDuplicates(name: string) {
-  await requireAdmin();
+  await requireArea("portal");
   return findSimilarPlayers(name.slice(0, 200));
 }
 
 export async function findPortalSchools(query: string) {
-  await requireAdmin();
+  await requireArea("portal");
   return searchPortalSchools(query.slice(0, 80));
 }
 
@@ -222,7 +228,7 @@ export async function createPortalPlayerAction(input: {
   /** Similar players the admin confirmed are different people. */
   notDuplicateOf?: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const bio = bioSchema.safeParse(input.bio);
   if (!bio.success) return invalid(bio.error);
   const entry =
@@ -252,7 +258,7 @@ export async function enterPortal(input: {
   playerId: unknown;
   entry: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const id = playerId.safeParse(input.playerId);
   if (!id.success) return invalid(id.error);
   const entry = entrySchema.safeParse(input.entry);
@@ -274,7 +280,7 @@ export async function recordPortalMove(input: {
   playerId: unknown;
   move: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const id = playerId.safeParse(input.playerId);
   if (!id.success) return invalid(id.error);
   const move = moveSchema.safeParse(input.move);
@@ -296,7 +302,7 @@ export async function voidPortalMove(input: {
   eventId: unknown;
   reason: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const id = playerId.safeParse(input.playerId);
   const eventId = z.coerce.number().int().positive().safeParse(input.eventId);
   const reason = optionalText(200).safeParse(input.reason);
@@ -320,7 +326,7 @@ export async function savePlayerBio(input: {
   playerId: unknown;
   bio: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const id = playerId.safeParse(input.playerId);
   if (!id.success) return invalid(id.error);
   const bio = bioSchema.safeParse(input.bio);
@@ -343,7 +349,7 @@ export async function savePlayerSport(input: {
   sportId: unknown;
   attributes: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const id = playerId.safeParse(input.playerId);
   if (!id.success) return invalid(id.error);
   const sportId = z.string().min(1).safeParse(input.sportId);
@@ -370,7 +376,7 @@ export async function savePlayerSport(input: {
  * the nightly job retries the refresh.
  */
 export async function pushPortalToSite(): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   let pushed: Awaited<ReturnType<typeof pushPortal>>;
   try {
     pushed = await pushPortal({
@@ -416,7 +422,7 @@ const pairSchema = z
 
 /** Likely duplicates among recently added players, with a card for each player. */
 export async function getDuplicateQueue() {
-  await requireAdmin();
+  await requireArea("portal");
   const pairs = await listDuplicateCandidates();
   const ids = [
     ...new Set(pairs.flatMap((pair) => [pair.playerAId, pair.playerBId])),
@@ -434,7 +440,7 @@ export type DuplicateQueue = Awaited<ReturnType<typeof getDuplicateQueue>>;
 
 /** Two players side by side, and what merging either way would do. */
 export async function getMergeComparison(aId: number, bId: number) {
-  await requireAdmin();
+  await requireArea("portal");
   const [a, b] = await Promise.all([
     getPortalPlayer(aId),
     getPortalPlayer(bId),
@@ -454,7 +460,7 @@ export type MergeComparison = NonNullable<
 export async function dismissPortalDuplicate(input: {
   playerIds: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const pair = pairSchema.safeParse(input.playerIds);
   if (!pair.success) return invalid(pair.error);
   try {
@@ -473,7 +479,7 @@ export async function mergePortalPlayers(input: {
   survivorId: unknown;
   loserId: unknown;
 }): Promise<PortalActionResult> {
-  await requireAdmin();
+  await requireArea("portal");
   const pair = pairSchema.safeParse([input.survivorId, input.loserId]);
   if (!pair.success) return invalid(pair.error);
   const [survivorId, loserId] = pair.data;

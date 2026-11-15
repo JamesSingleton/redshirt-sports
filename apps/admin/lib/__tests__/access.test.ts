@@ -1,0 +1,106 @@
+const { mockProtect, mockNotFound, mockRedirect } = vi.hoisted(() => ({
+  mockProtect: vi.fn(),
+  mockNotFound: vi.fn(() => {
+    throw new Error("NEXT_NOT_FOUND");
+  }),
+  mockRedirect: vi.fn((url: string) => {
+    throw new Error(`REDIRECT ${url}`);
+  }),
+}));
+
+vi.mock("@redshirt-sports/auth/server", () => ({
+  auth: { protect: mockProtect },
+}));
+vi.mock("next/navigation", () => ({
+  notFound: mockNotFound,
+  redirect: mockRedirect,
+}));
+// `cache` dedupes per request in React; here every call should re-read.
+vi.mock("react", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react")>()),
+  cache: <T>(fn: T) => fn,
+}));
+
+import {
+  isAdminMetadata,
+  STAFF_ROLE_INFO,
+  staffRoles,
+} from "@redshirt-sports/auth/roles";
+
+import { areasFor, requireArea, requireStaff } from "@/lib/access";
+
+const signedIn = (metadata: unknown) =>
+  mockProtect.mockResolvedValue({
+    userId: "user_1",
+    sessionClaims: { metadata },
+  });
+
+describe("staff roles", () => {
+  it("reads the limited roles from metadata, dropping anything unknown", () => {
+    expect(staffRoles({ roles: ["ballots", "portal"] })).toEqual([
+      "portal",
+      "ballots",
+    ]);
+    // Admin isn't a role: it's `isAdmin`.
+    expect(staffRoles({ roles: ["portal", "admin", "superuser", 7] })).toEqual([
+      "portal",
+    ]);
+    expect(staffRoles({ roles: "portal" })).toEqual([]);
+    expect(staffRoles(null)).toEqual([]);
+    expect(staffRoles(undefined)).toEqual([]);
+  });
+
+  it("takes only a real true as admin", () => {
+    expect(isAdminMetadata({ isAdmin: true })).toBe(true);
+    expect(isAdminMetadata({ isAdmin: "true" })).toBe(false);
+    expect(isAdminMetadata({ isAdmin: false })).toBe(false);
+    expect(isAdminMetadata(null)).toBe(false);
+  });
+
+  it("describes every role", () => {
+    expect(Object.keys(STAFF_ROLE_INFO)).toEqual(["portal", "ballots"]);
+  });
+
+  it("gives admins every area and others only theirs", () => {
+    expect([...areasFor(true, [])]).toEqual(["admin", "portal", "ballots"]);
+    expect([...areasFor(false, ["portal", "ballots"])]).toEqual([
+      "portal",
+      "ballots",
+    ]);
+    expect(areasFor(false, []).size).toBe(0);
+  });
+});
+
+describe("access checks", () => {
+  afterEach(() => vi.clearAllMocks());
+
+  it("lets staff into their areas and 404s the rest", async () => {
+    signedIn({ roles: ["portal"] });
+    await expect(requireArea("portal")).resolves.toMatchObject({
+      userId: "user_1",
+      isAdmin: false,
+      roles: ["portal"],
+    });
+    await expect(requireArea("admin")).rejects.toThrow("NEXT_NOT_FOUND");
+    await expect(requireArea("ballots")).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("lets admins in everywhere", async () => {
+    signedIn({ isAdmin: true, isVoter: true });
+    for (const area of ["admin", "portal", "ballots"] as const) {
+      await expect(requireArea(area)).resolves.toMatchObject({
+        isAdmin: true,
+        roles: [],
+      });
+    }
+  });
+
+  it("sends signed-in people with no role to the public site", async () => {
+    signedIn({ isVoter: true });
+    await expect(requireStaff()).rejects.toThrow(
+      "REDIRECT https://www.redshirtsports.com",
+    );
+    mockProtect.mockResolvedValue({ userId: "user_2", sessionClaims: null });
+    await expect(requireArea("portal")).rejects.toThrow("REDIRECT");
+  });
+});

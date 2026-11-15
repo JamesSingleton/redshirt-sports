@@ -5,7 +5,14 @@ import {
   isUserAssignedToPoll,
   revokeAssignmentsForNonVoters,
 } from "../src/queries/polls";
-import { createUser, deactivateUser, updateUser } from "../src/queries/users";
+import {
+  createUser,
+  deactivateUser,
+  listStaffUsers,
+  searchUsersByName,
+  setUserRoles,
+  updateUser,
+} from "../src/queries/users";
 import { submitBallot } from "../src/queries/voting";
 import { ballotsTable, pollVotersTable, usersTable } from "../src/schema";
 import {
@@ -160,5 +167,92 @@ describe("removing voter access", () => {
       .from(pollVotersTable)
       .where(eq(pollVotersTable.userId, voter.id));
     expect(assignment!.revokedAt).toBeNull();
+  });
+});
+
+describe("staff roles", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
+  it("lists admins and anyone with a role, by last name", async () => {
+    await createUser({ id: "u1", firstName: "Zach", lastName: "McKinnell" });
+    await createUser({
+      id: "u2",
+      firstName: "Old",
+      lastName: "Admin",
+      isAdmin: true,
+    });
+    await createUser({
+      id: "u3",
+      firstName: "Just",
+      lastName: "Voter",
+      isVoter: true,
+    });
+    await setUserRoles({
+      id: "u1",
+      roles: ["portal", "ballots"],
+      isAdmin: false,
+    });
+
+    const staff = await listStaffUsers();
+    expect(staff.map((row) => [row.id, row.roles, row.isAdmin])).toEqual([
+      ["u2", [], true],
+      ["u1", ["portal", "ballots"], false],
+    ]);
+  });
+
+  it("copies roles from the webhook and keeps them when the payload omits them", async () => {
+    await updateUser({
+      id: "u1",
+      ...baseFields,
+      isVoter: true,
+      roles: ["portal"],
+    });
+    expect((await getUser("u1"))?.roles).toEqual(["portal"]);
+    await updateUser({ id: "u1", ...baseFields, isVoter: true });
+    expect((await getUser("u1"))?.roles).toEqual(["portal"]);
+  });
+
+  it("rejects anything that isn't a staff role, including admin", async () => {
+    await createUser({ id: "u1", firstName: "A", lastName: "B" });
+    await expect(
+      setUserRoles({ id: "u1", roles: ["superuser"], isAdmin: false }),
+    ).rejects.toThrow();
+    // Admin is `isAdmin`, not a role.
+    await expect(
+      setUserRoles({ id: "u1", roles: ["admin"], isAdmin: true }),
+    ).rejects.toThrow();
+  });
+
+  it("drops roles when the account is deleted", async () => {
+    await createUser({
+      id: "u1",
+      firstName: "A",
+      lastName: "B",
+      roles: ["portal"],
+      isAdmin: true,
+    });
+    await deactivateUser("u1");
+    expect(await getUser("u1")).toMatchObject({ roles: [], isAdmin: false });
+  });
+
+  it("finds accounts by the start of a first or last name, safely", async () => {
+    await createUser({ id: "u1", firstName: "Zach", lastName: "McKinnell" });
+    await createUser({ id: "u2", firstName: "Mack", lastName: "Zane" });
+    await createUser({ id: "u3", firstName: "100%", lastName: "Real" });
+    expect((await searchUsersByName("za")).map((row) => row.id)).toEqual([
+      "u1",
+      "u2",
+    ]);
+    expect((await searchUsersByName(" mck ")).map((row) => row.id)).toEqual([
+      "u1",
+    ]);
+    // `%` and `_` are matched literally, not as wildcards.
+    expect((await searchUsersByName("%")).map((row) => row.id)).toEqual([]);
+    expect((await searchUsersByName("100%")).map((row) => row.id)).toEqual([
+      "u3",
+    ]);
+    expect(await searchUsersByName("za", 1)).toHaveLength(1);
   });
 });

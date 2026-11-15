@@ -44,7 +44,13 @@ vi.mock("@redshirt-sports/db/queries", () => db);
 vi.mock("@redshirt-sports/auth/server", () => ({
   auth: vi.fn().mockResolvedValue({ userId: "user_admin" }),
 }));
-vi.mock("@/lib/require-admin", () => ({ requireAdmin: vi.fn() }));
+vi.mock("@/lib/access", () => ({
+  requireArea: vi.fn(async () => ({
+    userId: "user_admin",
+    roles: ["admin"],
+    areas: new Set(["admin", "portal", "ballots"]),
+  })),
+}));
 vi.mock("@/lib/revalidate-web-portal", () => ({
   expireWebPortalTags: mockExpireWeb,
 }));

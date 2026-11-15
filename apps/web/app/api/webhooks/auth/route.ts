@@ -1,4 +1,5 @@
 import { analytics } from "@redshirt-sports/analytics/server";
+import { staffRoles } from "@redshirt-sports/auth/roles";
 import type { WebhookEvent } from "@redshirt-sports/auth/server";
 import {
   createUser,
@@ -39,6 +40,8 @@ function clerkUserFields(data: {
     organizationRole: optionalString(metadata.organizationRole),
     isAdmin: optionalBoolean(metadata.isAdmin),
     isVoter: metadata.isVoter === true,
+    // Limited staff roles (portal, ballots); admin is `isAdmin`.
+    roles: staffRoles(metadata),
   };
 }
 
@@ -110,7 +113,8 @@ export async function POST(req: Request) {
       }
       case "user.updated": {
         const { data } = evt;
-        const { isVoter, isAdmin, ...nextDisplay } = clerkUserFields(data);
+        const { isVoter, isAdmin, roles, ...nextDisplay } =
+          clerkUserFields(data);
         const currentDisplay = await getUserDisplayFields(data.id);
         const displayChanged = rankingsVoterDisplayChanged(
           currentDisplay,
@@ -122,6 +126,7 @@ export async function POST(req: Request) {
           ...nextDisplay,
           isAdmin,
           isVoter,
+          roles,
         });
 
         if (displayChanged) {
@@ -142,6 +147,7 @@ export async function POST(req: Request) {
             source: "clerk_webhook",
             is_admin: data.public_metadata.isAdmin,
             is_voter: data.public_metadata.isVoter,
+            staff_roles: roles,
             organization: data.public_metadata.organization,
           },
         });

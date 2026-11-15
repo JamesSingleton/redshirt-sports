@@ -9,11 +9,11 @@ import {
 } from "@redshirt-sports/db/queries";
 import { revalidatePath } from "next/cache";
 
-import { requireAdmin } from "@/lib/require-admin";
+import { requireArea } from "@/lib/access";
 import { timedStep } from "@/lib/slow-steps";
 
 export async function getAttendanceData() {
-  await requireAdmin();
+  await requireArea("admin");
   return timedStep("home: poll attendance", () => listPollAttendance());
 }
 
@@ -26,7 +26,7 @@ export async function excuseMissedBallot({
   excused: boolean;
   note?: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!id) throw new Error("id is required");
   await setMissedBallotExcused({ id, excused, note });
   revalidatePath("/");
@@ -39,7 +39,7 @@ export async function reinstateVoter({
   pollId: string;
   userId: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!pollId || !userId) throw new Error("pollId and userId are required");
   await reinstateLockedOutVoter({ pollId, userId });
   revalidatePath("/");
@@ -57,7 +57,7 @@ export async function excuseAhead({
   weekId: string;
   note?: string;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!pollId || !userId || !weekId) {
     throw new Error("pollId, userId, and weekId are required");
   }
@@ -66,7 +66,7 @@ export async function excuseAhead({
 }
 
 export async function removeExcuseAhead({ id }: { id: string }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!id) throw new Error("id is required");
   await removeAdvanceExcuse({ id });
   revalidatePath("/");

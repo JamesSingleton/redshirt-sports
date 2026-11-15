@@ -13,10 +13,10 @@ import {
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 
-import { requireAdmin } from "@/lib/require-admin";
+import { requireArea } from "@/lib/access";
 
 export async function getVotersPageData() {
-  await requireAdmin();
+  await requireArea("admin");
 
   after(() => {
     void revokeAssignmentsForNonVoters();
@@ -55,7 +55,7 @@ export async function setVoterCredential({
   userId: string;
   isVoter: boolean;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!userId) throw new Error("userId is required");
 
   const client = await clerkClient();
@@ -75,7 +75,7 @@ export async function setPollAssignment({
   userId: string;
   assigned: boolean;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   if (!pollId || !userId) {
     throw new Error("pollId and userId are required");
   }

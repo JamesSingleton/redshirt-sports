@@ -25,7 +25,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 
-import { requireAdmin } from "@/lib/require-admin";
+import { requireArea } from "@/lib/access";
 import { revalidateWebRatingsCache } from "@/lib/revalidate-web-ratings";
 
 export type RatingsActionResult = {
@@ -62,7 +62,7 @@ function refresh(
 }
 
 export async function getRatingsBootstrap() {
-  await requireAdmin();
+  await requireArea("admin");
   const pools = await listPools();
   return Promise.all(
     pools.map(async (pool) => ({
@@ -88,7 +88,7 @@ export async function runPipelineNow(input: {
   poolId: string;
   ignoreCompleteness: boolean;
 }): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const pool = await getPoolById(input.poolId);
   try {
     const result = await runPipeline({
@@ -115,7 +115,7 @@ export async function syncRatings(input: {
   year: number;
   weekId: string | "all";
 }): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const pool = await getPoolById(input.poolId);
   try {
     const calendar = await loadSeasonCalendar(pool.sportId, input.year);
@@ -161,7 +161,7 @@ export async function computeRatings(input: {
   weekId: string | "all";
   force: boolean;
 }): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const pool = await getPoolById(input.poolId);
   try {
     const calendar = await loadSeasonCalendar(pool.sportId, input.year);
@@ -217,7 +217,7 @@ export async function publishRatingsRun(input: {
   runId: string;
   allowBlockers: boolean;
 }): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const pool = await getPoolById(input.poolId);
   try {
     const who = await actor();
@@ -248,7 +248,7 @@ export async function unpublishRatingsWeek(input: {
   poolId: string;
   weekId: string;
 }): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const pool = await getPoolById(input.poolId);
   try {
     const count = await unpublishWeek(pool.id, input.weekId);
@@ -265,7 +265,7 @@ export async function unpublishRatingsWeek(input: {
 }
 
 export async function previewRatingsRun(runId: string) {
-  await requireAdmin();
+  await requireArea("admin");
   return runDiff(runId);
 }
 
@@ -273,13 +273,13 @@ export async function findUnmappedTeams(input: {
   poolId: string;
   year: number;
 }) {
-  await requireAdmin();
+  await requireArea("admin");
   const pool = await getPoolById(input.poolId);
   return unmappedTeams(pool, input.year);
 }
 
 export async function findSchools(query: string) {
-  await requireAdmin();
+  await requireArea("admin");
   if (query.trim().length < 2) return [];
   return searchSchools(query.trim());
 }
@@ -288,7 +288,7 @@ export async function mapTeamToSchool(input: {
   externalId: string;
   schoolId: string;
 }): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   try {
     await mapExternalId({
       provider: "espn",
@@ -319,7 +319,7 @@ export async function setRatingsPoolFlags(input: {
   isActive?: boolean;
   isPublic?: boolean;
 }): Promise<RatingsActionResult> {
-  await requireAdmin();
+  await requireArea("admin");
   const pool = await getPoolById(input.poolId);
   try {
     await setPoolFlags(pool.id, {

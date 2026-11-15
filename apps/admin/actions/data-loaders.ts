@@ -43,7 +43,7 @@ import type {
 } from "@redshirt-sports/sanity/types";
 import { and, eq, inArray, sql } from "drizzle-orm";
 
-import { requireAdmin } from "@/lib/require-admin";
+import { requireArea } from "@/lib/access";
 
 /** Plain client fetch — `defineLive` sanityFetch requires `"use cache"` (cacheTag). */
 const sanity = client.withConfig({
@@ -104,7 +104,7 @@ async function runLoader(
 
 export async function fetchAndLoadAllSeasons() {
   return runLoader("seasons", async () => {
-    await requireAdmin();
+    await requireArea("admin");
 
     await Promise.all(
       ["football", "mens-basketball", "womens-basketball"].map((sport) =>
@@ -120,7 +120,7 @@ export async function fetchAndLoadSeasons(
   sport: SportParam,
   startingSeason = new Date().getFullYear() - 3,
 ) {
-  await requireAdmin();
+  await requireArea("admin");
 
   const espnSeasons = await getMultipleSeasonsData(sport, startingSeason);
 
@@ -254,7 +254,7 @@ async function sportBySlug(slug: string) {
 
 export async function fetchAndLoadSports() {
   return runLoader("sports", async () => {
-    await requireAdmin();
+    await requireArea("admin");
 
     const data = await sanity.fetch(sportInfoQuery);
 
@@ -286,7 +286,7 @@ export async function fetchAndLoadSports() {
 
 export async function fetchAndLoadDivisions() {
   return runLoader("divisions", async () => {
-    await requireAdmin();
+    await requireArea("admin");
 
     const data = await sanity.fetch(divisionsQuery);
 
@@ -324,7 +324,7 @@ export async function fetchAndLoadDivisions() {
 
 export async function fetchAndLoadSchools() {
   return runLoader("schools", async () => {
-    await requireAdmin();
+    await requireArea("admin");
 
     const sports = await db.select().from(sportsTable);
     if (!sports.length) {
@@ -461,7 +461,7 @@ export async function fetchAndLoadSchools() {
 
 export async function fetchAndLoadConferences() {
   return runLoader("conferences", async () => {
-    await requireAdmin();
+    await requireArea("admin");
 
     const sports = await db.select().from(sportsTable);
     if (!sports.length) {
@@ -596,7 +596,7 @@ async function loadConferenceSubdivisions(
 
 export async function fetchAndLoadSubdivisions() {
   return runLoader("subdivisions", async () => {
-    await requireAdmin();
+    await requireArea("admin");
 
     const sports = await db.select().from(sportsTable);
     if (!sports.length) {

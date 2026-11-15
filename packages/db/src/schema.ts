@@ -124,15 +124,29 @@ export const weeklyFinalRankings = pgTable(
   ],
 );
 
-export const usersTable = pgTable("users_table", {
-  id: text("id").primaryKey(),
-  firstName: text("firstName").notNull(),
-  lastName: text("lastName").notNull(),
-  organization: text("organization"),
-  organizationRole: text("organizationRole"),
-  isAdmin: boolean("isAdmin").default(false).notNull(),
-  isVoter: boolean("isVoter").default(false).notNull(),
-});
+export const usersTable = pgTable(
+  "users_table",
+  {
+    id: text("id").primaryKey(),
+    firstName: text("firstName").notNull(),
+    lastName: text("lastName").notNull(),
+    organization: text("organization"),
+    organizationRole: text("organizationRole"),
+    isAdmin: boolean("isAdmin").default(false).notNull(),
+    isVoter: boolean("isVoter").default(false).notNull(),
+    /**
+     * Staff roles, copied from Clerk public metadata by the webhook. The list
+     * matches `STAFF_ROLES` in `packages/auth/roles.ts`.
+     */
+    roles: text("roles").array().notNull().default(sql`'{}'::text[]`),
+  },
+  (table) => [
+    check(
+      "users_table_roles_check",
+      sql`${table.roles} <@ array['portal', 'ballots']::text[]`,
+    ),
+  ],
+);
 
 export const seasonsTable = pgTable(
   "seasons",
