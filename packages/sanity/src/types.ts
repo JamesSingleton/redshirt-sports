@@ -136,7 +136,10 @@ export type Link = {
   _type: "link";
   linkType?: "internal" | "path" | "external";
   reference?:
-    PostReference | SchoolReference | AuthorReference | LegalReference;
+    | PostReference
+    | SchoolReference
+    | AuthorReference
+    | LegalReference;
   path?: string;
   href?: string;
   openInNewTab?: boolean;
@@ -1353,7 +1356,10 @@ export type QueryPostSlugDataResult = {
           _type: "link";
           linkType?: "external" | "internal" | "path";
           reference?:
-            AuthorReference | LegalReference | PostReference | SchoolReference;
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
           path?: string;
           href: string | null;
           openInNewTab: boolean | false;
@@ -2576,7 +2582,12 @@ export type QueryNavbarDataResult = {
           polls: Array<{
             _key: string;
             slug:
-              "d2" | "d3" | "fbs" | "fcs" | "mid-major" | "power-conferences";
+              | "d2"
+              | "d3"
+              | "fbs"
+              | "fcs"
+              | "mid-major"
+              | "power-conferences";
             label: string | null;
           }> | null;
         }>;
@@ -2600,7 +2611,12 @@ export type QueryNavbarDataResult = {
           polls: Array<{
             _key: string;
             slug:
-              "d2" | "d3" | "fbs" | "fcs" | "mid-major" | "power-conferences";
+              | "d2"
+              | "d3"
+              | "fbs"
+              | "fcs"
+              | "mid-major"
+              | "power-conferences";
             label: string | null;
           }> | null;
         };
@@ -3940,7 +3956,10 @@ export type QueryLegalDocumentBySlugResult = {
           _type: "link";
           linkType?: "external" | "internal" | "path";
           reference?:
-            AuthorReference | LegalReference | PostReference | SchoolReference;
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
           path?: string;
           href: string | null;
           openInNewTab: boolean | false;
@@ -4370,7 +4389,10 @@ export type RssFeedQueryResult = Array<{
           _type: "link";
           linkType?: "external" | "internal" | "path";
           reference?:
-            AuthorReference | LegalReference | PostReference | SchoolReference;
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
           path?: string;
           href: string | null;
           openInNewTab: boolean | false;
@@ -4578,7 +4600,10 @@ export type RssFeedBySportQueryResult = Array<{
           _type: "link";
           linkType?: "external" | "internal" | "path";
           reference?:
-            AuthorReference | LegalReference | PostReference | SchoolReference;
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
           path?: string;
           href: string | null;
           openInNewTab: boolean | false;
@@ -4786,7 +4811,10 @@ export type RssFeedBySportAndDivisionQueryResult = Array<{
           _type: "link";
           linkType?: "external" | "internal" | "path";
           reference?:
-            AuthorReference | LegalReference | PostReference | SchoolReference;
+            | AuthorReference
+            | LegalReference
+            | PostReference
+            | SchoolReference;
           path?: string;
           href: string | null;
           openInNewTab: boolean | false;
