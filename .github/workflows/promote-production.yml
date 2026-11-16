@@ -13,9 +13,11 @@ on:
         description: "Deployment ID or URL to promote. Leave empty for the newest ready staged build."
         required: false
         type: string
-  # schedule:
-  #   # 10:00 UTC = 3am PT / 6am ET, ahead of morning traffic.
-  #   - cron: "0 10 * * *"
+  schedule:
+    # Tuesday and Friday, 10:00 UTC = 3am PT / 6am ET, ahead of morning
+    # traffic. Not Monday: that is poll day, and a promotion empties the page
+    # cache just as the new rankings bring readers in.
+    - cron: "0 10 * * 2,5"
 
 permissions:
   contents: read

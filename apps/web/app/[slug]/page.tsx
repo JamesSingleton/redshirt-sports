@@ -16,8 +16,9 @@ import { toPlainText } from "next-sanity";
 import { ArticlePageContent } from "@/components/article/article-page-content";
 import ArticleLoadingSkeleton from "@/components/article-loading-skeleton";
 import { buildLogoUrl, PostPageJsonLd } from "@/components/json-ld";
+import { LiveAdSlot } from "@/components/live-ad-slot";
+import { RankingsWidgetSlot } from "@/components/rankings-widget-slot";
 import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
-import { loadAdvertisement } from "@/lib/advertisement";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { WORDS_PER_MINUTE } from "@/lib/constants";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
@@ -26,7 +27,6 @@ import {
   getPageMetadata,
 } from "@/lib/global-seo-settings";
 import { articleListParams, getCachedArticleLists } from "@/lib/post-lists";
-import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import { getCollegeSportSection } from "@/lib/sport-section";
 import { validateSport } from "@/lib/vote-ballot";
@@ -126,21 +126,11 @@ async function renderPostPage(
   const readingTimeMinutes = Math.ceil(wordCount / WORDS_PER_MINUTE);
 
   const sportSlug = data.sport?.slug;
-  const [lists, rankingsPolls, advertisement] = await Promise.all([
-    getCachedArticleLists({
-      params: articleListParams(data),
-      perspective,
-      stega,
-    }),
-    sportSlug
-      ? getCachedRankingsWidgetPolls(validateSport(sportSlug))
-      : Promise.resolve([]),
-    loadAdvertisement({
-      placement: "article-sidebar",
-      sportSlugs: sportSlug ? [sportSlug] : [],
-      fetchOptions: { perspective, stega },
-    }),
-  ]);
+  const lists = await getCachedArticleLists({
+    params: articleListParams(data),
+    perspective,
+    stega,
+  });
 
   return (
     <DirectionalPageTransition>
@@ -155,8 +145,19 @@ async function renderPostPage(
         post={{ ...data, ...lists }}
         slug={slug}
         readingTimeMinutes={readingTimeMinutes}
-        rankingsPolls={rankingsPolls}
-        advertisement={advertisement}
+        adSlot={
+          <LiveAdSlot
+            placement="article-sidebar"
+            sportSlugs={sportSlug ? [sportSlug] : []}
+            fetchOptions={{ perspective, stega }}
+            className="w-full max-w-[300px]"
+          />
+        }
+        rankings={
+          sportSlug ? (
+            <RankingsWidgetSlot sport={validateSport(sportSlug)} />
+          ) : null
+        }
       />
     </DirectionalPageTransition>
   );

@@ -1,9 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
-const { mockGetPageMetadata, mockLoadAdvertisement } = vi.hoisted(() => ({
+const { mockGetPageMetadata } = vi.hoisted(() => ({
   mockGetPageMetadata: vi.fn(() => ({ title: "Methodology" })),
-  mockLoadAdvertisement: vi.fn(),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -28,8 +27,20 @@ vi.mock("@/lib/global-seo-settings", () => ({
   getPageMetadata: mockGetPageMetadata,
 }));
 
-vi.mock("@/lib/advertisement", () => ({
-  loadAdvertisement: mockLoadAdvertisement,
+vi.mock("@/components/live-ad-slot", () => ({
+  LiveAdSlot: ({
+    placement,
+    sportSlugs = [],
+  }: {
+    placement: string;
+    sportSlugs?: string[];
+  }) => (
+    <div
+      data-testid="live-ad-slot"
+      data-placement={placement}
+      data-sports={sportSlugs.join(",")}
+    />
+  ),
 }));
 
 vi.mock("next/link", () => ({
@@ -40,11 +51,9 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/components/rankings/rankings-methodology-content", () => ({
-  RankingsMethodologyContent: ({
-    advertisement,
-  }: {
-    advertisement: { sponsorName: string } | null;
-  }) => <div data-testid="methodology">{advertisement?.sponsorName}</div>,
+  RankingsMethodologyContent: ({ adSlot }: { adSlot: ReactNode }) => (
+    <div data-testid="methodology">{adSlot}</div>
+  ),
 }));
 
 import RankingsMethodologyPage, {
@@ -52,11 +61,6 @@ import RankingsMethodologyPage, {
 } from "@/app/rankings/methodology/page";
 
 describe("RankingsMethodologyPage", () => {
-  beforeEach(() => {
-    mockLoadAdvertisement.mockReset();
-    mockLoadAdvertisement.mockResolvedValue({ sponsorName: "Acme" });
-  });
-
   it("describes one methodology page for every poll", async () => {
     await generateMetadata();
     expect(mockGetPageMetadata).toHaveBeenCalledWith(
@@ -76,10 +80,8 @@ describe("RankingsMethodologyPage", () => {
       screen.getByRole("heading", { name: "How the Top 25 works" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/every sport and division/i)).toBeInTheDocument();
-    expect(screen.getByTestId("methodology")).toHaveTextContent("Acme");
-    expect(mockLoadAdvertisement).toHaveBeenCalledWith({
-      placement: "rankings-methodology-sidebar",
-      fetchOptions: { perspective: "published", stega: false },
-    });
+    expect(
+      within(screen.getByTestId("methodology")).getByTestId("live-ad-slot"),
+    ).toHaveAttribute("data-placement", "rankings-methodology-sidebar");
   });
 });

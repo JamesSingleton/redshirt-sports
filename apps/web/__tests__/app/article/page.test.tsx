@@ -9,7 +9,6 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
-  mockGetCachedRankingsWidgetPolls,
   mockGetCachedArticleLists,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
@@ -26,7 +25,6 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
-  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
   mockGetCachedArticleLists: vi.fn(),
 }));
 
@@ -56,8 +54,26 @@ vi.mock("@/lib/post-lists", async (importOriginal) => ({
   getCachedArticleLists: mockGetCachedArticleLists,
 }));
 
-vi.mock("@/lib/rankings-widget-data", () => ({
-  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
+vi.mock("@/components/live-ad-slot", () => ({
+  LiveAdSlot: ({
+    placement,
+    sportSlugs = [],
+  }: {
+    placement: string;
+    sportSlugs?: string[];
+  }) => (
+    <div
+      data-testid="live-ad-slot"
+      data-placement={placement}
+      data-sports={sportSlugs.join(",")}
+    />
+  ),
+}));
+
+vi.mock("@/components/rankings-widget-slot", () => ({
+  RankingsWidgetSlot: ({ sport = "football" }: { sport?: string }) => (
+    <div data-testid="rankings-widget-slot" data-sport={sport} />
+  ),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -73,7 +89,6 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   queryPostPaths: "queryPostPaths",
   queryPostSlugData: "queryPostSlugData",
-  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -147,14 +162,6 @@ vi.mock("@/components/sanity-image", () => ({
   IMAGE_SIZES: { articleHero: "100vw", articleCard: "192px" },
 }));
 
-vi.mock("@/components/ad-slot", () => ({
-  AdSlot: () => <div data-testid="ad-slot" />,
-}));
-
-vi.mock("@/components/rankings-widget", () => ({
-  RankingsWidget: () => <div data-testid="rankings-widget" />,
-}));
-
 vi.mock("@/components/article/more-from-author-card", () => ({
   MoreFromAuthorCard: () => <div data-testid="more-from-author" />,
 }));
@@ -212,9 +219,6 @@ describe("PostPage", () => {
     mockSanityFetchStaticParams.mockReset();
     mockNotFound.mockClear();
     mockGetCachedArticleLists.mockReset().mockResolvedValue(emptyLists);
-    mockGetCachedRankingsWidgetPolls.mockResolvedValue([
-      { id: "poll-1", label: "FBS" },
-    ]);
   });
 
   it("generateStaticParams maps slugs from Sanity", async () => {
@@ -329,7 +333,9 @@ describe("PostPage", () => {
     expect(
       screen.queryByLabelText("Articles you might also like"),
     ).not.toBeInTheDocument();
-    expect(mockGetCachedRankingsWidgetPolls).not.toHaveBeenCalled();
+    expect(
+      screen.queryByTestId("rankings-widget-slot"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders article with breadcrumbs, photo credit, and related articles", async () => {
@@ -356,7 +362,14 @@ describe("PostPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Related Article")).toBeInTheDocument();
     expect(screen.getByText("Photo: Getty")).toBeInTheDocument();
-    expect(mockGetCachedRankingsWidgetPolls).toHaveBeenCalledWith("football");
+    expect(screen.getByTestId("rankings-widget-slot")).toHaveAttribute(
+      "data-sport",
+      "football",
+    );
+    expect(screen.getByTestId("live-ad-slot")).toHaveAttribute(
+      "data-sports",
+      "football",
+    );
     expect(mockGetCachedArticleLists).toHaveBeenCalledWith({
       params: expect.objectContaining({
         postId: samplePost._id,

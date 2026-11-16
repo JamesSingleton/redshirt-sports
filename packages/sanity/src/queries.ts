@@ -1394,32 +1394,23 @@ export const schoolSlugsByIdsQuery = defineQuery(/* groq */ `
 `);
 
 /**
- * Highest-priority live sponsorship for one placement.
- * `$includeScheduled` is true in draft preview so editors can see a flight
- * before its start date. An empty `$sportSlugs` list matches only sponsorships
- * that are not limited to a sport.
+ * Every switched-on sponsorship for one placement, best first. No `now()` and
+ * no sport filter here: the result is cached, so the site picks the one whose
+ * dates and sports match on each request (`pickAdvertisement` in apps/web).
+ * A flight then starts and ends on time without a publish or a deploy.
  */
-export const queryActiveAdvertisement = defineQuery(/* groq */ `
+export const queryPlacementAdvertisements = defineQuery(/* groq */ `
   *[
     _type == "advertisement" &&
     active == true &&
     defined(image.asset) &&
-    $placement in placements &&
-    (
-      $includeScheduled == true ||
-      (
-        (!defined(startsAt) || startsAt <= now()) &&
-        (!defined(endsAt) || endsAt >= now())
-      )
-    ) &&
-    (
-      !defined(sports) ||
-      count(sports) == 0 ||
-      count(sports[@->slug.current in $sportSlugs]) > 0
-    )
-  ] | order(priority desc, _updatedAt desc)[0]{
+    $placement in placements
+  ] | order(priority desc, _updatedAt desc){
     _id,
     sponsorName,
+    startsAt,
+    endsAt,
+    "sportSlugs": sports[]->slug.current,
     "openInNewTab": url.openInNewTab,
     ${customUrlHrefFragment},
     image{

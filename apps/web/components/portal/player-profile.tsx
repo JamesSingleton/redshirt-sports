@@ -21,7 +21,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { AdSlot } from "@/components/ad-slot";
 import { JsonLdScript } from "@/components/json-ld";
 import { JourneyMore } from "@/components/portal/journey-more";
 import { GradCap, SchoolMark, StatusPill } from "@/components/portal/marks";
@@ -51,7 +50,6 @@ import {
 } from "@/components/portal/wire-format";
 import { RankingsShareButton } from "@/components/rankings/rankings-share-button";
 import CustomImage from "@/components/sanity-image";
-import type { AdvertisementCreative } from "@/lib/advertisement";
 import { portalWirePath } from "@/lib/portal-data";
 import { sportHubPath, sportNavLabel } from "@/lib/sport-nav";
 
@@ -663,11 +661,12 @@ function SideListCard({ list }: { list: SideList }) {
 export function PlayerProfile({
   data,
   sidebar,
-  advertisement = null,
+  adSlot = null,
 }: {
   data: PortalPlayerData;
   sidebar: { wire: PortalWireData; currentCycle: number } | null;
-  advertisement?: AdvertisementCreative | null;
+  /** Sidebar sponsorship placement. Loads its own data. */
+  adSlot?: ReactNode;
 }) {
   const { doc } = data;
   const [primary] = sportsByActivity(doc);
@@ -728,11 +727,7 @@ export function PlayerProfile({
                 .map((list) => <SideListCard key={list.title} list={list} />)
             )}
             {/* Between the two lists, as the mockup has it. Nothing when unsold. */}
-            <AdSlot
-              placement="player-sidebar"
-              creative={advertisement}
-              className="w-full max-w-[300px]"
-            />
+            {adSlot}
             {quiet
               ? null
               : lists

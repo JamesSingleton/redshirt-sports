@@ -1,13 +1,10 @@
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-import { AdSlot } from "@/components/ad-slot";
-import { RankingsWidget } from "@/components/rankings-widget";
 import { RelativeTime } from "@/components/relative-time";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
-import type { AdvertisementCreative } from "@/lib/advertisement";
 import { buildHomeCoverageSections } from "@/lib/home-sections";
-import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 
 type SanityImage = Parameters<typeof CustomImage>[0]["image"];
 
@@ -140,14 +137,15 @@ function authorInitials(name?: string | null): string {
 
 export function HomePageContent({
   posts,
-  rankingsPolls,
+  rankings,
   leaderboardAd,
   sidebarAd,
 }: {
   posts: HomePost[];
-  rankingsPolls: RankingsWidgetPoll[];
-  leaderboardAd: AdvertisementCreative | null;
-  sidebarAd: AdvertisementCreative | null;
+  /** Rankings card and sponsorship placements. Each loads its own data. */
+  rankings?: ReactNode;
+  leaderboardAd?: ReactNode;
+  sidebarAd?: ReactNode;
 }) {
   const lead = posts[0];
   const topStories = posts.slice(1, 6);
@@ -259,13 +257,7 @@ export function HomePageContent({
         </div>
       </section>
 
-      {leaderboardAd ? (
-        <AdSlot
-          placement="home-leaderboard"
-          creative={leaderboardAd}
-          className="my-8 max-w-full"
-        />
-      ) : null}
+      {leaderboardAd}
 
       <section
         className={cn(
@@ -337,8 +329,8 @@ export function HomePageContent({
           className="grid min-w-0 content-start gap-6"
           aria-label="Sidebar"
         >
-          <RankingsWidget polls={rankingsPolls} />
-          <AdSlot placement="home-sidebar" creative={sidebarAd} />
+          {rankings}
+          {sidebarAd}
         </aside>
       </section>
 

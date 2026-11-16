@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 const {
   mockGetCachedLatestPublishedPoll,
   mockLoadRankingsWeekPageModel,
-  mockLoadAdvertisement,
   mockGetPageMetadata,
   mockDraftAwareParamsPage,
   mockRankingsWeekChrome,
@@ -12,7 +11,6 @@ const {
   mockRankingsWeekChrome: vi.fn(),
   mockGetCachedLatestPublishedPoll: vi.fn(),
   mockLoadRankingsWeekPageModel: vi.fn(),
-  mockLoadAdvertisement: vi.fn(),
   mockGetPageMetadata: vi.fn((input: unknown) => input),
   mockDraftAwareParamsPage: vi.fn(
     async (
@@ -43,8 +41,20 @@ vi.mock("@/lib/rankings/read-model", () => ({
   pollDivisionLabel: (division: string) => division.toUpperCase(),
 }));
 
-vi.mock("@/lib/advertisement", () => ({
-  loadAdvertisement: mockLoadAdvertisement,
+vi.mock("@/components/live-ad-slot", () => ({
+  LiveAdSlot: ({
+    placement,
+    sportSlugs = [],
+  }: {
+    placement: string;
+    sportSlugs?: string[];
+  }) => (
+    <div
+      data-testid="live-ad-slot"
+      data-placement={placement}
+      data-sports={sportSlugs.join(",")}
+    />
+  ),
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -103,7 +113,6 @@ describe("LatestPollPage", () => {
     mockLoadRankingsWeekPageModel
       .mockReset()
       .mockResolvedValue({ titleWeek: "Week 8" });
-    mockLoadAdvertisement.mockReset().mockResolvedValue(null);
     mockGetPageMetadata.mockClear();
     mockRankingsWeekChrome.mockReset();
   });

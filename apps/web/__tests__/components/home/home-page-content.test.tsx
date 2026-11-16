@@ -7,10 +7,6 @@ vi.mock("@/components/sanity-image", () => ({
   IMAGE_SIZES: { homeHero: "100vw" },
 }));
 
-vi.mock("@/components/rankings/rankings-widget", () => ({
-  RankingsWidget: () => null,
-}));
-
 type Post = Parameters<typeof HomePageContent>[0]["posts"][number];
 
 const post = (index: number): Post =>
@@ -27,9 +23,6 @@ describe("HomePageContent heading outline", () => {
     render(
       <HomePageContent
         posts={Array.from({ length: 8 }, (_, index) => post(index))}
-        rankingsPolls={[]}
-        leaderboardAd={null}
-        sidebarAd={null}
       />,
     );
 

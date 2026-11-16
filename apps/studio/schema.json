@@ -4918,6 +4918,10 @@
               {
                 "type": "string",
                 "value": "team-sidebar"
+              },
+              {
+                "type": "string",
+                "value": "player-sidebar"
               }
             ]
           }

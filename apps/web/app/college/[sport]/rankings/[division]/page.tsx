@@ -7,11 +7,11 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { LiveAdSlot } from "@/components/live-ad-slot";
 import { RankingsLatestPollContext } from "@/components/rankings/rankings-poll-context";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsWeekChrome } from "@/components/rankings/rankings-week-chrome";
 import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
-import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { latestPollPageTitle } from "@/lib/rankings/page-titles";
@@ -83,20 +83,13 @@ async function renderLatestPollPage(
   const latest = await requireLatestPoll(sport, division);
   const year = String(latest.year);
   const weekSegment = formatWeekSegment(latest.week);
-  const [model, advertisement] = await Promise.all([
-    loadRankingsWeekPageModel({
-      sport,
-      division,
-      year,
-      week: weekSegment,
-      pagePath: pollLatestPath(sport, division),
-    }),
-    loadAdvertisement({
-      placement: "rankings-week-sidebar",
-      sportSlugs: [sport],
-      fetchOptions,
-    }),
-  ]);
+  const model = await loadRankingsWeekPageModel({
+    sport,
+    division,
+    year,
+    week: weekSegment,
+    pagePath: pollLatestPath(sport, division),
+  });
 
   // Same header as week pages (title, methodology, year/week pickers), with
   // the pickers set to the latest week since this URL has no year/week.
@@ -108,7 +101,14 @@ async function renderLatestPollPage(
       />
       <RankingsWeekPageBody
         model={model}
-        advertisement={advertisement}
+        adSlot={
+          <LiveAdSlot
+            placement="rankings-week-sidebar"
+            sportSlugs={[sport]}
+            fetchOptions={fetchOptions}
+            className="hidden lg:block"
+          />
+        }
         context={
           <RankingsLatestPollContext
             sport={sport}

@@ -59,6 +59,11 @@ function widgetDivisionsForSport(sport: SportParam): readonly string[] {
   }
 }
 
+/** False for a sport with no polls, so its pages can skip the widget outright. */
+export function sportHasRankingsWidget(sport: SportParam): boolean {
+  return widgetDivisionsForSport(sport).length > 0;
+}
+
 export function pollDivisionLabel(division: string): string {
   return DIVISION_LABEL[division] ?? division.toUpperCase();
 }

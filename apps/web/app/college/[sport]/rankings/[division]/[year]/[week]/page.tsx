@@ -6,13 +6,13 @@ import {
 } from "@redshirt-sports/sanity/live";
 import type { Metadata } from "next";
 
+import { LiveAdSlot } from "@/components/live-ad-slot";
 import {
   RankingsArchivedWeekNotice,
   RankingsLatestPollLink,
 } from "@/components/rankings/rankings-poll-context";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
-import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
@@ -85,13 +85,8 @@ async function renderCollegeFootballRankingsPage(
   },
   fetchOptions: DynamicFetchOptions = PUBLISHED_FETCH_OPTIONS,
 ) {
-  const [model, advertisement, latest] = await Promise.all([
+  const [model, latest] = await Promise.all([
     loadRankingsWeekPageModel({ sport, division, year, week }),
-    loadAdvertisement({
-      placement: "rankings-week-sidebar",
-      sportSlugs: [sport],
-      fetchOptions,
-    }),
     getCachedLatestPublishedPoll({ sport, division }),
   ]);
   const divisionName = pollDivisionLabel(division);
@@ -103,7 +98,14 @@ async function renderCollegeFootballRankingsPage(
   return (
     <RankingsWeekPageBody
       model={model}
-      advertisement={advertisement}
+      adSlot={
+        <LiveAdSlot
+          placement="rankings-week-sidebar"
+          sportSlugs={[sport]}
+          fetchOptions={fetchOptions}
+          className="hidden lg:block"
+        />
+      }
       context={
         isArchivedWeek && latest ? (
           <RankingsArchivedWeekNotice

@@ -6,7 +6,6 @@ const {
   mockGetDynamicFetchOptions,
   mockGetPageMetadata,
   mockNotFound,
-  mockGetCachedRankingsWidgetPolls,
 } = vi.hoisted(() => ({
   mockSanityFetchPage: vi.fn(),
   mockGetDynamicFetchOptions: vi
@@ -16,7 +15,6 @@ const {
   mockNotFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
-  mockGetCachedRankingsWidgetPolls: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/draft-cache", () => ({
@@ -34,8 +32,26 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
-vi.mock("@/lib/rankings-widget-data", () => ({
-  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
+vi.mock("@/components/live-ad-slot", () => ({
+  LiveAdSlot: ({
+    placement,
+    sportSlugs = [],
+  }: {
+    placement: string;
+    sportSlugs?: string[];
+  }) => (
+    <div
+      data-testid="live-ad-slot"
+      data-placement={placement}
+      data-sports={sportSlugs.join(",")}
+    />
+  ),
+}));
+
+vi.mock("@/components/rankings-widget-slot", () => ({
+  RankingsWidgetSlot: ({ sport = "football" }: { sport?: string }) => (
+    <div data-testid="rankings-widget-slot" data-sport={sport} />
+  ),
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -84,7 +100,6 @@ describe("CollegeNewsPage", () => {
   beforeEach(() => {
     mockSanityFetchPage.mockReset();
     mockNotFound.mockClear();
-    mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
   });
 
   it("generateMetadata uses paginated title for page > 1", async () => {
