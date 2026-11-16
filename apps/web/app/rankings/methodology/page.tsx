@@ -6,8 +6,8 @@ import type { Metadata } from "next";
 
 import { SiteBreadcrumb } from "@/components/chrome/site-breadcrumb";
 import { JsonLdScript } from "@/components/json-ld";
+import { LiveAdSlot } from "@/components/live-ad-slot";
 import { RankingsMethodologyContent } from "@/components/rankings/rankings-methodology-content";
-import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
@@ -34,11 +34,6 @@ async function CachedRankingsMethodologyPage({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  const advertisement = await loadAdvertisement({
-    placement: "rankings-methodology-sidebar",
-    fetchOptions: { perspective, stega },
-  });
-
   return (
     <>
       <JsonLdScript
@@ -70,7 +65,15 @@ async function CachedRankingsMethodologyPage({
             division.
           </p>
         </div>
-        <RankingsMethodologyContent advertisement={advertisement} />
+        <RankingsMethodologyContent
+          adSlot={
+            <LiveAdSlot
+              placement="rankings-methodology-sidebar"
+              fetchOptions={{ perspective, stega }}
+              className="hidden lg:block"
+            />
+          }
+        />
       </div>
     </>
   );

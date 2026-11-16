@@ -1,41 +1,20 @@
 import type { DynamicFetchOptions } from "@redshirt-sports/sanity/live";
-import { Suspense } from "react";
 
 import { NewsArchiveSidebar } from "@/components/news/news-archive-sidebar";
-import { NewsArchiveSidebarSkeleton } from "@/components/news/news-archive-sidebar-skeleton";
-import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
-import { validateSport } from "@/lib/vote-ballot";
 
-export async function CachedNewsArchiveSidebarInner({
-  perspective,
-  stega,
-  sportSlug,
-}: DynamicFetchOptions & { sportSlug: string | null }) {
-  const rankingsPolls = sportSlug
-    ? await getCachedRankingsWidgetPolls(validateSport(sportSlug))
-    : await getCachedRankingsWidgetPolls();
-
-  return (
-    <NewsArchiveSidebar
-      rankingsPolls={rankingsPolls}
-      sportSlug={sportSlug}
-      fetchOptions={{ perspective, stega }}
-    />
-  );
-}
-
+/**
+ * The archive sidebar. Its rankings card and sponsorship each stream in behind
+ * their own Suspense boundary, so this needs none of its own.
+ */
 export function NewsArchiveSidebarSlot({
   perspective,
   stega,
   sportSlug,
 }: DynamicFetchOptions & { sportSlug: string | null }) {
   return (
-    <Suspense fallback={<NewsArchiveSidebarSkeleton />}>
-      <CachedNewsArchiveSidebarInner
-        perspective={perspective}
-        stega={stega}
-        sportSlug={sportSlug}
-      />
-    </Suspense>
+    <NewsArchiveSidebar
+      sportSlug={sportSlug}
+      fetchOptions={{ perspective, stega }}
+    />
   );
 }

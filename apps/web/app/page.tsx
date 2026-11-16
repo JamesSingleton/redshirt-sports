@@ -11,14 +11,14 @@ import {
   type HomePost,
 } from "@/components/home/home-page-content";
 import { JsonLdScript, organizationId, websiteId } from "@/components/json-ld";
-import { loadAdvertisement } from "@/lib/advertisement";
+import { LiveAdSlot } from "@/components/live-ad-slot";
+import { RankingsWidgetSlot } from "@/components/rankings-widget-slot";
 import { draftAwarePage } from "@/lib/draft-cache";
 import { getBaseUrl } from "@/lib/get-base-url";
 import {
   fetchGlobalSeoSettings,
   getPageMetadata,
 } from "@/lib/global-seo-settings";
-import { getCachedRankingsWidgetPolls } from "@/lib/rankings-widget-data";
 import { sanityFetchPage } from "@/lib/sanity-fetch";
 import HomeRouteLoading from "./home-route-loading";
 
@@ -47,18 +47,13 @@ export async function CachedHomePage({
   perspective,
   stega,
 }: DynamicFetchOptions) {
-  const [{ data: feedPosts }, settings, rankingsPolls] = await Promise.all([
+  const [{ data: feedPosts }, settings] = await Promise.all([
     sanityFetchPage({ query: queryHomeFeed, perspective, stega }),
     fetchGlobalSeoSettings(perspective),
-    getCachedRankingsWidgetPolls(),
   ]);
 
   const posts = (feedPosts ?? []) as HomePost[];
   const fetchOptions = { perspective, stega };
-  const [leaderboardAd, sidebarAd] = await Promise.all([
-    loadAdvertisement({ placement: "home-leaderboard", fetchOptions }),
-    loadAdvertisement({ placement: "home-sidebar", fetchOptions }),
-  ]);
 
   const webPageJson: WithContext<WebPage> = {
     "@context": "https://schema.org",
@@ -95,9 +90,17 @@ export async function CachedHomePage({
       <JsonLdScript data={webPageJson} id="home-webpage-json-ld" />
       <HomePageContent
         posts={posts}
-        rankingsPolls={rankingsPolls}
-        leaderboardAd={leaderboardAd}
-        sidebarAd={sidebarAd}
+        rankings={<RankingsWidgetSlot />}
+        leaderboardAd={
+          <LiveAdSlot
+            placement="home-leaderboard"
+            fetchOptions={fetchOptions}
+            className="my-8 max-w-full"
+          />
+        }
+        sidebarAd={
+          <LiveAdSlot placement="home-sidebar" fetchOptions={fetchOptions} />
+        }
       />
     </>
   );

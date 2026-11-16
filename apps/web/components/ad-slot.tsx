@@ -29,6 +29,7 @@ export function AdSlot({ placement, creative, className }: AdSlotProps) {
 
   return (
     <aside
+      data-ad-slot={placement}
       className={cn("mx-auto w-full", className)}
       style={{ maxWidth: spec.width }}
     >

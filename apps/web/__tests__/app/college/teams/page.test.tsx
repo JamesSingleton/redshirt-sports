@@ -74,11 +74,26 @@ vi.mock("@redshirt-sports/sanity/queries", () => ({
   querySchoolPaths: "querySchoolPaths",
   schoolBySlugQuery: "schoolBySlugQuery",
   schoolSlugsByIdsQuery: "schoolSlugsByIdsQuery",
-  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
   getPageMetadata: mockGetPageMetadata,
+}));
+
+vi.mock("@/components/live-ad-slot", () => ({
+  LiveAdSlot: ({
+    placement,
+    sportSlugs = [],
+  }: {
+    placement: string;
+    sportSlugs?: string[];
+  }) => (
+    <div
+      data-testid="live-ad-slot"
+      data-placement={placement}
+      data-sports={sportSlugs.join(",")}
+    />
+  ),
 }));
 
 vi.mock("@/lib/rankings-data", () => ({
@@ -300,16 +315,9 @@ describe("TeamPage", () => {
     });
     render(page as ReactNode);
 
-    expect(mockSanityFetchPage).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({
-        query: "queryActiveAdvertisement",
-        params: expect.objectContaining({
-          placement: "team-sidebar",
-          sportSlugs: ["football", "basketball"],
-        }),
-      }),
-    );
+    const slot = screen.getByTestId("live-ad-slot");
+    expect(slot).toHaveAttribute("data-placement", "team-sidebar");
+    expect(slot).toHaveAttribute("data-sports", "football,basketball");
   });
 
   it("throws notFound when school is missing", async () => {

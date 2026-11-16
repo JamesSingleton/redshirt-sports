@@ -4,12 +4,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@redshirt-sports/ui/components/accordion";
-import { cn } from "@redshirt-sports/ui/lib/utils";
 import { Eye, List, Users } from "lucide-react";
+import type { ReactNode } from "react";
 
-import { AdSlot } from "@/components/ad-slot";
 import { MethodologySectionNav } from "@/components/rankings/methodology-section-nav";
-import type { AdvertisementCreative } from "@/lib/advertisement";
 import { OUTLIER_RANK_GAP } from "@/lib/ballot-outliers";
 import { TOP_25 } from "@/lib/constants";
 
@@ -80,7 +78,7 @@ function MethodSection({
 }: {
   id: string;
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <section id={id} className="scroll-mt-28 border-b pb-8 last:border-0">
@@ -99,7 +97,7 @@ function TriCard({
   title,
   description,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   description: string;
 }) {
@@ -117,16 +115,15 @@ function TriCard({
 }
 
 export function RankingsMethodologyContent({
-  advertisement = null,
+  adSlot = null,
 }: {
-  advertisement?: AdvertisementCreative | null;
+  /** Sidebar sponsorship placement. Loads its own data. */
+  adSlot?: ReactNode;
 }) {
   return (
     <div
-      className={cn(
-        "grid gap-10 pt-6 lg:grid-cols-[240px_minmax(0,1fr)]",
-        advertisement && "lg:grid-cols-[240px_minmax(0,1fr)_300px]",
-      )}
+      // The third column exists only once a sponsorship has rendered into it.
+      className="grid gap-10 pt-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:has-[[data-ad-slot]]:grid-cols-[240px_minmax(0,1fr)_300px]"
     >
       <aside className="hidden lg:block">
         <MethodologySectionNav sections={SECTIONS} />
@@ -315,15 +312,9 @@ export function RankingsMethodologyContent({
         </MethodSection>
       </article>
 
-      {advertisement ? (
-        <aside className="hidden content-start lg:grid">
-          <AdSlot
-            placement="rankings-methodology-sidebar"
-            creative={advertisement}
-            className="hidden lg:block"
-          />
-        </aside>
-      ) : null}
+      <aside className="hidden content-start lg:has-[[data-ad-slot]]:grid">
+        {adSlot}
+      </aside>
     </div>
   );
 }

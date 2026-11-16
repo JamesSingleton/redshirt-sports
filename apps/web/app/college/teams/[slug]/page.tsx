@@ -19,10 +19,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { TeamPageJsonLd } from "@/components/json-ld";
+import { LiveAdSlot } from "@/components/live-ad-slot";
 import { TeamPageContent } from "@/components/teams/team-page-content";
 import { TeamPageSkeleton } from "@/components/teams/team-page-skeleton";
 import { DirectionalPageTransition } from "@/components/view-transitions/directional-page-transition";
-import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { getCachedSchoolPosts } from "@/lib/post-lists";
@@ -201,12 +201,6 @@ async function renderSchoolTeamPage(
         .filter((slug): slug is string => Boolean(slug)),
     ),
   ];
-  const advertisement = await loadAdvertisement({
-    placement: "team-sidebar",
-    sportSlugs,
-    fetchOptions: { perspective, stega },
-  });
-
   return (
     <DirectionalPageTransition>
       <div className="min-h-screen bg-background">
@@ -216,7 +210,14 @@ async function renderSchoolTeamPage(
           posts={posts}
           rankingHistory={rankingHistory}
           ratings={ratings}
-          advertisement={advertisement}
+          adSlot={
+            <LiveAdSlot
+              placement="team-sidebar"
+              sportSlugs={sportSlugs}
+              fetchOptions={{ perspective, stega }}
+              className="w-full max-w-[300px]"
+            />
+          }
         />
       </div>
     </DirectionalPageTransition>

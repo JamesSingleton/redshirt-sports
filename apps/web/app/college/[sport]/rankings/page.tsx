@@ -10,10 +10,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdSlot } from "@/components/ad-slot";
 import { JsonLdScript } from "@/components/json-ld";
+import { LiveAdSlot } from "@/components/live-ad-slot";
 import { RankingsIndexPollCard } from "@/components/rankings/rankings-index-poll-card";
-import { loadAdvertisement } from "@/lib/advertisement";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import { buildIndexedPageJsonLd } from "@/lib/page-json-ld";
@@ -90,14 +89,7 @@ async function renderSportRankingsIndex(
   }
 
   const sportLabel = sportNavLabel(sport, sportData.title);
-  const [cards, advertisement] = await Promise.all([
-    loadRankingsIndexCards(sport),
-    loadAdvertisement({
-      placement: "rankings-index-sidebar",
-      sportSlugs: [sport],
-      fetchOptions: { perspective, stega },
-    }),
-  ]);
+  const cards = await loadRankingsIndexCards(sport);
 
   return (
     <>
@@ -172,9 +164,10 @@ async function renderSportRankingsIndex(
             ))}
           </div>
           <aside className="grid content-start gap-6" aria-label="Sidebar">
-            <AdSlot
+            <LiveAdSlot
               placement="rankings-index-sidebar"
-              creative={advertisement}
+              sportSlugs={[sport]}
+              fetchOptions={{ perspective, stega }}
               className="w-full max-w-[300px]"
             />
           </aside>

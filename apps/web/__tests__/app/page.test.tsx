@@ -1,5 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import { isValidElement, type ReactElement, Suspense } from "react";
+import {
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+  Suspense,
+} from "react";
 import type { Mock } from "vitest";
 
 import HomeRouteLoading from "@/app/home-route-loading";
@@ -13,10 +18,6 @@ const { mockSanityFetchPage, mockGetDynamicFetchOptions } = vi.hoisted(() => ({
   }),
 }));
 
-const mockGetCachedRankingsWidgetPolls = vi.hoisted(() =>
-  vi.fn().mockResolvedValue([]),
-);
-
 vi.mock("next/headers", () => ({
   draftMode: vi.fn().mockResolvedValue({ isEnabled: false }),
 }));
@@ -25,26 +26,49 @@ vi.mock("@/lib/sanity-fetch", () => ({
   sanityFetchPage: mockSanityFetchPage,
 }));
 
-vi.mock("@/lib/rankings-widget-data", () => ({
-  getCachedRankingsWidgetPolls: mockGetCachedRankingsWidgetPolls,
+vi.mock("@/components/live-ad-slot", () => ({
+  LiveAdSlot: ({
+    placement,
+    sportSlugs = [],
+  }: {
+    placement: string;
+    sportSlugs?: string[];
+  }) => (
+    <div
+      data-testid="live-ad-slot"
+      data-placement={placement}
+      data-sports={sportSlugs.join(",")}
+    />
+  ),
+}));
+
+vi.mock("@/components/rankings-widget-slot", () => ({
+  RankingsWidgetSlot: ({ sport = "football" }: { sport?: string }) => (
+    <div data-testid="rankings-widget-slot" data-sport={sport} />
+  ),
 }));
 
 vi.mock("@redshirt-sports/sanity/queries", () => ({
   queryHomeFeed: "mock-home-feed",
-  queryActiveAdvertisement: "queryActiveAdvertisement",
 }));
 
 vi.mock("@/components/home/home-page-content", () => ({
   HomePageContent: ({
     posts,
-    rankingsPolls,
+    rankings,
+    leaderboardAd,
+    sidebarAd,
   }: {
     posts: { title: string }[];
-    rankingsPolls: unknown[];
+    rankings: ReactNode;
+    leaderboardAd: ReactNode;
+    sidebarAd: ReactNode;
   }) => (
     <div data-testid="home-page-content">
       <span data-testid="post-count">{posts.length}</span>
-      <span data-testid="rankings-poll-count">{rankingsPolls.length}</span>
+      {rankings}
+      {leaderboardAd}
+      {sidebarAd}
       {posts[0]?.title ? <span>{posts[0].title}</span> : null}
     </div>
   ),
@@ -93,7 +117,6 @@ const mockFetch = mockSanityFetchPage as Mock;
 
 beforeEach(() => {
   mockFetch.mockResolvedValue({ data: [] });
-  mockGetCachedRankingsWidgetPolls.mockResolvedValue([]);
 });
 
 describe("HomePage", () => {
@@ -121,9 +144,6 @@ describe("HomePage", () => {
     };
 
     mockFetch.mockResolvedValueOnce({ data: [article] });
-    mockGetCachedRankingsWidgetPolls.mockResolvedValueOnce([
-      { division: "fcs", label: "FCS" },
-    ]);
 
     const page = await CachedHomePage({
       perspective: "published",
@@ -134,7 +154,15 @@ describe("HomePage", () => {
     expect(screen.getByTestId("home-page-content")).toBeInTheDocument();
     expect(screen.getByTestId("post-count")).toHaveTextContent("1");
     expect(screen.getByText("Test Article")).toBeInTheDocument();
-    expect(screen.getByTestId("rankings-poll-count")).toHaveTextContent("1");
+    expect(screen.getByTestId("rankings-widget-slot")).toHaveAttribute(
+      "data-sport",
+      "football",
+    );
+    expect(
+      screen
+        .getAllByTestId("live-ad-slot")
+        .map((slot) => slot.getAttribute("data-placement")),
+    ).toEqual(["home-leaderboard", "home-sidebar"]);
   });
 
   it("renders published home content without Suspense", async () => {

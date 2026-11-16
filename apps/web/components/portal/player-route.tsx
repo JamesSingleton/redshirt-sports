@@ -2,13 +2,13 @@ import { parsePlayerSlugId, playerPath } from "@redshirt-sports/db/portal";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
+import { LiveAdSlot } from "@/components/live-ad-slot";
 import {
   playerPageDescription,
   playerPageTitle,
   sportsByActivity,
 } from "@/components/portal/player-format";
 import { PlayerProfile } from "@/components/portal/player-profile";
-import { loadAdvertisement } from "@/lib/advertisement";
 import { getPageMetadata } from "@/lib/global-seo-settings";
 import {
   getCachedPortalCycles,
@@ -71,26 +71,26 @@ export async function PlayerRoute({ params }: { params: PlayerParams }) {
   const [primary] = sportsByActivity(data.doc);
   const latest = primary?.recruitments[0];
   const tracked = primary && latest && isPortalSport(primary.sportSlug);
-  const [sidebar, advertisement] = await Promise.all([
-    tracked
-      ? Promise.all([
-          getCachedPortalWire(primary.sportSlug, latest.cycleYear),
-          getCachedPortalCycles(primary.sportSlug),
-        ]).then(([wire, cycles]) =>
-          wire ? { wire, currentCycle: cycles.current } : null,
-        )
-      : null,
-    loadAdvertisement({
-      placement: "player-sidebar",
-      sportSlugs: sports.map((sport) => sport.sportSlug),
-      fetchOptions: { perspective: "published", stega: false },
-    }),
-  ]);
+  const sidebar = tracked
+    ? await Promise.all([
+        getCachedPortalWire(primary.sportSlug, latest.cycleYear),
+        getCachedPortalCycles(primary.sportSlug),
+      ]).then(([wire, cycles]) =>
+        wire ? { wire, currentCycle: cycles.current } : null,
+      )
+    : null;
   return (
     <PlayerProfile
       data={data}
       sidebar={sidebar}
-      advertisement={advertisement}
+      adSlot={
+        <LiveAdSlot
+          placement="player-sidebar"
+          sportSlugs={sports.map((sport) => sport.sportSlug)}
+          fetchOptions={{ perspective: "published", stega: false }}
+          className="w-full max-w-[300px]"
+        />
+      }
     />
   );
 }

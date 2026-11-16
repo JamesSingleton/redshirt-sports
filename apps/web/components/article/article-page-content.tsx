@@ -1,6 +1,7 @@
 import type { QueryPostSlugDataResult } from "@redshirt-sports/sanity/types";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { ArticleAnalytics } from "@/components/analytics/article-analytics";
 import { ArticleByline } from "@/components/article/article-byline";
@@ -16,7 +17,6 @@ import { ArticleTaggedTeamsRow } from "@/components/article/article-tagged-teams
 import { RichText } from "@/components/rich-text";
 import CustomImage, { IMAGE_SIZES } from "@/components/sanity-image";
 import { ArticleHeroTransition } from "@/components/view-transitions/article-hero-transition";
-import type { AdvertisementCreative } from "@/lib/advertisement";
 import {
   articleKicker,
   articleTeamsInStory,
@@ -25,7 +25,6 @@ import {
 import { getArticleRelatedPosts } from "@/lib/article-related";
 import { getArticleTagNames } from "@/lib/article-seo";
 import type { ArticleLists } from "@/lib/post-lists";
-import type { RankingsWidgetPoll } from "@/lib/rankings-widget-data";
 import { getCollegeSportSection } from "@/lib/sport-section";
 
 /** The article plus its related/up-next/more-from-author lists (see `@/lib/post-lists`). */
@@ -35,14 +34,15 @@ export function ArticlePageContent({
   post,
   slug,
   readingTimeMinutes,
-  rankingsPolls,
-  advertisement,
+  adSlot,
+  rankings,
 }: {
   post: ArticlePost;
   slug: string;
   readingTimeMinutes: number;
-  rankingsPolls: RankingsWidgetPoll[];
-  advertisement: AdvertisementCreative | null;
+  /** Sidebar sponsorship and rankings card. Each loads its own data. */
+  adSlot?: ReactNode;
+  rankings?: ReactNode;
 }) {
   const breadcrumbs = buildArticleBreadcrumbs(post);
   const teamsInStory = articleTeamsInStory(post);
@@ -165,10 +165,10 @@ export function ArticlePageContent({
         </article>
 
         <ArticleSidebar
-          rankingsPolls={rankingsPolls}
+          adSlot={adSlot}
+          rankings={rankings}
           moreFromAuthor={moreFromAuthor}
           authorName={primaryAuthor?.archived ? null : primaryAuthor?.name}
-          advertisement={advertisement}
         />
       </div>
     </div>

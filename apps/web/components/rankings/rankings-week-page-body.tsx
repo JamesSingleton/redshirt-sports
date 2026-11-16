@@ -1,23 +1,22 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { AdSlot } from "@/components/ad-slot";
 import { JsonLdScript } from "@/components/json-ld";
 import { RankingsBallotsCta } from "@/components/rankings/rankings-ballots-cta";
 import { RankingsBeyondTop25 } from "@/components/rankings/rankings-beyond-top-25";
 import { RankingsBiggestMovers } from "@/components/rankings/rankings-biggest-movers";
 import { RankingsMovementLegend } from "@/components/rankings/rankings-movement-legend";
 import { RankingsPollTable } from "@/components/rankings/rankings-poll-table";
-import type { AdvertisementCreative } from "@/lib/advertisement";
 import type { RankingsWeekPageModel } from "@/lib/rankings/read-model/week-page-model";
 
 export function RankingsWeekPageBody({
   model,
-  advertisement = null,
+  adSlot = null,
   context = null,
 }: {
   model: RankingsWeekPageModel;
-  advertisement?: AdvertisementCreative | null;
+  /** Sidebar sponsorship placement. Loads its own data. */
+  adSlot?: ReactNode;
   /** Line above the poll: "latest poll" details or a link to the latest poll. */
   context?: ReactNode;
 }) {
@@ -91,11 +90,7 @@ export function RankingsWeekPageBody({
                 movers={biggestMovers}
                 weekComparisonLabel={moversSubtitle}
               />
-              <AdSlot
-                placement="rankings-week-sidebar"
-                creative={advertisement}
-                className="hidden lg:block"
-              />
+              {adSlot}
             </aside>
           </div>
           <RankingsBeyondTop25

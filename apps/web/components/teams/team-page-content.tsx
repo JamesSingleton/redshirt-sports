@@ -4,8 +4,8 @@ import type { SchoolBySlugQueryResult } from "@redshirt-sports/sanity/types";
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-import { AdSlot } from "@/components/ad-slot";
 import CustomImage from "@/components/sanity-image";
 import { TeamInfoLinks } from "@/components/teams/team-info-links";
 import { TeamPollRankInline } from "@/components/teams/team-poll-rank-inline";
@@ -16,7 +16,6 @@ import {
 } from "@/components/teams/team-post-card";
 import { TeamRatingsInline } from "@/components/teams/team-ratings-inline";
 import { TeamHubLogoTransition } from "@/components/view-transitions/team-hub-logo-transition";
-import type { AdvertisementCreative } from "@/lib/advertisement";
 import {
   footballAffiliationDivisionSlug,
   groupTeamPostsBySport,
@@ -33,13 +32,14 @@ export function TeamPageContent({
   posts,
   rankingHistory,
   ratings,
-  advertisement,
+  adSlot,
 }: {
   school: NonNullable<SchoolBySlugQueryResult>;
   posts: TeamPost[];
   rankingHistory: SchoolRankingHistory;
   ratings: TeamRatingsHistory[];
-  advertisement: AdvertisementCreative | null;
+  /** Sidebar sponsorship placement. Loads its own data. */
+  adSlot?: ReactNode;
 }) {
   const teamShortName = school.shortName ?? school.name ?? "Team";
   const displayName = [
@@ -271,11 +271,7 @@ export function TeamPageContent({
         </div>
 
         <aside className="grid content-start gap-6 lg:sticky lg:top-20 lg:self-start">
-          <AdSlot
-            placement="team-sidebar"
-            creative={advertisement}
-            className="w-full max-w-[300px]"
-          />
+          {adSlot}
         </aside>
       </div>
     </div>

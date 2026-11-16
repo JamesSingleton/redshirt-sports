@@ -6,14 +6,14 @@
 
 Promotion happens through the [Promote production](../../.github/workflows/promote-production.yml) workflow:
 
-- **Daily at 10:00 UTC** it promotes the newest ready staged build, if it is newer than live and its commit passed CI (`Lint and Test`).
+- **Tuesday and Friday at 10:00 UTC** it promotes the newest ready staged build, if it is newer than live and its commit passed CI (`Lint and Test`).
 - **On demand**: Actions → Promote production → Run workflow. Leave the input empty for the newest staged build, or paste a deployment ID/URL.
 
-Why batch: each live deploy starts with an empty ISR cache that crawlers refill, so every promotion costs ISR writes. Merge as often as you like; promote when a batch is ready.
+Why batch: each live deploy starts with an empty ISR cache that crawlers refill over about a day, so every promotion costs ISR writes. Twice a week keeps that to two refills. Monday is skipped because it is poll day. Merge as often as you like; promote by hand when something can't wait.
 
 **Hotfix**: merge to `main`, wait for the build and CI, then run the workflow manually.
 
-**Rollback**: Vercel dashboard → Deployments → previous deployment → Instant Rollback (or run the workflow with that deployment's ID). Then set the repo variable `PROMOTE_PAUSED=true` so the daily run doesn't re-promote the bad build. Delete the variable once a fixed build is on `main`.
+**Rollback**: Vercel dashboard → Deployments → previous deployment → Instant Rollback (or run the workflow with that deployment's ID). Then set the repo variable `PROMOTE_PAUSED=true` so the scheduled run doesn't re-promote the bad build. Delete the variable once a fixed build is on `main`.
 
 Staged builds talk to production Postgres, Clerk, and Sanity. Anything you submit while testing one (ballots, onboarding) writes real data.
 

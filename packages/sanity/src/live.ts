@@ -67,6 +67,30 @@ export async function cachedSanity<const QueryString extends string>({
 }
 
 /**
+ * `cachedSanity` for reads made at request time, after `connection()`. Plain
+ * `"use cache"` is per-instance memory there, so each fresh instance would ask
+ * Sanity again. The remote cache is shared, and `sanityFetch` tags the entry
+ * the same way, so a publish still expires it.
+ *
+ * Published content only: drafts stay on `cachedSanity`.
+ */
+export async function cachedSanityRemote<const QueryString extends string>({
+  query,
+  params = {},
+}: {
+  query: QueryString;
+  params?: QueryParams;
+}) {
+  "use cache: remote";
+  return sanityFetch({
+    query,
+    params,
+    perspective: "published",
+    stega: false,
+  });
+}
+
+/**
  * For queries whose Sanity sync tags are too broad. Any GROQ list filtered on
  * `_type == "post"` gets the type-wide sync tag, so `sanityFetch` would expire
  * every page showing it on every post publish. Published reads here add no

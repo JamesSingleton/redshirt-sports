@@ -9,21 +9,14 @@ import {
 } from "../helpers/portal-player";
 import { wireData, wireRow } from "../helpers/portal-wire";
 
-const {
-  mockPublic,
-  mockPlayer,
-  mockCycles,
-  mockWire,
-  mockAd,
-  mockGetPageMetadata,
-} = vi.hoisted(() => ({
-  mockAd: vi.fn(),
-  mockPublic: vi.fn(),
-  mockPlayer: vi.fn(),
-  mockCycles: vi.fn(),
-  mockWire: vi.fn(),
-  mockGetPageMetadata: vi.fn((input: unknown) => input),
-}));
+const { mockPublic, mockPlayer, mockCycles, mockWire, mockGetPageMetadata } =
+  vi.hoisted(() => ({
+    mockPublic: vi.fn(),
+    mockPlayer: vi.fn(),
+    mockCycles: vi.fn(),
+    mockWire: vi.fn(),
+    mockGetPageMetadata: vi.fn((input: unknown) => input),
+  }));
 
 vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.com/",
@@ -35,7 +28,21 @@ vi.mock("@/lib/portal-data", async (importOriginal) => ({
   getCachedPortalCycles: mockCycles,
   getCachedPortalWire: mockWire,
 }));
-vi.mock("@/lib/advertisement", () => ({ loadAdvertisement: mockAd }));
+vi.mock("@/components/live-ad-slot", () => ({
+  LiveAdSlot: ({
+    placement,
+    sportSlugs = [],
+  }: {
+    placement: string;
+    sportSlugs?: string[];
+  }) => (
+    <div
+      data-testid="live-ad-slot"
+      data-placement={placement}
+      data-sports={sportSlugs.join(",")}
+    />
+  ),
+}));
 vi.mock("@/lib/global-seo-settings", () => ({
   getPageMetadata: mockGetPageMetadata,
 }));
@@ -108,7 +115,6 @@ const longCareer = () =>
 describe("player profile page", () => {
   beforeEach(() => {
     mockPublic.mockReturnValue(true);
-    mockAd.mockResolvedValue(null);
     mockPlayer.mockResolvedValue(player());
     mockCycles.mockResolvedValue({ cycles: [2026, 2025], current: 2026 });
     mockWire.mockResolvedValue(
