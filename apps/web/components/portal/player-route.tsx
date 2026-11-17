@@ -1,7 +1,9 @@
 import { parsePlayerSlugId, playerPath } from "@redshirt-sports/db/portal";
+import { queryPlayerStories } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
+import type { HomePost } from "@/components/home/home-page-content";
 import { LiveAdSlot } from "@/components/live-ad-slot";
 import {
   playerPageDescription,
@@ -17,6 +19,7 @@ import {
   isPortalSport,
   portalIsPublic,
 } from "@/lib/portal-data";
+import { sanityFetchPage } from "@/lib/sanity-fetch";
 
 export type PlayerParams = Promise<{ slugId: string }>;
 
@@ -71,18 +74,29 @@ export async function PlayerRoute({ params }: { params: PlayerParams }) {
   const [primary] = sportsByActivity(data.doc);
   const latest = primary?.recruitments[0];
   const tracked = primary && latest && isPortalSport(primary.sportSlug);
-  const sidebar = tracked
-    ? await Promise.all([
-        getCachedPortalWire(primary.sportSlug, latest.cycleYear),
-        getCachedPortalCycles(primary.sportSlug),
-      ]).then(([wire, cycles]) =>
-        wire ? { wire, currentCycle: cycles.current } : null,
-      )
-    : null;
+  const [sidebar, storiesResponse] = await Promise.all([
+    tracked
+      ? Promise.all([
+          getCachedPortalWire(primary.sportSlug, latest.cycleYear),
+          getCachedPortalCycles(primary.sportSlug),
+        ]).then(([wire, cycles]) =>
+          wire ? { wire, currentCycle: cycles.current } : null,
+        )
+      : null,
+    // Articles an editor tagged with this player in Studio.
+    sanityFetchPage({
+      query: queryPlayerStories,
+      params: { ref: `redshirt:${data.doc.id}|` },
+      perspective: "published",
+      stega: false,
+    }),
+  ]);
+  const stories = (storiesResponse.data ?? []) as HomePost[];
   return (
     <PlayerProfile
       data={data}
       sidebar={sidebar}
+      stories={stories}
       adSlot={
         <LiveAdSlot
           placement="player-sidebar"

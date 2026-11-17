@@ -9,14 +9,21 @@ import {
 } from "../helpers/portal-player";
 import { wireData, wireRow } from "../helpers/portal-wire";
 
-const { mockPublic, mockPlayer, mockCycles, mockWire, mockGetPageMetadata } =
-  vi.hoisted(() => ({
-    mockPublic: vi.fn(),
-    mockPlayer: vi.fn(),
-    mockCycles: vi.fn(),
-    mockWire: vi.fn(),
-    mockGetPageMetadata: vi.fn((input: unknown) => input),
-  }));
+const {
+  mockPublic,
+  mockPlayer,
+  mockCycles,
+  mockWire,
+  mockStories,
+  mockGetPageMetadata,
+} = vi.hoisted(() => ({
+  mockStories: vi.fn(),
+  mockPublic: vi.fn(),
+  mockPlayer: vi.fn(),
+  mockCycles: vi.fn(),
+  mockWire: vi.fn(),
+  mockGetPageMetadata: vi.fn((input: unknown) => input),
+}));
 
 vi.mock("@/lib/get-base-url", () => ({
   getBaseUrl: () => "https://redshirtsports.com/",
@@ -41,6 +48,17 @@ vi.mock("@/components/live-ad-slot", () => ({
       data-placement={placement}
       data-sports={sportSlugs.join(",")}
     />
+  ),
+}));
+vi.mock("@/lib/sanity-fetch", () => ({ sanityFetchPage: mockStories }));
+vi.mock("@redshirt-sports/sanity/queries", () => ({
+  queryPlayerStories: "PLAYER_STORIES",
+}));
+vi.mock("@/components/sanity-image", () => ({
+  __esModule: true,
+  default: ({ alt }: { alt?: string }) => (
+    // biome-ignore lint/performance/noImgElement: a stand-in for the Sanity image
+    <img alt={alt ?? ""} aria-hidden={alt === "" ? "true" : undefined} />
   ),
 }));
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -115,6 +133,7 @@ const longCareer = () =>
 describe("player profile page", () => {
   beforeEach(() => {
     mockPublic.mockReturnValue(true);
+    mockStories.mockResolvedValue({ data: [] });
     mockPlayer.mockResolvedValue(player());
     mockCycles.mockResolvedValue({ cycles: [2026, 2025], current: 2026 });
     mockWire.mockResolvedValue(
@@ -241,7 +260,7 @@ describe("player profile page", () => {
     expect(screen.getByText("1 school reported")).toBeInTheDocument();
     expect(screen.queryByText("Conference")).toBeNull();
     expect(container.querySelector("caption")).toHaveTextContent(
-      "Schools reported to have offered",
+      "Schools reported to have offered, contacted, or hosted the player",
     );
 
     expect(
@@ -395,7 +414,7 @@ describe("player profile page", () => {
     expect(screen.getAllByText("Undecided").length).toBeGreaterThan(0);
     expect(screen.getByText("Next school")).toBeInTheDocument();
     expect(screen.queryByText(/Quarterback/)).toBeNull();
-    expect(screen.queryByText("Reported offers")).toBeNull();
+    expect(screen.queryByText("Offers & reported interest")).toBeNull();
 
     // No sports at all: just the name.
     mockPlayer.mockResolvedValueOnce(
@@ -546,6 +565,169 @@ describe("player profile page", () => {
       'img[aria-hidden="true"][alt=""]',
     );
     expect(watermark).not.toBeNull();
+  });
+
+  it("lists visits and contact with the offers, and links each fact's story", async () => {
+    const doc = playerDoc({
+      sports: [
+        playerSport({
+          recruitments: [
+            recruitment({
+              events: [
+                {
+                  id: 1,
+                  type: "entered",
+                  occurredAt: "2026-01-02T17:00:00.000Z",
+                  superseded: false,
+                  storySlug: "qb-enters-portal",
+                },
+                {
+                  id: 2,
+                  type: "committed",
+                  occurredAt: "2026-01-05T17:00:00.000Z",
+                  schoolId: "boise",
+                  superseded: false,
+                  storySlug: "why-boise",
+                },
+              ],
+              interest: [
+                {
+                  eventId: 5,
+                  type: "visited",
+                  occurredAt: "2026-01-04T17:00:00.000Z",
+                  schoolName: "Idaho",
+                  storySlug: "qb-visits-idaho",
+                },
+                {
+                  eventId: 6,
+                  type: "visit_scheduled",
+                  occurredAt: "2026-01-08T17:00:00.000Z",
+                  schoolName: "Weber State",
+                },
+                {
+                  eventId: 7,
+                  type: "visit_scheduled",
+                  occurredAt: "2026-01-09T17:00:00.000Z",
+                  schoolName: "UC Davis",
+                },
+                {
+                  eventId: 8,
+                  type: "contacted",
+                  occurredAt: "2026-01-03T17:00:00.000Z",
+                  storySlug: "mystery-school-calls",
+                },
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+    mockPlayer.mockResolvedValue(player(playerData({ doc })));
+    render(await content("jalen-brooks-100000"));
+
+    expect(
+      screen.getByRole("heading", { name: "Offers & reported interest" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("5 schools reported")).toBeInTheDocument();
+    expect(screen.getByText("1 visited")).toBeInTheDocument();
+    expect(screen.getByText("2 visits scheduled")).toBeInTheDocument();
+    const table = screen.getByRole("table");
+    expect(within(table).getByText("Visited")).toBeInTheDocument();
+    expect(within(table).getAllByText("Visit scheduled")).toHaveLength(2);
+    expect(within(table).getByText("Reported contact")).toBeInTheDocument();
+    // The committed school's other facts are its detail.
+    expect(within(table).getByText("Offered Jan 3")).toBeInTheDocument();
+
+    // Every fact with a story links to it, and says which fact.
+    const story = (name: RegExp) =>
+      screen.getByRole("link", { name }).getAttribute("href");
+    expect(story(/Story: Committed Jan 5, 2026/)).toBe("/why-boise");
+    expect(story(/Story: Entered portal/)).toBe("/qb-enters-portal");
+    expect(story(/Story: Idaho, Visited/)).toBe("/qb-visits-idaho");
+    expect(story(/Story: Boise State University, Committed/)).toBe(
+      "/why-boise",
+    );
+    expect(story(/Story: Committed$/)).toBe("/why-boise");
+    expect(story(/Story: Undisclosed, Reported contact/)).toBe(
+      "/mystery-school-calls",
+    );
+  });
+
+  it("says one visit scheduled in the singular", async () => {
+    const doc = playerDoc({
+      sports: [
+        playerSport({
+          recruitments: [
+            recruitment({
+              status: "entered",
+              offers: [],
+              interest: [
+                {
+                  eventId: 6,
+                  type: "visit_scheduled",
+                  occurredAt: "2026-01-08T17:00:00.000Z",
+                  schoolName: "Weber State",
+                },
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+    mockPlayer.mockResolvedValue(player(playerData({ doc })));
+    render(await content("jalen-brooks-100000"));
+    expect(screen.getByText("1 school reported")).toBeInTheDocument();
+    expect(screen.getByText("1 visit scheduled")).toBeInTheDocument();
+  });
+
+  it("shows the stories that tag the player", async () => {
+    mockStories.mockResolvedValue({
+      data: [
+        {
+          _id: "p1",
+          title: "Why the Broncos went after a portal QB",
+          slug: "why-boise",
+          excerpt: "A dek.",
+          publishedAt: "2026-01-05T17:00:00.000Z",
+          authors: [{ name: "Writer Six" }],
+          tagNames: ["Transfer Portal"],
+        },
+        { _id: "p2", title: "Untitled notes", slug: "notes" },
+        {
+          _id: "p3",
+          title: "Dated only",
+          slug: "dated",
+          publishedAt: "2026-01-04T17:00:00.000Z",
+        },
+      ],
+    });
+    render(await content("jalen-brooks-100000"));
+    expect(mockStories).toHaveBeenCalledWith({
+      query: "PLAYER_STORIES",
+      params: { ref: "redshirt:100000|" },
+      perspective: "published",
+      stega: false,
+    });
+    expect(
+      screen.getByRole("heading", { name: "Stories" }),
+    ).toBeInTheDocument();
+    const lead = screen.getByRole("link", {
+      name: "Why the Broncos went after a portal QB",
+    });
+    expect(lead).toHaveAttribute("href", "/why-boise");
+    const article = lead.closest("article")!;
+    expect(within(article).getByText("A dek.")).toBeInTheDocument();
+    expect(within(article).getByText(/Writer Six ·/)).toBeInTheDocument();
+    expect(within(article).getByText("Jan 5, 2026")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Untitled notes" }),
+    ).toHaveAttribute("href", "/notes");
+  });
+
+  it("has no Stories section without tagged stories", async () => {
+    mockStories.mockResolvedValueOnce({ data: null });
+    render(await content("jalen-brooks-100000"));
+    expect(screen.queryByRole("heading", { name: "Stories" })).toBeNull();
   });
 
   it("renders the skeleton", () => {

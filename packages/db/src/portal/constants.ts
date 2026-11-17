@@ -25,6 +25,9 @@ export const CLOSED_RECRUITMENT_STATUSES = [
 export const RECRUITMENT_EVENT_TYPES = [
   "entered",
   "offered",
+  "contacted",
+  "visit_scheduled",
+  "visited",
   "committed",
   "decommitted",
   "signed",
@@ -36,11 +39,34 @@ export type RecruitmentEventType = (typeof RECRUITMENT_EVENT_TYPES)[number];
 /** Event types that name a school. The rest must not carry one. */
 export const SCHOOL_EVENT_TYPES = [
   "offered",
+  "contacted",
+  "visit_scheduled",
+  "visited",
   "committed",
   "decommitted",
   "signed",
   "enrolled",
 ] as const satisfies readonly RecruitmentEventType[];
+
+/**
+ * A school's reported interest in a player: an offer, contact, or a visit.
+ * These name a school but never change the recruitment's status, and they
+ * aren't tracker rows; the player page lists them.
+ */
+export const INTEREST_EVENT_TYPES = [
+  "offered",
+  "contacted",
+  "visit_scheduled",
+  "visited",
+] as const satisfies readonly RecruitmentEventType[];
+export type InterestEventType = (typeof INTEREST_EVENT_TYPES)[number];
+
+export function isInterestEventType(type: string): type is InterestEventType {
+  return (INTEREST_EVENT_TYPES as readonly string[]).includes(type);
+}
+
+/** An article's slug on the site: lowercase words joined by hyphens. */
+export const STORY_SLUG_PATTERN = "^[a-z0-9]+(-[a-z0-9]+)*$";
 
 /** Where we learned of a move. Internal only: never published. */
 export const EVENT_SOURCE_TYPES = [

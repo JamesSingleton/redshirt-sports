@@ -225,6 +225,13 @@
       "when": 1794785821376,
       "tag": "0031_staff_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794885662723,
+      "tag": "0032_portal_visits_and_stories",
+      "breakpoints": true
     }
   ]
 }

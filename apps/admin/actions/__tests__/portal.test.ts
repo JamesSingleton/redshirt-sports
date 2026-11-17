@@ -18,6 +18,9 @@ const db = vi.hoisted(() => {
     previewMerge: vi.fn(),
     expirePendingPortalPushes: vi.fn(),
     findSimilarPlayers: vi.fn(),
+    getPlayerSubmission: vi.fn(),
+    listPlayerSubmissions: vi.fn(),
+    reviewPlayerSubmission: vi.fn(),
     getPortalPendingSummary: vi.fn(),
     getPortalPlayer: vi.fn(),
     listPortalPlayers: vi.fn(),
@@ -70,9 +73,12 @@ import {
   getMergeComparison,
   getPortalDesk,
   getPortalPlayerPage,
+  getSubmissionForEntry,
+  getSubmissionInbox,
   mergePortalPlayers,
   pushPortalToSite,
   recordPortalMove,
+  reviewSubmission,
   savePlayerBio,
   savePlayerSport,
   voidPortalMove,
@@ -294,6 +300,59 @@ describe("portal admin actions", () => {
       );
     });
 
+    it("records visits and contact, with a public story link", async () => {
+      const move = {
+        recruitmentId: 7,
+        type: "visited",
+        occurredAt: "2026-11-05T17:00:00.000Z",
+        school: { schoolId: "school-idaho", schoolName: "" },
+        storySlug: " https://www.redshirtsports.com/portal-qb-visits-idaho/ ",
+      };
+      expect((await recordPortalMove({ playerId: 1, move })).ok).toBe(true);
+      expect(db.recordRecruitmentEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "visited",
+          storySlug: "portal-qb-visits-idaho",
+        }),
+      );
+      // Blank means no story.
+      await recordPortalMove({ playerId: 1, move: { ...move, storySlug: "" } });
+      expect(db.recordRecruitmentEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ storySlug: null }),
+      );
+      const bad = await recordPortalMove({
+        playerId: 1,
+        move: { ...move, storySlug: "Some Story Title" },
+      });
+      expect(bad).toMatchObject({
+        ok: false,
+        message: expect.stringContaining("Paste the article's link"),
+      });
+    });
+
+    it("dates only a scheduled visit ahead, and not past a year", async () => {
+      const day = 86_400_000;
+      const at = (days: number) =>
+        new Date(Date.now() + days * day).toISOString();
+      const move = (type: string, occurredAt: string) => ({
+        recruitmentId: 7,
+        type,
+        occurredAt,
+        school: { schoolId: "school-idaho", schoolName: "" },
+      });
+      const save = (type: string, days: number) =>
+        recordPortalMove({ playerId: 1, move: move(type, at(days)) });
+      expect((await save("visit_scheduled", 30)).ok).toBe(true);
+      expect(await save("visit_scheduled", 400)).toMatchObject({
+        ok: false,
+        message: "occurredAt: That visit is more than a year away.",
+      });
+      expect(await save("visited", 30)).toMatchObject({
+        ok: false,
+        message: "occurredAt: That date is in the future.",
+      });
+    });
+
     it("undoes a move with an optional reason", async () => {
       expect(
         (await voidPortalMove({ playerId: 1, eventId: "12", reason: " typo " }))
@@ -481,6 +540,96 @@ describe("portal admin actions", () => {
       expect(
         (await mergePortalPlayers({ survivorId: 1, loserId: 2 })).message,
       ).toBe("Player was merged into 3.");
+    });
+  });
+
+  describe("public submissions", () => {
+    it("lists one status at a time, defaulting to new", async () => {
+      db.listPlayerSubmissions.mockResolvedValue({
+        submissions: [],
+        hasMore: false,
+      });
+      expect(await getSubmissionInbox({})).toEqual({
+        status: "new",
+        submissions: [],
+        hasMore: false,
+      });
+      expect(db.listPlayerSubmissions).toHaveBeenLastCalledWith({
+        status: "new",
+        beforeId: undefined,
+      });
+      await getSubmissionInbox({ status: "spam", beforeId: "40" });
+      expect(db.listPlayerSubmissions).toHaveBeenLastCalledWith({
+        status: "spam",
+        beforeId: 40,
+      });
+      // Junk in the URL falls back, not errors.
+      await getSubmissionInbox({ status: "nope", beforeId: "x" });
+      expect(db.listPlayerSubmissions).toHaveBeenLastCalledWith({
+        status: "new",
+        beforeId: undefined,
+      });
+    });
+
+    it("loads a submission for the entry form", async () => {
+      db.getPlayerSubmission.mockResolvedValue({ id: 7 });
+      expect(await getSubmissionForEntry("7")).toEqual({ id: 7 });
+      expect(db.getPlayerSubmission).toHaveBeenCalledWith(7);
+      expect(await getSubmissionForEntry("junk")).toBeNull();
+    });
+
+    it("closes a submission as accepted, rejected, or spam", async () => {
+      db.reviewPlayerSubmission.mockResolvedValue(true);
+      expect(
+        await reviewSubmission({
+          id: 7,
+          status: "rejected",
+          reviewNote: " no ",
+        }),
+      ).toEqual({ ok: true, message: "Saved." });
+      expect(db.reviewPlayerSubmission).toHaveBeenCalledWith({
+        id: 7,
+        status: "rejected",
+        reviewNote: "no",
+        reviewerUserId: "user_admin",
+      });
+      expect(mockRevalidatePath).toHaveBeenCalledWith("/portal/submissions");
+      // It can't be reopened as new, and it has to exist.
+      expect((await reviewSubmission({ id: 7, status: "new" })).ok).toBe(false);
+      db.reviewPlayerSubmission.mockResolvedValueOnce(false);
+      expect(await reviewSubmission({ id: 9, status: "spam" })).toEqual({
+        ok: false,
+        message: "Submission not found.",
+      });
+      db.reviewPlayerSubmission.mockRejectedValueOnce(new Error("db down"));
+      expect((await reviewSubmission({ id: 9, status: "spam" })).ok).toBe(
+        false,
+      );
+    });
+
+    it("marks the submission accepted when its player is saved", async () => {
+      db.createPortalPlayer.mockResolvedValue({ id: 100050 });
+      const result = await createPortalPlayerAction({
+        bio,
+        entry,
+        submissionId: 7,
+      });
+      expect(result).toMatchObject({ ok: true, playerId: 100050 });
+      expect(db.reviewPlayerSubmission).toHaveBeenCalledWith({
+        id: 7,
+        status: "accepted",
+        matchedPlayerId: 100050,
+        reviewerUserId: "user_admin",
+      });
+      // No submission, no review; a bad id is refused before anything saves.
+      db.reviewPlayerSubmission.mockClear();
+      await createPortalPlayerAction({ bio, entry });
+      expect(db.reviewPlayerSubmission).not.toHaveBeenCalled();
+      db.createPortalPlayer.mockClear();
+      expect(
+        (await createPortalPlayerAction({ bio, entry, submissionId: "x" })).ok,
+      ).toBe(false);
+      expect(db.createPortalPlayer).not.toHaveBeenCalled();
     });
   });
 });

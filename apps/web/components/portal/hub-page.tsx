@@ -179,6 +179,16 @@ export async function PortalHub({
             Who&apos;s in, who&apos;s committed, and who&apos;s staying put,
             with Redshirt reporting on the moves that matter.
           </p>
+          <p className="mt-2 text-sm">
+            <Link
+              href="/transfer-portal/submit"
+              prefetch={false}
+              className="text-primary inline-flex items-center gap-1 font-semibold hover:underline"
+            >
+              Report a move
+              <ChevronRight className="size-3.5" aria-hidden />
+            </Link>
+          </p>
           {hub.sports.length ? (
             <ul
               className="mt-5 grid gap-3 md:grid-cols-3"

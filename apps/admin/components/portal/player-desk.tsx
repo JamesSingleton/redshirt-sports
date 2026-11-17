@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  isInterestEventType,
   playerClassLabel,
   SCHOOL_EVENT_TYPES,
 } from "@redshirt-sports/db/portal";
@@ -59,6 +60,9 @@ type Event = Recruitment["events"][number];
 
 const MOVE_TYPES = [
   "offered",
+  "contacted",
+  "visit_scheduled",
+  "visited",
   "committed",
   "decommitted",
   "signed",
@@ -171,6 +175,11 @@ function EventRow({ playerId, event }: { playerId: number; event: Event }) {
           </Button>
         )}
       </div>
+      {event.storySlug ? (
+        <p className="text-muted-foreground text-xs">
+          Story (public): /{event.storySlug}
+        </p>
+      ) : null}
       {event.sourceType || event.sourceUrl || event.sourceNote ? (
         <p className="text-muted-foreground text-xs">
           Source:{" "}
@@ -275,7 +284,10 @@ function MoveForm({
               destination.label
             ) {
               setSchool(destination);
-            } else if (nextType === "offered" || nextType === "committed") {
+            } else if (
+              isInterestEventType(nextType) ||
+              nextType === "committed"
+            ) {
               setSchool(EMPTY_SCHOOL);
             }
           }}

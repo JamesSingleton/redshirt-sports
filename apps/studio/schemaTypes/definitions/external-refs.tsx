@@ -7,7 +7,9 @@ import {
   type GameSearchResult,
   gameOptions,
   type PickerOption,
+  type PortalPlayerSearchResult,
   playerOptions,
+  portalPlayerOptions,
 } from "@/utils/external-pickers";
 
 /**
@@ -57,6 +59,38 @@ export const gameRef = defineType({
   validation: (rule) => rule.custom(externalRefRule("game")),
 });
 
+async function searchPortalPlayers(query: string): Promise<PickerOption[]> {
+  try {
+    const url = new URL(
+      "/api/v1/players/search",
+      env.SANITY_STUDIO_PRESENTATION_URL,
+    );
+    url.searchParams.set("q", query);
+    const response = await fetch(url);
+    if (!response.ok) return [];
+    const { players } = (await response.json()) as {
+      players: PortalPlayerSearchResult[];
+    };
+    return portalPlayerOptions(players);
+  } catch {
+    return [];
+  }
+}
+
+async function searchEspnPlayers(query: string): Promise<PickerOption[]> {
+  try {
+    const url = new URL("https://site.web.api.espn.com/apis/search/v2");
+    url.searchParams.set("query", query);
+    url.searchParams.set("type", "player");
+    url.searchParams.set("limit", "20");
+    const response = await fetch(url);
+    if (!response.ok) return [];
+    return playerOptions(await response.json());
+  } catch {
+    return [];
+  }
+}
+
 export const playerRef = defineType({
   name: "playerRef",
   title: "Player",
@@ -66,13 +100,13 @@ export const playerRef = defineType({
       loaderType: "search",
       loader: async ({ query }) => {
         if (!query || query.trim().length < 3) return [];
-        const url = new URL("https://site.web.api.espn.com/apis/search/v2");
-        url.searchParams.set("query", query.trim());
-        url.searchParams.set("type", "player");
-        url.searchParams.set("limit", "20");
-        const response = await fetch(url);
-        if (!response.ok) return [];
-        return playerOptions(await response.json());
+        // Our transfer portal players first (they have a page on the site),
+        // then ESPN's. Either search failing still leaves the other.
+        const [portal, espn] = await Promise.all([
+          searchPortalPlayers(query.trim()),
+          searchEspnPlayers(query.trim()),
+        ]);
+        return [...portal, ...espn];
       },
       autocompleteProps: {
         placeholder: "Type a player's name",

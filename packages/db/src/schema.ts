@@ -31,6 +31,7 @@ import {
   RECRUITMENT_KINDS,
   RECRUITMENT_STATUSES,
   SCHOOL_EVENT_TYPES,
+  STORY_SLUG_PATTERN,
 } from "./portal/constants";
 
 const timestamps = {
@@ -1692,6 +1693,8 @@ export const recruitmentEventsTable = pgTable(
     sourceType: text("source_type"),
     sourceUrl: text("source_url"),
     sourceNote: text("source_note"),
+    /** The Redshirt article this move came from. Public: published with the move. */
+    storySlug: text("story_slug"),
     voidedAt: timestamp("voided_at", { withTimezone: true }),
     voidReason: text("void_reason"),
     createdByUserId: text("created_by_user_id").references(
@@ -1712,6 +1715,10 @@ export const recruitmentEventsTable = pgTable(
     check(
       "recruitment_events_school_check",
       sql`(${inList(table.type, SCHOOL_EVENT_TYPES)}) = ${hasSchool(table.schoolId, table.schoolName)}`,
+    ),
+    check(
+      "recruitment_events_story_slug_check",
+      sql`${table.storySlug} is null or ${table.storySlug} ~ ${sql.raw(`'${STORY_SLUG_PATTERN}'`)}`,
     ),
     check(
       "recruitment_events_source_url_check",

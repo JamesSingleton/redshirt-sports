@@ -21,6 +21,10 @@ import {
   entryPayload,
 } from "@/components/portal/entry-fields";
 import { TextField } from "@/components/portal/fields";
+import {
+  type EntrySubmission,
+  prefillFromSubmission,
+} from "@/components/portal/submission-prefill";
 
 type Similar = Awaited<ReturnType<typeof findPortalDuplicates>>;
 
@@ -126,14 +130,24 @@ function useSimilarPlayers(name: string) {
   return similar;
 }
 
-export function NewPlayerForm({ sports }: { sports: PortalDesk["sports"] }) {
+export function NewPlayerForm({
+  sports,
+  submission,
+}: {
+  sports: PortalDesk["sports"];
+  /** A public submission to start from; marked accepted once the player is saved. */
+  submission?: EntrySubmission;
+}) {
   const router = useRouter();
   const confirmId = useId();
   const withEntryId = useId();
-  const [bio, setBio] = useState<BioValue>(EMPTY_BIO);
+  const [initial] = useState(() =>
+    submission ? prefillFromSubmission(submission, sports, EMPTY_BIO) : null,
+  );
+  const [bio, setBio] = useState<BioValue>(initial?.bio ?? EMPTY_BIO);
   const [withEntry, setWithEntry] = useState(true);
-  const [entry, setEntry] = useState<EntryValue>(() =>
-    emptyEntry(sports[0]?.id ?? ""),
+  const [entry, setEntry] = useState<EntryValue>(
+    () => initial?.entry ?? emptyEntry(sports[0]?.id ?? ""),
   );
   const [confirmedNew, setConfirmedNew] = useState(false);
   const [saving, startSave] = useTransition();
@@ -150,6 +164,7 @@ export function NewPlayerForm({ sports }: { sports: PortalDesk["sports"] }) {
         entry: withEntry ? entryPayload(entry) : null,
         // Remembered so the duplicate queue doesn't flag these pairs again.
         notDuplicateOf: confirmedNew ? similar.map((player) => player.id) : [],
+        submissionId: submission?.id,
       });
       if (!result.ok || !result.playerId) {
         toast.error(result.message);

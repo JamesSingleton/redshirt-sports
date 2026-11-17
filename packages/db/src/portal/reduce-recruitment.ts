@@ -68,7 +68,7 @@ export function liveEventsInOrder<T extends RecruitmentEventInput>(
  *
  * A recruitment opens with `entered` and stays open, through any number of
  * commit / decommit rounds, until the player enrolls somewhere or withdraws.
- * Offers never change status. Throws on a sequence that cannot happen (commit
+ * Offers, contact, and visits never change status. Throws on a sequence that cannot happen (commit
  * before entering, anything after the recruitment closed).
  */
 export function reduceRecruitment(
@@ -122,6 +122,13 @@ export function reduceRecruitment(
           occurredAt: event.occurredAt,
           ...school,
         });
+        break;
+
+      // Contact and visits are reported interest: they never change status,
+      // and a school can show up more than once.
+      case "contacted":
+      case "visit_scheduled":
+      case "visited":
         break;
 
       case "committed":

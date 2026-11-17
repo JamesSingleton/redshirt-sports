@@ -550,6 +550,19 @@ export const queryPortalNews = defineQuery(/* groq */ `
   }
 `);
 
+/**
+ * The newest articles that tag one of our transfer portal players, for the
+ * player's page. `$ref` is the stored prefix, `"redshirt:<id>|"`: tags are
+ * strings on the article (see external-refs.ts), so this is a plain string
+ * test with no reference to follow.
+ */
+export const queryPlayerStories = defineQuery(/* groq */ `
+  *[_type == "post" && count(players[string::startsWith(@, $ref)]) > 0]
+    | order(publishedAt desc, _id desc)[0...6]{
+      ${homePostCardFragment}
+    }
+`);
+
 const sportsDivisionNewsFilter = /* groq */ `
   _type == "post" &&
   sport._ref == ${sportIdBySlug} &&

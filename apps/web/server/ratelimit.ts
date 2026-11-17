@@ -36,3 +36,15 @@ export const portalApiRatelimit = new Ratelimit({
   analytics: true,
   prefix: "@upstash/ratelimit/portal-api",
 });
+
+/**
+ * The public "report a move" form: 5 submissions an hour per IP and per
+ * email. BotID and a honeypot sit in front of it; this caps a real person
+ * (or a patient script) flooding the inbox.
+ */
+export const portalSubmissionRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "1 h"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/portal-submission",
+});

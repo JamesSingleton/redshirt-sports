@@ -5,6 +5,9 @@ import type { EventSourceType } from "@redshirt-sports/db/portal";
 export const EVENT_LABELS: Record<string, string> = {
   entered: "Entered the portal",
   offered: "Offer",
+  contacted: "Reported contact",
+  visit_scheduled: "Visit scheduled",
+  visited: "Visited",
   committed: "Committed",
   decommitted: "Decommitted (back in the portal)",
   signed: "Signed",

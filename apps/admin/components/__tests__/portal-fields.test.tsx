@@ -46,8 +46,26 @@ describe("portal field helpers", () => {
     });
     expect(positionOptions(undefined)).toEqual([]);
     expect(
-      sourcePayload({ sourceType: "", sourceUrl: "", sourceNote: "x" }),
-    ).toEqual({ sourceType: null, sourceUrl: null, sourceNote: "x" });
+      sourcePayload({
+        sourceType: "",
+        sourceUrl: "",
+        sourceNote: "x",
+        storySlug: "",
+      }),
+    ).toEqual({
+      sourceType: null,
+      sourceUrl: null,
+      sourceNote: "x",
+      storySlug: null,
+    });
+    expect(
+      sourcePayload({
+        sourceType: "",
+        sourceUrl: "",
+        sourceNote: "",
+        storySlug: "portal-qb-visits-idaho",
+      }).storySlug,
+    ).toBe("portal-qb-visits-idaho");
   });
 });
 

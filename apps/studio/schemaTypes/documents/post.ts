@@ -384,7 +384,7 @@ export const post = defineType({
       type: "array",
       group: GROUP.COVERAGE,
       description:
-        "Players the article is about. Search by name; profiles come from ESPN and are never stored in Sanity.",
+        'Players the article is about. Search by name. Picking a "Redshirt player page" result puts the article on that player\'s transfer portal page; other results come from ESPN. Players are never stored in Sanity.',
       of: [defineArrayMember({ type: "playerRef" })],
       validation: (rule) =>
         houseRule<string[], typeof rule>(rule, (_, context) =>

@@ -44,6 +44,9 @@ async function PortalContent({ searchParams }: { searchParams: SearchParams }) {
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline">
+            <Link href="/portal/submissions">Submissions</Link>
+          </Button>
+          <Button asChild variant="outline">
             <Link href="/portal/duplicates">Possible duplicates</Link>
           </Button>
           <Button asChild>

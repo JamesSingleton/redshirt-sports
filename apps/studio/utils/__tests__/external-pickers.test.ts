@@ -1,7 +1,12 @@
 import { parseExternalRef } from "@redshirt-sports/sanity/external-refs";
 import { describe, expect, it } from "vitest";
 
-import { gameLabel, gameOptions, playerOptions } from "../external-pickers";
+import {
+  gameLabel,
+  gameOptions,
+  playerOptions,
+  portalPlayerOptions,
+} from "../external-pickers";
 
 describe("gameOptions", () => {
   const game = {
@@ -69,5 +74,50 @@ describe("playerOptions", () => {
       label: "Keali'i Ah Yat · Montana Grizzlies",
     });
     expect(playerOptions({})).toEqual([]);
+  });
+});
+
+describe("portalPlayerOptions", () => {
+  it("stores our player's id and name, and says where the article will show", () => {
+    const options = portalPlayerOptions([
+      {
+        id: 100007,
+        slug: "darnell-okafor",
+        firstName: "Darnell",
+        lastName: "Okafor",
+        suffix: "Jr.",
+        sportSlug: "football",
+        position: "QB",
+      },
+      {
+        id: 100008,
+        slug: "ann-lee",
+        firstName: "Ann",
+        lastName: "Lee",
+        suffix: null,
+        sportSlug: "lacrosse",
+        position: null,
+      },
+      {
+        id: 100009,
+        slug: "bo-cole",
+        firstName: "Bo",
+        lastName: "Cole",
+        suffix: null,
+        sportSlug: null,
+        position: null,
+      },
+    ]);
+    expect(options.map((option) => option.label)).toEqual([
+      "Darnell Okafor Jr. · QB, Football (Redshirt player page)",
+      "Ann Lee (Redshirt player page)",
+      "Bo Cole (Redshirt player page)",
+    ]);
+    expect(parseExternalRef(options[0]!.value)).toEqual({
+      provider: "redshirt",
+      id: "100007",
+      label: "Darnell Okafor Jr.",
+    });
+    expect(portalPlayerOptions([])).toEqual([]);
   });
 });

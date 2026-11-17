@@ -81,6 +81,26 @@ describe("coverageFindings", () => {
         }),
       ),
     ).toEqual(["coverage.player-format", "coverage.player-duplicate"]);
+    // The same number from two providers is two different players.
+    expect(
+      rules(
+        coverageFindings({
+          ...base,
+          players: ["espn:100007|An ESPN player", "redshirt:100007|Our player"],
+        }),
+      ),
+    ).toEqual([]);
+    expect(
+      rules(
+        coverageFindings({
+          ...base,
+          players: [
+            "redshirt:100007|Darnell",
+            "redshirt:100007|Darnell Okafor",
+          ],
+        }),
+      ),
+    ).toEqual(["coverage.player-duplicate"]);
     const many = Array.from({ length: 9 }, (_, i) => `espn:${i}|Player ${i}`);
     expect(rules(coverageFindings({ ...base, players: many }))).toEqual([
       "coverage.players-max",

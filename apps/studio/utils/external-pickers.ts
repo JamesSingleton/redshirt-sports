@@ -88,3 +88,48 @@ export function playerOptions(response: EspnSearchResponse): PickerOption[] {
     ];
   });
 }
+
+/** A player from the site's /api/v1/players/search endpoint (our transfer portal). */
+export type PortalPlayerSearchResult = {
+  id: number;
+  slug: string;
+  firstName: string;
+  lastName: string;
+  suffix: string | null;
+  sportSlug: string | null;
+  position: string | null;
+};
+
+const PORTAL_SPORTS: Record<string, string> = {
+  football: "Football",
+  "mens-basketball": "Men's Basketball",
+  "womens-basketball": "Women's Basketball",
+};
+
+/**
+ * Our own transfer portal players. Picking one puts the article on the
+ * player's page on the site; the id is the one in their URL and never changes.
+ */
+export function portalPlayerOptions(
+  players: PortalPlayerSearchResult[],
+): PickerOption[] {
+  return players.map((player) => {
+    const name = [player.firstName, player.lastName, player.suffix]
+      .filter(Boolean)
+      .join(" ");
+    const detail = [
+      player.position,
+      player.sportSlug ? (PORTAL_SPORTS[player.sportSlug] ?? null) : null,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    return {
+      value: formatExternalRef({
+        provider: "redshirt",
+        id: String(player.id),
+        label: name,
+      }),
+      label: `${name}${detail ? ` · ${detail}` : ""} (Redshirt player page)`,
+    };
+  });
+}
