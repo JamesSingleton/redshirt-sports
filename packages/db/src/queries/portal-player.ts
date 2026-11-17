@@ -1,4 +1,5 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 
 import { primaryDb as db } from "../client";
 import { type PortalPlayerPage, playerReferences } from "../portal/player";
@@ -103,4 +104,36 @@ export async function listIndexablePlayers(limit?: number) {
       desc(publishedPlayersTable.playerId),
     );
   return limit === undefined ? query : query.limit(limit);
+}
+
+/**
+ * Where a player's page lives now: their own id and slug, or the survivor's
+ * when they were merged away. Null for an unpublished id or a merge whose
+ * survivor isn't published. One primary-key read with a self-join, returning
+ * two ids and a slug: this is what the proxy checks before every player page.
+ */
+export async function getPublishedPlayerAddress(
+  playerId: number,
+): Promise<{ id: number; slug: string } | null> {
+  const target = alias(publishedPlayersTable, "target");
+  const [row] = await db
+    .select({
+      slug: publishedPlayersTable.slug,
+      redirectToPlayerId: publishedPlayersTable.redirectToPlayerId,
+      targetSlug: target.slug,
+    })
+    .from(publishedPlayersTable)
+    .leftJoin(
+      target,
+      and(
+        eq(target.playerId, publishedPlayersTable.redirectToPlayerId),
+        isNull(target.redirectToPlayerId),
+      ),
+    )
+    .where(eq(publishedPlayersTable.playerId, playerId));
+  if (!row) return null;
+  if (row.redirectToPlayerId === null) return { id: playerId, slug: row.slug };
+  return row.targetSlug === null
+    ? null
+    : { id: row.redirectToPlayerId, slug: row.targetSlug };
 }
