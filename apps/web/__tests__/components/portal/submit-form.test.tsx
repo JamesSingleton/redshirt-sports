@@ -124,6 +124,7 @@ describe("report a move page", () => {
     expect(metadata).toMatchObject({
       title: "Report a Transfer Portal Move",
       alternates: { canonical: "/transfer-portal/submit" },
+      robots: { index: false, follow: false },
     });
   });
 });

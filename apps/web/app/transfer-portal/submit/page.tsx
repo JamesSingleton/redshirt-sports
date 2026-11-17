@@ -9,10 +9,13 @@ const TITLE = "Report a Transfer Portal Move";
 const DESCRIPTION =
   "Players, parents, and coaches: tell Redshirt Sports about a transfer portal entry, commitment, or withdrawal. An editor reviews every submission.";
 
+// Not linked anywhere on the site for now: reached only by a shared link,
+// so it stays out of search too.
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/transfer-portal/submit" },
+  robots: { index: false, follow: false },
 };
 
 export default function SubmitPortalMovePage() {
