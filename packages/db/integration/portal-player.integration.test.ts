@@ -6,6 +6,7 @@ import { mergePlayers } from "../src/queries/player-duplicates";
 import { createPortalPlayer } from "../src/queries/portal-admin";
 import {
   getPublishedPlayer,
+  getPublishedPlayerAddress,
   listIndexablePlayers,
 } from "../src/queries/portal-player";
 import { pushPortal } from "../src/queries/portal-publish";
@@ -232,5 +233,39 @@ describe("listIndexablePlayers", () => {
     expect((await listIndexablePlayers(1)).map((row) => row.id)).toEqual([
       second.id,
     ]);
+  });
+});
+
+describe("getPublishedPlayerAddress", () => {
+  it("is the player's own id and slug, or null before a push", async () => {
+    const player = await enter("Brooks");
+    expect(await getPublishedPlayerAddress(player.id)).toBeNull();
+    await pushPortal({ trigger: "admin" });
+    expect(await getPublishedPlayerAddress(player.id)).toEqual({
+      id: player.id,
+      slug: "test-brooks",
+    });
+    expect(await getPublishedPlayerAddress(999_999)).toBeNull();
+  });
+
+  it("is the survivor's for a merged player, and null when the survivor is gone", async () => {
+    const survivor = await enter("Same", true);
+    const loser = await createPortalPlayer({
+      firstName: "Test",
+      lastName: "Same",
+    });
+    await pushPortal({ trigger: "admin" });
+    await mergePlayers({ survivorId: survivor.id, loserId: loser.id });
+    await pushPortal({ trigger: "admin" });
+    expect(await getPublishedPlayerAddress(loser.id)).toEqual({
+      id: survivor.id,
+      slug: "test-same",
+    });
+    // The survivor is itself a redirect: not followed.
+    await db
+      .update(publishedPlayersTable)
+      .set({ redirectToPlayerId: loser.id })
+      .where(eq(publishedPlayersTable.playerId, survivor.id));
+    expect(await getPublishedPlayerAddress(loser.id)).toBeNull();
   });
 });
