@@ -266,7 +266,8 @@ export function SubmitForm() {
         <Field
           name="note"
           label="Anything else"
-          hint={`Needed if you chose "${SUBMISSION_MOVE_LABELS.other}".`}
+          // Players paste their NCAA (Eligibility Center) ID out of habit; we don't keep it.
+          hint={`Needed if you chose "${SUBMISSION_MOVE_LABELS.other}". Please don't include your NCAA ID or any other account numbers. We don't need them.`}
           error={error("note")}
         >
           {(props) => (

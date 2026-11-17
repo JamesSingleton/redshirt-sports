@@ -4,11 +4,14 @@ import { auth } from "@redshirt-sports/auth/server";
 import {
   EVENT_SOURCE_TYPES,
   PLAYER_CLASS_CODES,
+  PLAYER_ID_PROVIDERS,
   PLAYER_SUBMISSION_STATUSES,
+  parsePlayerExternalId,
   parseStorySlug,
   RECRUITMENT_EVENT_TYPES,
 } from "@redshirt-sports/db/portal";
 import {
+  addPlayerExternalId,
   createPortalPlayer,
   dismissDuplicate,
   expirePendingPortalPushes,
@@ -17,6 +20,7 @@ import {
   getPortalPendingSummary,
   getPortalPlayer,
   listDuplicateCandidates,
+  listPlayerExternalIds,
   listPlayerSubmissions,
   listPortalPlayers,
   listPortalSports,
@@ -24,8 +28,10 @@ import {
   openRecruitment,
   PortalWriteError,
   previewMerge,
+  previewMergeIdConflicts,
   pushPortal,
   recordRecruitmentEvent,
+  removePlayerExternalId,
   resolvePortalActor,
   reviewPlayerSubmission,
   searchPortalSchools,
@@ -170,6 +176,24 @@ const moveSchema = sourceSchema
 
 const positiveId = z.coerce.number().int().positive();
 
+/** A pasted ESPN or stats.ncaa.org profile link, or the number in it. */
+const externalIdSchema = z
+  .object({ provider: z.enum(PLAYER_ID_PROVIDERS), value: z.string().max(300) })
+  .transform(({ provider, value }, context) => {
+    const externalId = parsePlayerExternalId(provider, value);
+    if (!externalId) {
+      context.addIssue({
+        code: "custom",
+        message:
+          provider === "espn"
+            ? "Paste the player's espn.com page link, or the number after /id/."
+            : "Paste the player's stats.ncaa.org page link, or the number after /players/.",
+      });
+      return z.NEVER;
+    }
+    return { provider, externalId };
+  });
+
 // ---------- Helpers ----------
 
 async function actorId() {
@@ -238,12 +262,13 @@ export async function getPortalPending() {
 
 export async function getPortalPlayerPage(id: number) {
   await requireArea("portal");
-  const [player, sports, pending] = await Promise.all([
+  const [player, sports, pending, externalIds] = await Promise.all([
     getPortalPlayer(id),
     listPortalSports(),
     getPortalPendingSummary(),
+    listPlayerExternalIds(id),
   ]);
-  return player ? { player, sports, pending } : null;
+  return player ? { player, sports, pending, externalIds } : null;
 }
 
 export type PortalPlayerPage = NonNullable<
@@ -472,6 +497,57 @@ export async function pushPortalToSite(): Promise<PortalActionResult> {
   return { ok: true, message: published };
 }
 
+// ---------- Public ids (ESPN, NCAA stats) ----------
+
+/** Internal only: used to match players, never shown on the site. */
+export async function addPlayerExternalIdAction(input: {
+  playerId: unknown;
+  provider: unknown;
+  value: unknown;
+}): Promise<PortalActionResult> {
+  await requireArea("portal");
+  const id = playerId.safeParse(input.playerId);
+  if (!id.success) return invalid(id.error);
+  const parsed = externalIdSchema.safeParse({
+    provider: input.provider,
+    value: input.value,
+  });
+  if (!parsed.success) return invalid(parsed.error);
+  try {
+    await addPlayerExternalId({
+      ...parsed.data,
+      playerId: id.data,
+      actorUserId: await actorId(),
+    });
+    revalidatePath(`/portal/players/${id.data}`);
+    return { ok: true, message: "Id added.", playerId: id.data };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function removePlayerExternalIdAction(input: {
+  playerId: unknown;
+  id: unknown;
+}): Promise<PortalActionResult> {
+  await requireArea("portal");
+  const player = playerId.safeParse(input.playerId);
+  if (!player.success) return invalid(player.error);
+  const id = positiveId.safeParse(input.id);
+  if (!id.success) return invalid(id.error);
+  try {
+    await removePlayerExternalId({
+      playerId: player.data,
+      id: id.data,
+      actorUserId: await actorId(),
+    });
+    revalidatePath(`/portal/players/${player.data}`);
+    return { ok: true, message: "Id removed.", playerId: player.data };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 // ---------- Duplicates ----------
 
 const pairSchema = z
@@ -504,11 +580,13 @@ export async function getMergeComparison(aId: number, bId: number) {
     getPortalPlayer(bId),
   ]);
   if (!a || !b || a.id === b.id) return null;
-  const [keepA, keepB] = await Promise.all([
+  const [keepA, keepB, idConflicts] = await Promise.all([
     previewMerge(a.id, b.id),
     previewMerge(b.id, a.id),
+    // The same either way round: a provider where each has a different id.
+    previewMergeIdConflicts(a.id, b.id),
   ]);
-  return { a, b, keepA, keepB };
+  return { a, b, keepA, keepB, idConflicts };
 }
 
 export type MergeComparison = NonNullable<

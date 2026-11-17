@@ -24,6 +24,7 @@ import {
   EVENT_SOURCE_TYPES,
   FIRST_PLAYER_ID,
   PLAYER_CLASS_CODES,
+  PLAYER_ID_PROVIDERS,
   PLAYER_SUBMISSION_STATUSES,
   PLAYER_SUBMITTER_ROLES,
   PORTAL_PUSH_TRIGGERS,
@@ -1749,6 +1750,50 @@ export const recruitmentEventsTable = pgTable(
   ],
 );
 
+/**
+ * Public ids a player has elsewhere (ESPN, stats.ncaa.org), for matching.
+ * Internal: never published. One id per provider per player, and an id
+ * belongs to one player, so the database refuses a duplicate player.
+ */
+export const playerExternalIdsTable = pgTable(
+  "player_external_ids",
+  {
+    id: identityId(),
+    playerId: bigint("player_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(),
+    externalId: text("external_id").notNull(),
+    createdByUserId: text("created_by_user_id").references(
+      () => usersTable.id,
+      { onDelete: "set null" },
+    ),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    check(
+      "player_external_ids_provider_check",
+      inList(table.provider, PLAYER_ID_PROVIDERS),
+    ),
+    check(
+      "player_external_ids_external_id_check",
+      sql`${table.externalId} ~ '^[0-9]{1,12}$'`,
+    ),
+    unique("player_external_ids_provider_external_id_unique").on(
+      table.provider,
+      table.externalId,
+    ),
+    // Also the index for the player_id foreign key (its leading column).
+    unique("player_external_ids_player_id_provider_unique").on(
+      table.playerId,
+      table.provider,
+    ),
+    index("player_external_ids_created_by_user_id_index").on(
+      table.createdByUserId,
+    ),
+  ],
+);
+
 /** Pairs an admin has ruled are different people, so the duplicate queue stops offering them. */
 export const playerDuplicateDismissalsTable = pgTable(
   "player_duplicate_dismissals",
@@ -1994,9 +2039,24 @@ export const playersTableRelations = relations(
       references: [playersTable.id],
     }),
     sports: many(playerSportsTable),
+    externalIds: many(playerExternalIdsTable),
     published: one(publishedPlayersTable, {
       fields: [playersTable.id],
       references: [publishedPlayersTable.playerId],
+    }),
+  }),
+);
+
+export const playerExternalIdsTableRelations = relations(
+  playerExternalIdsTable,
+  ({ one }) => ({
+    player: one(playersTable, {
+      fields: [playerExternalIdsTable.playerId],
+      references: [playersTable.id],
+    }),
+    createdBy: one(usersTable, {
+      fields: [playerExternalIdsTable.createdByUserId],
+      references: [usersTable.id],
     }),
   }),
 );

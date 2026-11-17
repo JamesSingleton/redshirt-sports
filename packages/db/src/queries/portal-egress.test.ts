@@ -16,6 +16,7 @@ const FILES = [
   "portal-wire.ts",
   "portal-player.ts",
   "player-submissions.ts",
+  "player-external-ids.ts",
 ];
 
 describe("portal queries name their columns", () => {

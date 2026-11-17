@@ -1,5 +1,6 @@
 /** Client-safe portal vocabulary and pure logic: no database access. */
 export * from "./constants";
+export * from "./external-id";
 export * from "./player";
 export * from "./player-url";
 export * from "./published";

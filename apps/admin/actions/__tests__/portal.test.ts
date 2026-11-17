@@ -11,6 +11,10 @@ const db = vi.hoisted(() => {
   }
   return {
     PortalWriteError,
+    addPlayerExternalId: vi.fn(),
+    listPlayerExternalIds: vi.fn(),
+    removePlayerExternalId: vi.fn(),
+    previewMergeIdConflicts: vi.fn(),
     createPortalPlayer: vi.fn(),
     dismissDuplicate: vi.fn(),
     listDuplicateCandidates: vi.fn(),
@@ -64,6 +68,7 @@ vi.mock("@sentry/nextjs", () => ({
 }));
 
 import {
+  addPlayerExternalIdAction,
   createPortalPlayerAction,
   dismissPortalDuplicate,
   enterPortal,
@@ -78,6 +83,7 @@ import {
   mergePortalPlayers,
   pushPortalToSite,
   recordPortalMove,
+  removePlayerExternalIdAction,
   reviewSubmission,
   savePlayerBio,
   savePlayerSport,
@@ -126,7 +132,11 @@ describe("portal admin actions", () => {
       db.getPortalPlayer.mockResolvedValue(null);
       expect(await getPortalPlayerPage(1)).toBeNull();
       db.getPortalPlayer.mockResolvedValue({ id: 1 });
-      expect(await getPortalPlayerPage(1)).toMatchObject({ player: { id: 1 } });
+      db.listPlayerExternalIds.mockResolvedValue([{ id: 3 }]);
+      expect(await getPortalPlayerPage(1)).toMatchObject({
+        player: { id: 1 },
+        externalIds: [{ id: 3 }],
+      });
     });
 
     it("caps search input", async () => {
@@ -415,6 +425,104 @@ describe("portal admin actions", () => {
     });
   });
 
+  describe("public ids", () => {
+    it("adds an id from a pasted link or number", async () => {
+      expect(
+        (
+          await addPlayerExternalIdAction({
+            playerId: "4",
+            provider: "espn",
+            value:
+              "https://www.espn.com/college-football/player/_/id/4432577/x",
+          })
+        ).ok,
+      ).toBe(true);
+      expect(db.addPlayerExternalId).toHaveBeenCalledWith({
+        playerId: 4,
+        provider: "espn",
+        externalId: "4432577",
+        actorUserId: "user_admin",
+      });
+      expect(mockRevalidatePath).toHaveBeenCalledWith("/portal/players/4");
+      expect(
+        (
+          await addPlayerExternalIdAction({
+            playerId: 4,
+            provider: "ncaa",
+            value: " 7612345 ",
+          })
+        ).ok,
+      ).toBe(true);
+    });
+
+    it("explains what to paste when it can't find an id", async () => {
+      for (const provider of ["espn", "ncaa"]) {
+        const result = await addPlayerExternalIdAction({
+          playerId: 4,
+          provider,
+          value: "NCAA ID 2601808637x",
+        });
+        expect(result.ok).toBe(false);
+        expect(result.message).toContain(
+          provider === "espn" ? "espn.com" : "stats.ncaa.org",
+        );
+      }
+      expect(
+        (
+          await addPlayerExternalIdAction({
+            playerId: 4,
+            provider: "eligibility",
+            value: "1",
+          })
+        ).ok,
+      ).toBe(false);
+      expect(
+        (
+          await addPlayerExternalIdAction({
+            playerId: "z",
+            provider: "espn",
+            value: "1",
+          })
+        ).ok,
+      ).toBe(false);
+      expect(db.addPlayerExternalId).not.toHaveBeenCalled();
+    });
+
+    it("passes on a refused id", async () => {
+      db.addPlayerExternalId.mockRejectedValueOnce(
+        new db.PortalWriteError("external_id_taken", "Someone has it."),
+      );
+      expect(
+        await addPlayerExternalIdAction({
+          playerId: 4,
+          provider: "espn",
+          value: "1",
+        }),
+      ).toEqual({ ok: false, message: "Someone has it." });
+    });
+
+    it("removes an id", async () => {
+      expect(
+        (await removePlayerExternalIdAction({ playerId: 4, id: "7" })).ok,
+      ).toBe(true);
+      expect(db.removePlayerExternalId).toHaveBeenCalledWith({
+        playerId: 4,
+        id: 7,
+        actorUserId: "user_admin",
+      });
+      expect(
+        (await removePlayerExternalIdAction({ playerId: "z", id: 7 })).ok,
+      ).toBe(false);
+      expect(
+        (await removePlayerExternalIdAction({ playerId: 4, id: 0 })).ok,
+      ).toBe(false);
+      db.removePlayerExternalId.mockRejectedValueOnce(new Error("boom"));
+      expect(
+        (await removePlayerExternalIdAction({ playerId: 4, id: 7 })).ok,
+      ).toBe(false);
+    });
+  });
+
   describe("pushPortalToSite", () => {
     it("publishes and refreshes the site", async () => {
       db.pushPortal.mockResolvedValue({
@@ -495,11 +603,13 @@ describe("portal admin actions", () => {
         id === 9 ? null : { id },
       );
       db.previewMerge.mockImplementation(async (keep: number) => [{ keep }]);
+      db.previewMergeIdConflicts.mockResolvedValue([{ provider: "espn" }]);
       expect(await getMergeComparison(1, 2)).toEqual({
         a: { id: 1 },
         b: { id: 2 },
         keepA: [{ keep: 1 }],
         keepB: [{ keep: 2 }],
+        idConflicts: [{ provider: "espn" }],
       });
       expect(await getMergeComparison(1, 9)).toBeNull();
       expect(await getMergeComparison(1, 1)).toBeNull();

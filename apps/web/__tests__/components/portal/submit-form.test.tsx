@@ -39,6 +39,14 @@ describe("report a move form", () => {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
     expect(screen.getByLabelText(/Position/)).not.toBeRequired();
+    // Players paste their NCAA ID out of habit; the form asks them not to.
+    expect(
+      screen.getByText(/Please don't include your NCAA ID/),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Anything else/)).toHaveAttribute(
+      "aria-describedby",
+      "submit-note-hint",
+    );
     expect(screen.getByLabelText(/^Link/)).toHaveAttribute(
       "aria-describedby",
       "submit-link-hint",

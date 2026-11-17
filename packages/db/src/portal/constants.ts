@@ -181,3 +181,16 @@ export function isValidPosition(sportSlug: string, code: string): boolean {
 
 /** First player id. Keeps `/players/<name>-<id>` from starting at 1. */
 export const FIRST_PLAYER_ID = 100_000;
+
+/**
+ * Public player ids we keep, for matching (an ESPN id survives a transfer, so
+ * it catches duplicates that names miss). Never the NCAA Eligibility Center
+ * ID: that's the athlete's account number, not a public profile id.
+ */
+export const PLAYER_ID_PROVIDERS = ["espn", "ncaa"] as const;
+export type PlayerIdProvider = (typeof PLAYER_ID_PROVIDERS)[number];
+
+export const PLAYER_ID_PROVIDER_LABELS: Record<PlayerIdProvider, string> = {
+  espn: "ESPN",
+  ncaa: "NCAA stats",
+};

@@ -1,8 +1,10 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { primaryDb as db } from "../client";
+import { PLAYER_ID_PROVIDER_LABELS } from "../portal/constants";
 import {
   playerDuplicateDismissalsTable,
+  playerExternalIdsTable,
   playerSportsTable,
   playersTable,
   recruitmentEventsTable,
@@ -232,6 +234,50 @@ export function previewMerge(survivorId: number, loserId: number) {
   return loserSportPlan(db, survivorId, loserId);
 }
 
+export interface MergeIdConflict {
+  provider: string;
+  survivorExternalId: string;
+  loserExternalId: string;
+}
+
+/**
+ * Providers where the two players have different ids (an ESPN id on each).
+ * Two ESPN ids almost always mean two people, so the merge is refused.
+ */
+async function idConflicts(
+  executor: Pick<typeof db, "select">,
+  survivorId: number,
+  loserId: number,
+): Promise<MergeIdConflict[]> {
+  const rows = await executor
+    .select({
+      playerId: playerExternalIdsTable.playerId,
+      provider: playerExternalIdsTable.provider,
+      externalId: playerExternalIdsTable.externalId,
+    })
+    .from(playerExternalIdsTable)
+    .where(inArray(playerExternalIdsTable.playerId, [survivorId, loserId]));
+  const survivor = new Map(
+    rows
+      .filter((row) => row.playerId === survivorId)
+      .map((row) => [row.provider, row.externalId]),
+  );
+  // One id belongs to one player, so a shared provider is always a conflict.
+  return rows
+    .filter((row) => row.playerId === loserId && survivor.has(row.provider))
+    .map((row) => ({
+      provider: row.provider,
+      survivorExternalId: survivor.get(row.provider) as string,
+      loserExternalId: row.externalId,
+    }))
+    .sort((a, b) => a.provider.localeCompare(b.provider));
+}
+
+/** Id conflicts that would stop `mergePlayers`, for the confirmation screen. */
+export function previewMergeIdConflicts(survivorId: number, loserId: number) {
+  return idConflicts(db, survivorId, loserId);
+}
+
 /**
  * Merge `loserId` into `survivorId`.
  *
@@ -241,6 +287,8 @@ export function previewMerge(survivorId: number, loserId: number) {
  *   to the merged record (nothing is deleted) and is no longer published.
  *   Missing position, height, or weight are filled from the loser.
  * - Blank bio fields on the survivor are filled from the loser.
+ * - The loser's public ids (ESPN, NCAA stats) move to the survivor. If both
+ *   have a different id from the same provider, the merge is refused.
  * - The loser becomes a tombstone (`merged_into_id`), so after the next push
  *   its URL redirects to the survivor. Players merged into the loser earlier
  *   now point straight at the survivor.
@@ -266,6 +314,31 @@ export async function mergePlayers(input: {
     }
     await requireActivePlayer(tx, survivorId);
     await requireActivePlayer(tx, loserId);
+
+    const conflicts = await idConflicts(tx, survivorId, loserId);
+    if (conflicts.length > 0) {
+      throw new PortalWriteError(
+        "merge_id_conflict",
+        `These players have different ${conflicts
+          .map(
+            (c) =>
+              PLAYER_ID_PROVIDER_LABELS[
+                c.provider as keyof typeof PLAYER_ID_PROVIDER_LABELS
+              ] ?? c.provider,
+          )
+          .join(
+            " and ",
+          )} ids, so they're probably different people. Remove the wrong id first if they're not.`,
+      );
+    }
+    const movedIds = await tx
+      .update(playerExternalIdsTable)
+      .set({ playerId: survivorId })
+      .where(eq(playerExternalIdsTable.playerId, loserId))
+      .returning({
+        provider: playerExternalIdsTable.provider,
+        externalId: playerExternalIdsTable.externalId,
+      });
 
     const plan = await loserSportPlan(tx, survivorId, loserId);
     const moving = plan
@@ -339,6 +412,7 @@ export async function mergePlayers(input: {
             .filter((sport) => sport.action === "keep")
             .map((sport) => sport.sportId),
           repointed: repointed.map((row) => row.id),
+          movedExternalIds: movedIds,
         },
         actorUserId: input.actorUserId,
       });
