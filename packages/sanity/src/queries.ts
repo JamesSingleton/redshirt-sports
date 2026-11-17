@@ -531,6 +531,25 @@ export const querySportsNewsOldest = defineQuery(/* groq */ `
   }
 `);
 
+/**
+ * Articles on the Transfer Portal beat, every sport, for the portal hub. The
+ * tag's id comes from a subquery that doesn't depend on the article, so it
+ * resolves once.
+ */
+const portalBeatFilter = /* groq */ `
+  _type == "post" &&
+  count(tags[@._ref in *[_type == "tag" && slug.current == "transfer-portal"]._id]) > 0
+`;
+
+export const queryPortalNews = defineQuery(/* groq */ `
+  {
+    "posts": *[${portalBeatFilter}] | order(publishedAt desc, _id desc)[$from...$to]{
+      ${homePostCardFragment}
+    },
+    "totalPosts": count(*[${portalBeatFilter}])
+  }
+`);
+
 const sportsDivisionNewsFilter = /* groq */ `
   _type == "post" &&
   sport._ref == ${sportIdBySlug} &&

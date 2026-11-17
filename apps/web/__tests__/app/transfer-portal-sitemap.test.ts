@@ -33,6 +33,11 @@ describe("transfer portal sitemap", () => {
     const entries = await sitemap();
     expect(entries).toEqual([
       {
+        url: "https://redshirtsports.com/transfer-portal",
+        changeFrequency: "daily",
+        priority: 0.9,
+      },
+      {
         url: "https://redshirtsports.com/college/football/transfer-portal",
         changeFrequency: "daily",
         priority: 0.8,
