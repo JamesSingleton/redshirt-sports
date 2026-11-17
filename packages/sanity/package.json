@@ -24,7 +24,7 @@
   "dependencies": {
     "@sanity/asset-utils": "^2.3.0",
     "@sanity/client": "catalog:",
-    "@sanity/image-url": "^2.1.1",
+    "@sanity/image-url": "^2.2.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "next-sanity": "catalog:",
     "sanity": "catalog:",

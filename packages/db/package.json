@@ -36,17 +36,17 @@
     "./portal/cache-tags": "./src/portal/cache-tags.ts"
   },
   "dependencies": {
+    "@redshirt-sports/clients": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.11",
     "drizzle-orm": "catalog:",
     "postgres": "^3.4.9",
     "server-only": "^0.0.1",
-    "zod": "catalog:",
-    "@redshirt-sports/clients": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@redshirt-sports/typescript-config": "workspace:*",
     "@types/node": "catalog:",
-    "dotenv": "^18.0.9",
+    "dotenv": "^18.0.10",
     "drizzle-kit": "catalog:",
     "tsx": "^4.23.15",
     "typescript": "catalog:",
