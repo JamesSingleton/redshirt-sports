@@ -3,12 +3,14 @@
  * An article stores which one it means as a single string,
  *
  *   "<provider>:<id>|<label>"   e.g. "espn:4775196|Tommy Mellott"
+ *                               or "redshirt:100007|Darnell Okafor"
  *
  * The id is what everything keys on. The label is a snapshot taken when the
  * editor picked it, so the Studio and structured data can name the game or
  * player without calling the provider. It is never the source of truth.
  */
-export const EXTERNAL_PROVIDERS = ["espn", "ncaa"] as const;
+/** `redshirt` is our own transfer portal players: the id is the one in `/players/<name>-<id>`. */
+export const EXTERNAL_PROVIDERS = ["espn", "ncaa", "redshirt"] as const;
 export type ExternalProvider = (typeof EXTERNAL_PROVIDERS)[number];
 
 export type ExternalRef = {
@@ -17,7 +19,7 @@ export type ExternalRef = {
   label: string;
 };
 
-const PATTERN = /^(espn|ncaa):([A-Za-z0-9._-]{1,64})\|(.+)$/;
+const PATTERN = /^(espn|ncaa|redshirt):([A-Za-z0-9._-]{1,64})\|(.+)$/;
 
 export function formatExternalRef(ref: ExternalRef): string {
   const label = ref.label.replace(/\s+/g, " ").trim();

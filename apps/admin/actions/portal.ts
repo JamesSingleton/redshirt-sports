@@ -4,25 +4,36 @@ import { auth } from "@redshirt-sports/auth/server";
 import {
   EVENT_SOURCE_TYPES,
   PLAYER_CLASS_CODES,
+  PLAYER_ID_PROVIDERS,
+  PLAYER_SUBMISSION_STATUSES,
+  parsePlayerExternalId,
+  parseStorySlug,
   RECRUITMENT_EVENT_TYPES,
 } from "@redshirt-sports/db/portal";
 import {
+  addPlayerExternalId,
   createPortalPlayer,
   dismissDuplicate,
   expirePendingPortalPushes,
   findSimilarPlayers,
+  getPlayerSubmission,
   getPortalPendingSummary,
   getPortalPlayer,
   listDuplicateCandidates,
+  listPlayerExternalIds,
+  listPlayerSubmissions,
   listPortalPlayers,
   listPortalSports,
   mergePlayers,
   openRecruitment,
   PortalWriteError,
   previewMerge,
+  previewMergeIdConflicts,
   pushPortal,
   recordRecruitmentEvent,
+  removePlayerExternalId,
   resolvePortalActor,
+  reviewPlayerSubmission,
   searchPortalSchools,
   updatePlayerBio,
   updatePlayerSport,
@@ -77,6 +88,24 @@ const sourceSchema = z.object({
       message: "Source link must start with https://",
     }),
   sourceNote: optionalText(500),
+  // Public, unlike the fields above: the article this move came from.
+  storySlug: z
+    .string()
+    .max(500)
+    .optional()
+    .nullable()
+    .transform((value, context) => {
+      const slug = parseStorySlug(value);
+      if (slug === undefined) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "Paste the article's link on the site, or its slug (like portal-qb-visits-idaho).",
+        });
+        return z.NEVER;
+      }
+      return slug;
+    }),
 });
 
 /** An event can't be dated more than a day ahead: catches a mistyped year. */
@@ -122,12 +151,48 @@ const bioSchema = z.object({
 
 const playerId = z.coerce.number().int().positive();
 
-const moveSchema = sourceSchema.extend({
-  recruitmentId: z.coerce.number().int().positive(),
-  type: z.enum(RECRUITMENT_EVENT_TYPES).exclude(["entered"]),
-  occurredAt,
-  school: schoolSchema.optional().nullable(),
-});
+const moveSchema = sourceSchema
+  .extend({
+    recruitmentId: z.coerce.number().int().positive(),
+    type: z.enum(RECRUITMENT_EVENT_TYPES).exclude(["entered"]),
+    occurredAt: z.coerce.date(),
+    school: schoolSchema.optional().nullable(),
+  })
+  .superRefine((move, context) => {
+    // A scheduled visit is the one move that's dated ahead (up to a year);
+    // anything else more than a day out is a mistyped year.
+    const ahead = move.type === "visit_scheduled" ? 366 : 1;
+    if (move.occurredAt.getTime() > Date.now() + ahead * 86_400_000) {
+      context.addIssue({
+        code: "custom",
+        path: ["occurredAt"],
+        message:
+          move.type === "visit_scheduled"
+            ? "That visit is more than a year away."
+            : "That date is in the future.",
+      });
+    }
+  });
+
+const positiveId = z.coerce.number().int().positive();
+
+/** A pasted ESPN or stats.ncaa.org profile link, or the number in it. */
+const externalIdSchema = z
+  .object({ provider: z.enum(PLAYER_ID_PROVIDERS), value: z.string().max(300) })
+  .transform(({ provider, value }, context) => {
+    const externalId = parsePlayerExternalId(provider, value);
+    if (!externalId) {
+      context.addIssue({
+        code: "custom",
+        message:
+          provider === "espn"
+            ? "Paste the player's espn.com page link, or the number after /id/."
+            : "Paste the player's stats.ncaa.org page link, or the number after /players/.",
+      });
+      return z.NEVER;
+    }
+    return { provider, externalId };
+  });
 
 // ---------- Helpers ----------
 
@@ -197,12 +262,13 @@ export async function getPortalPending() {
 
 export async function getPortalPlayerPage(id: number) {
   await requireArea("portal");
-  const [player, sports, pending] = await Promise.all([
+  const [player, sports, pending, externalIds] = await Promise.all([
     getPortalPlayer(id),
     listPortalSports(),
     getPortalPendingSummary(),
+    listPlayerExternalIds(id),
   ]);
-  return player ? { player, sports, pending } : null;
+  return player ? { player, sports, pending, externalIds } : null;
 }
 
 export type PortalPlayerPage = NonNullable<
@@ -227,6 +293,8 @@ export async function createPortalPlayerAction(input: {
   entry: unknown | null;
   /** Similar players the admin confirmed are different people. */
   notDuplicateOf?: unknown;
+  /** The public submission this player was entered from, to mark it accepted. */
+  submissionId?: unknown;
 }): Promise<PortalActionResult> {
   await requireArea("portal");
   const bio = bioSchema.safeParse(input.bio);
@@ -240,13 +308,28 @@ export async function createPortalPlayerAction(input: {
     .default([])
     .safeParse(input.notDuplicateOf);
   if (!notDuplicateOf.success) return invalid(notDuplicateOf.error);
+  const submissionId = positiveId
+    .optional()
+    .nullable()
+    .safeParse(input.submissionId);
+  if (!submissionId.success) return invalid(submissionId.error);
   try {
+    const actorUserId = await actorId();
     const player = await createPortalPlayer({
       notDuplicateOf: notDuplicateOf.data,
       ...bio.data,
-      actorUserId: await actorId(),
+      actorUserId,
       entry: entry?.data ?? null,
     });
+    if (submissionId.data) {
+      await reviewPlayerSubmission({
+        id: submissionId.data,
+        status: "accepted",
+        matchedPlayerId: player.id,
+        reviewerUserId: actorUserId,
+      });
+      revalidatePath("/portal/submissions");
+    }
     refresh(player.id);
     return { ok: true, message: "Player saved.", playerId: player.id };
   } catch (error) {
@@ -414,6 +497,57 @@ export async function pushPortalToSite(): Promise<PortalActionResult> {
   return { ok: true, message: published };
 }
 
+// ---------- Public ids (ESPN, NCAA stats) ----------
+
+/** Internal only: used to match players, never shown on the site. */
+export async function addPlayerExternalIdAction(input: {
+  playerId: unknown;
+  provider: unknown;
+  value: unknown;
+}): Promise<PortalActionResult> {
+  await requireArea("portal");
+  const id = playerId.safeParse(input.playerId);
+  if (!id.success) return invalid(id.error);
+  const parsed = externalIdSchema.safeParse({
+    provider: input.provider,
+    value: input.value,
+  });
+  if (!parsed.success) return invalid(parsed.error);
+  try {
+    await addPlayerExternalId({
+      ...parsed.data,
+      playerId: id.data,
+      actorUserId: await actorId(),
+    });
+    revalidatePath(`/portal/players/${id.data}`);
+    return { ok: true, message: "Id added.", playerId: id.data };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function removePlayerExternalIdAction(input: {
+  playerId: unknown;
+  id: unknown;
+}): Promise<PortalActionResult> {
+  await requireArea("portal");
+  const player = playerId.safeParse(input.playerId);
+  if (!player.success) return invalid(player.error);
+  const id = positiveId.safeParse(input.id);
+  if (!id.success) return invalid(id.error);
+  try {
+    await removePlayerExternalId({
+      playerId: player.data,
+      id: id.data,
+      actorUserId: await actorId(),
+    });
+    revalidatePath(`/portal/players/${player.data}`);
+    return { ok: true, message: "Id removed.", playerId: player.data };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 // ---------- Duplicates ----------
 
 const pairSchema = z
@@ -446,11 +580,13 @@ export async function getMergeComparison(aId: number, bId: number) {
     getPortalPlayer(bId),
   ]);
   if (!a || !b || a.id === b.id) return null;
-  const [keepA, keepB] = await Promise.all([
+  const [keepA, keepB, idConflicts] = await Promise.all([
     previewMerge(a.id, b.id),
     previewMerge(b.id, a.id),
+    // The same either way round: a provider where each has a different id.
+    previewMergeIdConflicts(a.id, b.id),
   ]);
-  return { a, b, keepA, keepB };
+  return { a, b, keepA, keepB, idConflicts };
 }
 
 export type MergeComparison = NonNullable<
@@ -492,6 +628,61 @@ export async function mergePortalPlayers(input: {
       message: `Merged #${loserId} into #${survivorId}. Push to update the site.`,
       playerId: survivorId,
     };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+// ---------- Public submissions ----------
+
+/** The submissions inbox: one status at a time, newest first. */
+export async function getSubmissionInbox(input: {
+  status?: unknown;
+  beforeId?: unknown;
+}) {
+  await requireArea("portal");
+  const status = z
+    .enum(PLAYER_SUBMISSION_STATUSES)
+    .catch("new")
+    .parse(input.status);
+  const beforeId = positiveId.optional().catch(undefined).parse(input.beforeId);
+  return { status, ...(await listPlayerSubmissions({ status, beforeId })) };
+}
+
+export type SubmissionInbox = Awaited<ReturnType<typeof getSubmissionInbox>>;
+
+/** One submission, to prefill the Add player form. Null when it isn't there. */
+export async function getSubmissionForEntry(id: unknown) {
+  await requireArea("portal");
+  const parsed = positiveId.safeParse(id);
+  return parsed.success ? getPlayerSubmission(parsed.data) : null;
+}
+
+const reviewSchema = z.object({
+  id: positiveId,
+  status: z.enum(PLAYER_SUBMISSION_STATUSES).exclude(["new"]),
+  matchedPlayerId: positiveId.optional().nullable(),
+  reviewNote: optionalText(500),
+});
+
+/**
+ * Close a submission without the Add player form: accepted (the move was
+ * recorded on an existing player), rejected, or spam.
+ */
+export async function reviewSubmission(
+  input: unknown,
+): Promise<PortalActionResult> {
+  await requireArea("portal");
+  const review = reviewSchema.safeParse(input);
+  if (!review.success) return invalid(review.error);
+  try {
+    const found = await reviewPlayerSubmission({
+      ...review.data,
+      reviewerUserId: await actorId(),
+    });
+    if (!found) return { ok: false, message: "Submission not found." };
+    revalidatePath("/portal/submissions");
+    return { ok: true, message: "Saved." };
   } catch (error) {
     return failure(error);
   }

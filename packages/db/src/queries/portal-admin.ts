@@ -281,6 +281,7 @@ export async function getPortalPlayer(playerId: number) {
             sourceType: recruitmentEventsTable.sourceType,
             sourceUrl: recruitmentEventsTable.sourceUrl,
             sourceNote: recruitmentEventsTable.sourceNote,
+            storySlug: recruitmentEventsTable.storySlug,
             voidedAt: recruitmentEventsTable.voidedAt,
             voidReason: recruitmentEventsTable.voidReason,
           })

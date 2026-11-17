@@ -29,7 +29,11 @@ export class PortalWriteError extends Error {
       | "event_not_found"
       | "event_already_voided"
       | "later_recruitment_exists"
-      | "merge_same_player",
+      | "merge_same_player"
+      | "merge_id_conflict"
+      | "external_id_taken"
+      | "external_id_exists"
+      | "external_id_not_found",
     message: string,
   ) {
     super(message);

@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  isInterestEventType,
+  PLAYER_ID_PROVIDER_LABELS,
+  PLAYER_ID_PROVIDERS,
+  type PlayerIdProvider,
   playerClassLabel,
   SCHOOL_EVENT_TYPES,
 } from "@redshirt-sports/db/portal";
@@ -19,10 +23,12 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import {
+  addPlayerExternalIdAction,
   enterPortal,
   type PortalActionResult,
   type PortalPlayerPage,
   recordPortalMove,
+  removePlayerExternalIdAction,
   savePlayerBio,
   savePlayerSport,
   voidPortalMove,
@@ -59,6 +65,9 @@ type Event = Recruitment["events"][number];
 
 const MOVE_TYPES = [
   "offered",
+  "contacted",
+  "visit_scheduled",
+  "visited",
   "committed",
   "decommitted",
   "signed",
@@ -137,6 +146,121 @@ function BioCard({ player }: { player: Player }) {
   );
 }
 
+/** The site whose player page link holds each provider's id. */
+const PROVIDER_SITES: Record<PlayerIdProvider, string> = {
+  espn: "espn.com",
+  ncaa: "stats.ncaa.org",
+};
+
+function ExternalIdsCard({
+  playerId,
+  ids,
+}: {
+  playerId: number;
+  ids: PortalPlayerPage["externalIds"];
+}) {
+  const { pending, run } = useRunner();
+  const missing = PLAYER_ID_PROVIDERS.filter(
+    (provider) => !ids.some((row) => row.provider === provider),
+  );
+  const [provider, setProvider] = useState<PlayerIdProvider>(
+    missing[0] ?? "espn",
+  );
+  const [value, setValue] = useState("");
+  const chosen = missing.includes(provider) ? provider : missing[0];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Public ids</CardTitle>
+        <CardDescription>
+          Their ESPN and NCAA stats ids, to spot the same player entered twice.
+          Never shown on the site. The number in their espn.com or
+          stats.ncaa.org page link, not their NCAA Eligibility Center ID: we
+          don't keep that.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {ids.length > 0 ? (
+          <ul className="flex flex-col divide-y rounded-md border text-sm">
+            {ids.map((row) => {
+              const label =
+                PLAYER_ID_PROVIDER_LABELS[row.provider as PlayerIdProvider] ??
+                row.provider;
+              return (
+                <li
+                  key={row.id}
+                  className="flex items-center justify-between gap-3 px-3 py-2"
+                >
+                  <span>
+                    <span className="font-medium">{label}</span>{" "}
+                    <span className="tabular-nums">{row.externalId}</span>
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={pending}
+                    aria-label={`Remove ${label} id ${row.externalId}`}
+                    onClick={() =>
+                      run(() =>
+                        removePlayerExternalIdAction({ playerId, id: row.id }),
+                      )
+                    }
+                  >
+                    Remove
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground text-sm">No ids yet.</p>
+        )}
+        {chosen ? (
+          <form
+            className="flex flex-wrap items-end gap-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              run(
+                () =>
+                  addPlayerExternalIdAction({
+                    playerId,
+                    provider: chosen,
+                    value,
+                  }),
+                () => setValue(""),
+              );
+            }}
+          >
+            <OptionSelect
+              label="Site"
+              value={chosen}
+              onChange={(next) => setProvider(next as PlayerIdProvider)}
+              allowNone={false}
+              className="w-36"
+              options={missing.map((option) => ({
+                value: option,
+                label: PLAYER_ID_PROVIDER_LABELS[option],
+              }))}
+            />
+            <TextField
+              label={`${PROVIDER_SITES[chosen]} link or id`}
+              value={value}
+              onChange={setValue}
+              className="w-80"
+              maxLength={300}
+              autoComplete="off"
+            />
+            <Button size="sm" type="submit" disabled={pending || !value.trim()}>
+              Add id
+            </Button>
+          </form>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 function EventRow({ playerId, event }: { playerId: number; event: Event }) {
   const { pending, run } = useRunner();
   const [undoing, setUndoing] = useState(false);
@@ -171,6 +295,11 @@ function EventRow({ playerId, event }: { playerId: number; event: Event }) {
           </Button>
         )}
       </div>
+      {event.storySlug ? (
+        <p className="text-muted-foreground text-xs">
+          Story (public): /{event.storySlug}
+        </p>
+      ) : null}
       {event.sourceType || event.sourceUrl || event.sourceNote ? (
         <p className="text-muted-foreground text-xs">
           Source:{" "}
@@ -275,7 +404,10 @@ function MoveForm({
               destination.label
             ) {
               setSchool(destination);
-            } else if (nextType === "offered" || nextType === "committed") {
+            } else if (
+              isInterestEventType(nextType) ||
+              nextType === "committed"
+            ) {
               setSchool(EMPTY_SCHOOL);
             }
           }}
@@ -555,7 +687,7 @@ function SportCard({
 }
 
 export function PlayerDesk({ page }: { page: PortalPlayerPage }) {
-  const { player, sports } = page;
+  const { player, sports, externalIds } = page;
   const [addingSport, setAddingSport] = useState(false);
   const otherSports = sports.filter(
     (sport) => !player.sports.some((row) => row.sportId === sport.id),
@@ -564,6 +696,7 @@ export function PlayerDesk({ page }: { page: PortalPlayerPage }) {
   return (
     <div className="flex flex-col gap-6">
       <BioCard player={player} />
+      <ExternalIdsCard playerId={player.id} ids={externalIds} />
       {player.sports.map((sport) => (
         <SportCard
           key={sport.id}

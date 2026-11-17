@@ -1,13 +1,14 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { primaryDb as db } from "../client";
 import { type PortalPlayerPage, playerReferences } from "../portal/player";
+import { normalizePlayerName } from "../portal/player-url";
 import {
   publishedPlayerDocSchema,
   publishedRedirectDocSchema,
 } from "../portal/published";
-import { publishedPlayersTable } from "../schema";
+import { playersTable, publishedPlayersTable } from "../schema";
 import {
   conferenceDictionary,
   levelDictionary,
@@ -137,3 +138,43 @@ export async function getPublishedPlayerAddress(
     ? null
     : { id: row.redirectToPlayerId, slug: row.targetSlug };
 }
+
+/**
+ * Published players by name, best match first, for the Studio's player
+ * picker. Matches on the trigram index over `players.name_search`, but
+ * returns only what's published (the name and position as pushed), so an
+ * unpublished player or a pending rename never shows.
+ */
+export async function searchPublishedPlayers(term: string, limit = 10) {
+  const needle = normalizePlayerName(term);
+  if (needle.length < 3) return [];
+  const similarity = sql<number>`extensions.similarity(${playersTable.nameSearch}, ${needle})`;
+  const doc = publishedPlayersTable.doc;
+  return db
+    .select({
+      id: publishedPlayersTable.playerId,
+      slug: publishedPlayersTable.slug,
+      firstName: sql<string>`${doc} ->> 'firstName'`,
+      lastName: sql<string>`${doc} ->> 'lastName'`,
+      suffix: sql<string | null>`${doc} ->> 'suffix'`,
+      sportSlug: sql<string | null>`${doc} -> 'sports' -> 0 ->> 'sportSlug'`,
+      position: sql<string | null>`${doc} -> 'sports' -> 0 ->> 'position'`,
+    })
+    .from(publishedPlayersTable)
+    .innerJoin(
+      playersTable,
+      eq(playersTable.id, publishedPlayersTable.playerId),
+    )
+    .where(
+      and(
+        isNull(publishedPlayersTable.redirectToPlayerId),
+        sql`${playersTable.nameSearch} operator(extensions.%) ${needle}`,
+      ),
+    )
+    .orderBy(desc(similarity), publishedPlayersTable.playerId)
+    .limit(limit);
+}
+
+export type PublishedPlayerMatch = Awaited<
+  ReturnType<typeof searchPublishedPlayers>
+>[number];

@@ -269,6 +269,8 @@ export interface MoveCard {
   statusLine: string;
   /** What the status line doesn't say: when they entered, and the transfer type. */
   details: string[];
+  /** The article that reported where they stand now. */
+  storySlug: string | null;
 }
 
 const STATUS_VERBS: Record<PublishedRecruitment["status"], string> = {
@@ -277,6 +279,17 @@ const STATUS_VERBS: Record<PublishedRecruitment["status"], string> = {
   signed: "Signed",
   enrolled: "Enrolled",
   withdrawn: "Withdrew",
+};
+
+const STATUS_EVENT_TYPES: Record<
+  PublishedRecruitment["status"],
+  PlayerEvent["type"]
+> = {
+  entered: "entered",
+  committed: "committed",
+  signed: "signed",
+  enrolled: "enrolled",
+  withdrawn: "withdrew",
 };
 
 /** The header's previous school → next school card. */
@@ -292,7 +305,21 @@ export function moveCard(
       : `Entered ${formatWireDate(recruitment.enteredAt)}`,
     recruitment.isGradTransfer ? "Graduate transfer" : "Undergraduate transfer",
   ].filter((detail): detail is string => detail !== null);
-  const base = { from, status: recruitment.status, statusLine, details };
+  // The move that put them where they stand: its story is the card's story.
+  const statusEvent = [...recruitment.events]
+    .reverse()
+    .find(
+      (event) =>
+        !event.superseded &&
+        STATUS_EVENT_TYPES[recruitment.status] === event.type,
+    );
+  const base = {
+    from,
+    status: recruitment.status,
+    statusLine,
+    details,
+    storySlug: statusEvent?.storySlug ?? null,
+  };
   if (recruitment.status === "withdrawn") {
     return {
       ...base,
@@ -328,6 +355,8 @@ export interface JourneyEvent {
   label: string;
   date: string;
   superseded: boolean;
+  /** The article this move came from, when one is attached. */
+  storySlug: string | null;
 }
 
 export interface JourneyStop {
@@ -388,6 +417,7 @@ function journeyEvent(
       label,
       date: formatWireDate(event.occurredAt),
       superseded: event.superseded,
+      storySlug: event.storySlug ?? null,
     },
   ];
 }
@@ -503,31 +533,138 @@ export function highSchoolStop(doc: PublishedPlayerDoc): JourneyStop | null {
   };
 }
 
-export interface ProfileOffer {
-  key: number;
+export type InterestStatus =
+  | "committed"
+  | "visited"
+  | "visit_scheduled"
+  | "offered"
+  | "contacted";
+
+/** Strongest first: what a school's row leads with. */
+const INTEREST_RANK: InterestStatus[] = [
+  "committed",
+  "visited",
+  "visit_scheduled",
+  "offered",
+  "contacted",
+];
+
+export const INTEREST_LABELS: Record<InterestStatus, string> = {
+  committed: "Committed",
+  visited: "Visited",
+  visit_scheduled: "Visit scheduled",
+  offered: "Offered",
+  contacted: "Reported contact",
+};
+
+export interface InterestRow {
+  key: string;
   view: WireSchoolView | null;
+  status: InterestStatus;
+  /** When the leading fact happened: "Oct 12". */
   date: string;
-  committed: boolean;
+  /** The rest of what's reported for the school: "Offered Oct 4 · Visited Oct 8". */
+  detail: string | null;
+  storySlug: string | null;
   cycleYear: number;
 }
 
-/** Reported offers, newest cycle first, flagging the school they committed to. */
-export function profileOffers(
+interface InterestFact {
+  type: InterestStatus;
+  occurredAt: string;
+  storySlug: string | null;
+  place: Place;
+  eventId: number;
+}
+
+/**
+ * Schools with reported interest in the player: offers, contact, and visits,
+ * one row per school per portal entry. A row leads with the strongest thing
+ * reported (committed, then a visit, a scheduled visit, an offer, contact)
+ * and lists the rest as detail. Newest entry first.
+ */
+export function profileInterest(
   data: PortalPlayerData,
   sport: PlayerSport,
-): ProfileOffer[] {
-  return sport.recruitments.flatMap((recruitment) =>
-    [...recruitment.offers].reverse().map((offer) => ({
-      key: offer.eventId,
-      view: schoolView(data, offer),
-      date: formatWireDate(offer.occurredAt, true),
-      committed:
-        recruitment.status !== "entered" &&
-        recruitment.status !== "withdrawn" &&
-        samePlace(recruitment.destination, offer),
-      cycleYear: recruitment.cycleYear,
-    })),
-  );
+): InterestRow[] {
+  return sport.recruitments.flatMap((recruitment) => {
+    const facts: InterestFact[] = [
+      ...recruitment.offers.map((offer) => ({
+        type: "offered" as const,
+        occurredAt: offer.occurredAt,
+        storySlug: offer.storySlug ?? null,
+        place: offer,
+        eventId: offer.eventId,
+      })),
+      ...(recruitment.interest ?? []).map((item) => ({
+        type: item.type,
+        occurredAt: item.occurredAt,
+        storySlug: item.storySlug ?? null,
+        place: item,
+        eventId: item.eventId,
+      })),
+    ];
+    const committedTo =
+      recruitment.status !== "entered" && recruitment.status !== "withdrawn"
+        ? recruitment.destination
+        : undefined;
+    const commitment = [...recruitment.events]
+      .reverse()
+      .find((event) => event.type === "committed" && !event.superseded);
+
+    const schools = new Map<string, InterestFact[]>();
+    for (const fact of facts) {
+      const key =
+        schoolView(data, fact.place)?.key ?? `undisclosed-${fact.eventId}`;
+      schools.set(key, [...(schools.get(key) ?? []), fact]);
+    }
+
+    return [...schools.entries()]
+      .map(([key, group]): InterestRow & { rank: number; at: number } => {
+        const all = [...group];
+        if (samePlace(committedTo, group[0]?.place) && commitment) {
+          all.push({
+            type: "committed",
+            occurredAt: commitment.occurredAt,
+            storySlug: commitment.storySlug ?? null,
+            place: group[0]!.place,
+            eventId: commitment.id,
+          });
+        }
+        // Lead with the strongest fact; its latest occurrence if repeated.
+        const lead = all
+          .slice()
+          .sort(
+            (a, b) =>
+              INTEREST_RANK.indexOf(a.type) - INTEREST_RANK.indexOf(b.type) ||
+              Date.parse(b.occurredAt) - Date.parse(a.occurredAt),
+          )[0]!;
+        const rest = all
+          .filter((fact) => fact !== lead)
+          .sort((a, b) => Date.parse(a.occurredAt) - Date.parse(b.occurredAt))
+          .map(
+            (fact) =>
+              `${INTEREST_LABELS[fact.type]} ${formatWireDate(fact.occurredAt, true)}`,
+          );
+        return {
+          key: `${recruitment.id}-${key}`,
+          view: schoolView(data, lead.place),
+          status: lead.type,
+          date: formatWireDate(lead.occurredAt, true),
+          detail: rest.length ? rest.join(" · ") : null,
+          // The lead's story, else any story about this school.
+          storySlug:
+            lead.storySlug ??
+            all.find((fact) => fact.storySlug)?.storySlug ??
+            null,
+          cycleYear: recruitment.cycleYear,
+          rank: INTEREST_RANK.indexOf(lead.type),
+          at: Date.parse(lead.occurredAt),
+        };
+      })
+      .sort((a, b) => a.rank - b.rank || b.at - a.at)
+      .map(({ rank: _rank, at: _at, ...row }) => row);
+  });
 }
 
 // ---------- Sidebar ----------

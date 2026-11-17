@@ -238,12 +238,15 @@ export interface SourceValue {
   sourceType: string;
   sourceUrl: string;
   sourceNote: string;
+  /** Public: the article on the site this move came from. */
+  storySlug: string;
 }
 
 export const EMPTY_SOURCE: SourceValue = {
   sourceType: "",
   sourceUrl: "",
   sourceNote: "",
+  storySlug: "",
 };
 
 export function sourcePayload(source: SourceValue) {
@@ -251,10 +254,14 @@ export function sourcePayload(source: SourceValue) {
     sourceType: source.sourceType || null,
     sourceUrl: source.sourceUrl || null,
     sourceNote: source.sourceNote || null,
+    storySlug: source.storySlug || null,
   };
 }
 
-/** Where we heard it. Private: never published. */
+/**
+ * Where we heard it (private: never published), and the article on the site
+ * that reported it (public: shown as a "Story" link beside the move).
+ */
 export function SourceFields({
   value,
   onChange,
@@ -286,6 +293,13 @@ export function SourceFields({
         className="w-64"
         value={value.sourceNote}
         onChange={(sourceNote) => onChange({ ...value, sourceNote })}
+      />
+      <TextField
+        label="Our story (public, optional)"
+        placeholder="Article link or slug"
+        className="w-72"
+        value={value.storySlug}
+        onChange={(storySlug) => onChange({ ...value, storySlug })}
       />
     </div>
   );

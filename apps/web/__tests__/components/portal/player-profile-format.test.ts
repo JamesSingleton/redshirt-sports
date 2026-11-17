@@ -4,7 +4,7 @@ import {
   journeyStops,
   positionLabel,
   positionPlural,
-  profileOffers,
+  profileInterest,
   sideLists,
 } from "@/components/portal/player-format";
 import {
@@ -226,57 +226,144 @@ describe("journey", () => {
   });
 });
 
-describe("offers", () => {
-  it("lists offers newest first and marks the school they committed to", () => {
+describe("offers and reported interest", () => {
+  const at = (day: number) =>
+    `2026-01-${String(day).padStart(2, "0")}T17:00:00.000Z`;
+
+  it("gives each school one row, led by the strongest thing reported", () => {
     const sport = playerSport({
       recruitments: [
         recruitment({
+          // Committed to Boise.
           offers: [
             {
               eventId: 3,
-              occurredAt: "2026-01-03T17:00:00.000Z",
+              occurredAt: at(3),
               schoolId: "boise",
+              storySlug: "boise-offers",
             },
-            {
-              eventId: 4,
-              occurredAt: "2026-01-04T17:00:00.000Z",
-              schoolName: "Carroll College",
-            },
+            { eventId: 4, occurredAt: at(4), schoolName: "Carroll College" },
           ],
-        }),
-        recruitment({
-          id: 9,
-          cycleYear: 2024,
-          status: "withdrawn",
-          offers: [
+          interest: [
             {
               eventId: 5,
-              occurredAt: "2024-01-03T17:00:00.000Z",
+              type: "contacted",
+              occurredAt: at(2),
               schoolId: "boise",
+            },
+            {
+              eventId: 6,
+              type: "visited",
+              occurredAt: at(4),
+              schoolId: "boise",
+            },
+            {
+              eventId: 7,
+              type: "visit_scheduled",
+              occurredAt: at(6),
+              schoolId: "montana",
+            },
+            {
+              eventId: 8,
+              type: "contacted",
+              occurredAt: at(1),
+              schoolName: "Carroll College",
+            },
+            {
+              eventId: 9,
+              type: "visited",
+              occurredAt: at(2),
+              schoolName: "Rocky",
+            },
+            {
+              eventId: 10,
+              type: "visited",
+              occurredAt: at(7),
+              schoolName: "Rocky",
+              storySlug: "second-rocky-visit",
             },
           ],
         }),
       ],
     });
-    const offers = profileOffers(data, sport);
-    expect(
-      offers.map((offer) => [
-        offer.key,
-        offer.committed,
-        offer.date,
-        offer.cycleYear,
-      ]),
-    ).toEqual([
-      [4, false, "Jan 4", 2026],
-      [3, true, "Jan 3", 2026],
-      [5, false, "Jan 3", 2024],
+    const rows = profileInterest(data, sport);
+    expect(rows.map((row) => [row.view?.name, row.status, row.date])).toEqual([
+      ["Boise State University", "committed", "Jan 5"],
+      // The later of two visits leads.
+      ["Rocky", "visited", "Jan 7"],
+      ["Montana", "visit_scheduled", "Jan 6"],
+      ["Carroll College", "offered", "Jan 4"],
     ]);
-    expect(
-      profileOffers(
+    // Everything else reported for the school, oldest first.
+    expect(rows[0]!.detail).toBe(
+      "Reported contact Jan 2 · Offered Jan 3 · Visited Jan 4",
+    );
+    expect(rows[1]!.detail).toBe("Visited Jan 2");
+    expect(rows[2]!.detail).toBeNull();
+    expect(rows[3]!.detail).toBe("Reported contact Jan 1");
+    // The lead's story, else any story about the school.
+    expect(rows[0]!.storySlug).toBe("boise-offers");
+    expect(rows[1]!.storySlug).toBe("second-rocky-visit");
+    expect(rows[2]!.storySlug).toBeNull();
+    expect(rows[0]!.key).toBe("1-boise-state");
+  });
+
+  it("doesn't call it committed while they're undecided or withdrawn", () => {
+    const offered = (status: "entered" | "withdrawn") =>
+      profileInterest(
         data,
-        playerSport({ recruitments: [recruitment({ status: "entered" })] }),
-      )[0]!.committed,
-    ).toBe(false);
+        playerSport({ recruitments: [recruitment({ status })] }),
+      )[0]!.status;
+    expect(offered("entered")).toBe("offered");
+    expect(offered("withdrawn")).toBe("offered");
+  });
+
+  it("uses the commitment's own story and keeps entries apart", () => {
+    const sport = playerSport({
+      recruitments: [
+        recruitment({
+          id: 2,
+          cycleYear: 2026,
+          events: [
+            { id: 20, type: "entered", occurredAt: at(2), superseded: false },
+            {
+              id: 21,
+              type: "committed",
+              occurredAt: at(5),
+              schoolId: "boise",
+              superseded: false,
+              storySlug: "why-boise",
+            },
+          ],
+        }),
+        recruitment({
+          id: 1,
+          cycleYear: 2024,
+          status: "withdrawn",
+          offers: [],
+          // A school we can't name still gets its own row.
+          interest: [
+            { eventId: 30, type: "contacted", occurredAt: at(3) },
+            { eventId: 31, type: "contacted", occurredAt: at(4) },
+          ],
+        }),
+      ],
+    });
+    const rows = profileInterest(data, sport);
+    expect(rows.map((row) => [row.key, row.status, row.cycleYear])).toEqual([
+      ["2-boise-state", "committed", 2026],
+      ["1-undisclosed-31", "contacted", 2024],
+      ["1-undisclosed-30", "contacted", 2024],
+    ]);
+    expect(rows[0]!.storySlug).toBe("why-boise");
+    expect(rows[1]!.view).toBeNull();
+  });
+
+  it("reads docs published before visits existed", () => {
+    const sport = playerSport({
+      recruitments: [recruitment({ interest: undefined, offers: [] })],
+    });
+    expect(profileInterest(data, sport)).toEqual([]);
   });
 });
 

@@ -117,6 +117,25 @@ describe("reduceRecruitment", () => {
     expect(state.destination?.schoolId).toBe("boise-state");
   });
 
+  it("contact and visits never change status, and a school can repeat", () => {
+    const state = reduceRecruitment([
+      event("entered", 2),
+      event("contacted", 3, "idaho"),
+      event("visit_scheduled", 4, "idaho"),
+      event("visited", 6, "idaho"),
+      event("visited", 8, "idaho"),
+      event("committed", 9, "boise"),
+      event("contacted", 10, "weber"),
+    ]);
+    expect(state.status).toBe("committed");
+    expect(state.destination).toMatchObject({ schoolId: "boise" });
+    expect(state.offers).toEqual([]);
+    // Still not possible before the player has entered.
+    expect(() => reduceRecruitment([event("visited", 1, "idaho")])).toThrow(
+      RecruitmentTransitionError,
+    );
+  });
+
   it("offers are collected and never change status", () => {
     const state = reduceRecruitment([
       event("entered", 2),

@@ -33,17 +33,30 @@ export const publishedPlacementSchema = publishedSchoolSchema.extend({
   conferenceId: z.string().optional(),
 });
 
+/** The slug of the Redshirt article a move came from, when one is attached. */
+const storySlug = z.string().optional();
+
 export const publishedEventSchema = publishedSchoolSchema.extend({
   id: z.number(),
   type: z.enum(RECRUITMENT_EVENT_TYPES),
   occurredAt: isoDate,
   /** A commitment the player later dropped. */
   superseded: z.boolean(),
+  storySlug,
 });
 
 export const publishedOfferSchema = publishedSchoolSchema.extend({
   eventId: z.number(),
   occurredAt: isoDate,
+  storySlug,
+});
+
+/** Reported contact or a visit: interest that isn't an offer. */
+export const publishedInterestSchema = publishedSchoolSchema.extend({
+  eventId: z.number(),
+  type: z.enum(["contacted", "visit_scheduled", "visited"]),
+  occurredAt: isoDate,
+  storySlug,
 });
 
 export const publishedRecruitmentSchema = z.object({
@@ -59,9 +72,11 @@ export const publishedRecruitmentSchema = z.object({
   isGradTransfer: z.boolean(),
   origin: publishedPlacementSchema,
   destination: publishedPlacementSchema.optional(),
-  /** Oldest first, offers excluded. */
+  /** Oldest first; offers, contact, and visits excluded. */
   events: z.array(publishedEventSchema),
   offers: z.array(publishedOfferSchema),
+  /** Oldest first. Absent on docs published before visits existed. */
+  interest: z.array(publishedInterestSchema).optional(),
 });
 
 export const publishedEnrollmentSchema = publishedSchoolSchema.extend({

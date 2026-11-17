@@ -6,7 +6,10 @@ import {
   playerTag,
   portalWireTag,
 } from "../portal/cache-tags";
-import type { PortalPushTrigger } from "../portal/constants";
+import {
+  INTEREST_EVENT_TYPES,
+  type PortalPushTrigger,
+} from "../portal/constants";
 import {
   playerAuditLogTable,
   playersTable,
@@ -74,6 +77,12 @@ const pathText = `(
        where oe.id = r.origin_enrollment_id),
       r.cycle_year))`;
 
+/** Offers, contact, and visits: on the player page, never tracker rows. */
+const interestTypesText = INTEREST_EVENT_TYPES.map((type) => `'${type}'`).join(
+  ", ",
+);
+const interestTypes = sql.raw(interestTypesText);
+
 const originSql = sql.raw(originText);
 const pathSql = sql.raw(pathText);
 const destinationSql = sql.raw(destinationText);
@@ -115,18 +124,31 @@ const playerDocSql = sql.raw(`jsonb_strip_nulls(jsonb_build_object(
             select jsonb_agg(jsonb_build_object(
               'id', e.id, 'type', e.type, 'occurredAt', e.occurred_at,
               'schoolId', e.school_id, 'schoolName', e.school_name,
-              'superseded', ${supersededText}
+              'superseded', ${supersededText},
+              'storySlug', e.story_slug
             ) order by e.occurred_at, e.id)
             from public.recruitment_events e
-            where e.recruitment_id = r.id and e.voided_at is null and e.type <> 'offered'
+            where e.recruitment_id = r.id and e.voided_at is null
+              and e.type not in (${interestTypesText})
           ), '[]'::jsonb),
           'offers', coalesce((
             select jsonb_agg(jsonb_build_object(
               'eventId', e.id, 'occurredAt', e.occurred_at,
-              'schoolId', e.school_id, 'schoolName', e.school_name
+              'schoolId', e.school_id, 'schoolName', e.school_name,
+              'storySlug', e.story_slug
             ) order by e.occurred_at, e.id)
             from public.recruitment_events e
             where e.recruitment_id = r.id and e.voided_at is null and e.type = 'offered'
+          ), '[]'::jsonb),
+          'interest', coalesce((
+            select jsonb_agg(jsonb_build_object(
+              'eventId', e.id, 'type', e.type, 'occurredAt', e.occurred_at,
+              'schoolId', e.school_id, 'schoolName', e.school_name,
+              'storySlug', e.story_slug
+            ) order by e.occurred_at, e.id)
+            from public.recruitment_events e
+            where e.recruitment_id = r.id and e.voided_at is null
+              and e.type in (${interestTypesText}) and e.type <> 'offered'
           ), '[]'::jsonb)
         ) order by r.entered_at desc, r.id desc)
         from public.recruitments r where r.player_sport_id = ps.id
@@ -255,7 +277,7 @@ export async function pushPortal({
             and p.merged_into_id is null
             and p.hidden_at is null
             and e.voided_at is null
-            and e.type <> 'offered'
+            and e.type not in (${interestTypes})
           returning sport_id, cycle_year
         )
         select distinct sp.slug, i.cycle_year

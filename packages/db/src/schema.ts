@@ -24,6 +24,7 @@ import {
   EVENT_SOURCE_TYPES,
   FIRST_PLAYER_ID,
   PLAYER_CLASS_CODES,
+  PLAYER_ID_PROVIDERS,
   PLAYER_SUBMISSION_STATUSES,
   PLAYER_SUBMITTER_ROLES,
   PORTAL_PUSH_TRIGGERS,
@@ -31,6 +32,7 @@ import {
   RECRUITMENT_KINDS,
   RECRUITMENT_STATUSES,
   SCHOOL_EVENT_TYPES,
+  STORY_SLUG_PATTERN,
 } from "./portal/constants";
 
 const timestamps = {
@@ -1692,6 +1694,8 @@ export const recruitmentEventsTable = pgTable(
     sourceType: text("source_type"),
     sourceUrl: text("source_url"),
     sourceNote: text("source_note"),
+    /** The Redshirt article this move came from. Public: published with the move. */
+    storySlug: text("story_slug"),
     voidedAt: timestamp("voided_at", { withTimezone: true }),
     voidReason: text("void_reason"),
     createdByUserId: text("created_by_user_id").references(
@@ -1712,6 +1716,10 @@ export const recruitmentEventsTable = pgTable(
     check(
       "recruitment_events_school_check",
       sql`(${inList(table.type, SCHOOL_EVENT_TYPES)}) = ${hasSchool(table.schoolId, table.schoolName)}`,
+    ),
+    check(
+      "recruitment_events_story_slug_check",
+      sql`${table.storySlug} is null or ${table.storySlug} ~ ${sql.raw(`'${STORY_SLUG_PATTERN}'`)}`,
     ),
     check(
       "recruitment_events_source_url_check",
@@ -1737,6 +1745,50 @@ export const recruitmentEventsTable = pgTable(
       ),
     index("recruitment_events_school_id_index").on(table.schoolId),
     index("recruitment_events_created_by_user_id_index").on(
+      table.createdByUserId,
+    ),
+  ],
+);
+
+/**
+ * Public ids a player has elsewhere (ESPN, stats.ncaa.org), for matching.
+ * Internal: never published. One id per provider per player, and an id
+ * belongs to one player, so the database refuses a duplicate player.
+ */
+export const playerExternalIdsTable = pgTable(
+  "player_external_ids",
+  {
+    id: identityId(),
+    playerId: bigint("player_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(),
+    externalId: text("external_id").notNull(),
+    createdByUserId: text("created_by_user_id").references(
+      () => usersTable.id,
+      { onDelete: "set null" },
+    ),
+    ...requiredTimestamps,
+  },
+  (table) => [
+    check(
+      "player_external_ids_provider_check",
+      inList(table.provider, PLAYER_ID_PROVIDERS),
+    ),
+    check(
+      "player_external_ids_external_id_check",
+      sql`${table.externalId} ~ '^[0-9]{1,12}$'`,
+    ),
+    unique("player_external_ids_provider_external_id_unique").on(
+      table.provider,
+      table.externalId,
+    ),
+    // Also the index for the player_id foreign key (its leading column).
+    unique("player_external_ids_player_id_provider_unique").on(
+      table.playerId,
+      table.provider,
+    ),
+    index("player_external_ids_created_by_user_id_index").on(
       table.createdByUserId,
     ),
   ],
@@ -1987,9 +2039,24 @@ export const playersTableRelations = relations(
       references: [playersTable.id],
     }),
     sports: many(playerSportsTable),
+    externalIds: many(playerExternalIdsTable),
     published: one(publishedPlayersTable, {
       fields: [playersTable.id],
       references: [publishedPlayersTable.playerId],
+    }),
+  }),
+);
+
+export const playerExternalIdsTableRelations = relations(
+  playerExternalIdsTable,
+  ({ one }) => ({
+    player: one(playersTable, {
+      fields: [playerExternalIdsTable.playerId],
+      references: [playersTable.id],
+    }),
+    createdBy: one(usersTable, {
+      fields: [playerExternalIdsTable.createdByUserId],
+      references: [usersTable.id],
     }),
   }),
 );

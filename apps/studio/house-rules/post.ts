@@ -218,7 +218,11 @@ export function externalRefFindings(post: PostLike): Finding[] {
       ),
     );
   }
-  const ids = players.map((player) => parseExternalRef(player)?.id);
+  // Provider and id together: an ESPN id and one of ours can share a number.
+  const ids = players.map((player) => {
+    const ref = parseExternalRef(player);
+    return ref ? `${ref.provider}:${ref.id}` : undefined;
+  });
   if (new Set(ids).size !== ids.length) {
     findings.push(
       error("coverage.player-duplicate", "A player is listed twice."),

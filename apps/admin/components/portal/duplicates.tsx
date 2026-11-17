@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  PLAYER_ID_PROVIDER_LABELS,
+  type PlayerIdProvider,
+} from "@redshirt-sports/db/portal";
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
@@ -225,6 +229,7 @@ function PlanSummary({ plan, otherId }: { plan: Plan; otherId: number }) {
         </li>
       ))}
       <li>Blank bio fields are filled from #{otherId}.</li>
+      <li>#{otherId}'s ESPN and NCAA stats ids move here.</li>
       <li>After the next push, #{otherId}'s page redirects here.</li>
     </ul>
   );
@@ -238,6 +243,7 @@ function Side({
   onChoose,
   onCancel,
   pending,
+  blocked,
   onMerge,
 }: {
   player: DetailPlayer;
@@ -247,6 +253,7 @@ function Side({
   onChoose: () => void;
   onCancel: () => void;
   pending: boolean;
+  blocked: boolean;
   onMerge: () => void;
 }) {
   return (
@@ -286,7 +293,12 @@ function Side({
           </div>
         ) : (
           <div>
-            <Button size="sm" variant="outline" onClick={onChoose}>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={blocked}
+              onClick={onChoose}
+            >
               Keep this one
             </Button>
           </div>
@@ -297,7 +309,8 @@ function Side({
 }
 
 export function MergeDesk({ comparison }: { comparison: MergeComparison }) {
-  const { a, b, keepA, keepB } = comparison;
+  const { a, b, keepA, keepB, idConflicts } = comparison;
+  const blocked = idConflicts.length > 0;
   const { pending, run, router } = useAction();
   const [choice, setChoice] = useState<"a" | "b" | null>(null);
 
@@ -309,6 +322,31 @@ export function MergeDesk({ comparison }: { comparison: MergeComparison }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {blocked ? (
+        <div
+          role="alert"
+          className="border-destructive/40 bg-destructive/10 rounded-md border p-3 text-sm"
+        >
+          <p className="font-medium">
+            These players have different public ids, so they can't be merged:
+          </p>
+          <ul className="mt-1 list-disc pl-5">
+            {idConflicts.map((conflict) => (
+              <li key={conflict.provider}>
+                {PLAYER_ID_PROVIDER_LABELS[
+                  conflict.provider as PlayerIdProvider
+                ] ?? conflict.provider}
+                : #{a.id} has {conflict.survivorExternalId}, #{b.id} has{" "}
+                {conflict.loserExternalId}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1">
+            They're probably different people. If one id is wrong, remove it on
+            that player's page first.
+          </p>
+        </div>
+      ) : null}
       <div className="flex flex-col gap-4 lg:flex-row">
         <Side
           player={a}
@@ -318,6 +356,7 @@ export function MergeDesk({ comparison }: { comparison: MergeComparison }) {
           onChoose={() => setChoice("a")}
           onCancel={() => setChoice(null)}
           pending={pending}
+          blocked={blocked}
           onMerge={() => merge(a.id, b.id)}
         />
         <Side
@@ -328,6 +367,7 @@ export function MergeDesk({ comparison }: { comparison: MergeComparison }) {
           onChoose={() => setChoice("b")}
           onCancel={() => setChoice(null)}
           pending={pending}
+          blocked={blocked}
           onMerge={() => merge(b.id, a.id)}
         />
       </div>

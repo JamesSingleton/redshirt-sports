@@ -12,6 +12,7 @@ import {
   ChevronRight,
   GraduationCap,
   Info,
+  Newspaper,
   PenLine,
   School,
   Undo2,
@@ -21,12 +22,14 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import type { HomePost } from "@/components/home/home-page-content";
 import { JsonLdScript } from "@/components/json-ld";
 import { JourneyMore } from "@/components/portal/journey-more";
 import { GradCap, SchoolMark, StatusPill } from "@/components/portal/marks";
 import {
   formatSchoolCount,
   highSchoolStop,
+  INTEREST_LABELS,
   type JourneyEventKind,
   type JourneyStop,
   journeyStops,
@@ -37,19 +40,21 @@ import {
   playerHometown,
   playerJsonLd,
   positionLabel,
-  profileOffers,
+  profileInterest,
   type SideList,
   sideLists,
   sportsByActivity,
 } from "@/components/portal/player-format";
 import {
   formatSize,
+  formatWireDate,
   portalSportLabel,
   schoolView,
   type WireSchoolView,
 } from "@/components/portal/wire-format";
 import { RankingsShareButton } from "@/components/rankings/rankings-share-button";
 import CustomImage from "@/components/sanity-image";
+import { postArchiveKicker } from "@/lib/news-archive";
 import { portalWirePath } from "@/lib/portal-data";
 import { sportHubPath, sportNavLabel } from "@/lib/sport-nav";
 
@@ -98,6 +103,21 @@ function Note({
       <Info className="size-3.5 shrink-0 translate-y-px" aria-hidden />
       <span>{children}</span>
     </p>
+  );
+}
+
+/** The article a fact came from. `about` says which fact, for screen readers. */
+function StoryLink({ slug, about }: { slug: string; about: string }) {
+  return (
+    <Link
+      href={`/${slug}`}
+      prefetch={false}
+      aria-label={`Story: ${about}`}
+      className="text-primary hover:bg-accent inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold"
+    >
+      <Newspaper className="size-3.5" aria-hidden />
+      Story
+    </Link>
   );
 }
 
@@ -181,6 +201,11 @@ function MoveCardView({ move }: { move: MoveCard }) {
       <div className="text-muted-foreground mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2.5 text-xs">
         <StatusPill status={move.status} />
         <span className="tabular">{move.statusLine}</span>
+        {move.storySlug ? (
+          <span className="ml-auto">
+            <StoryLink slug={move.storySlug} about={move.statusLine} />
+          </span>
+        ) : null}
         <span className="tabular basis-full">{move.details.join(" · ")}</span>
       </div>
     </div>
@@ -428,6 +453,9 @@ function StopItem({ stop, last }: { stop: JourneyStop; last: boolean }) {
                   <span className="text-muted-foreground tabular">
                     {event.date}
                   </span>
+                  {event.storySlug ? (
+                    <StoryLink slug={event.storySlug} about={event.label} />
+                  ) : null}
                   {/* Strikethrough isn't announced; the word is. */}
                   {event.superseded ? (
                     <span className="text-muted-foreground text-[10px] font-semibold uppercase">
@@ -500,65 +528,104 @@ function Journey({
   );
 }
 
-function Offers({
+const INTEREST_PILLS: Record<string, string> = {
+  visited: "border-new/40 text-new",
+  visit_scheduled: "bg-secondary text-secondary-foreground border-transparent",
+};
+
+/** Offers, contact, and visits: one row per school. */
+function Interest({
   data,
   sport,
 }: {
   data: PortalPlayerData;
   sport: PlayerSport;
 }) {
-  const offers = profileOffers(data, sport);
-  if (offers.length === 0) return null;
-  const rows = offers;
+  const rows = profileInterest(data, sport);
+  if (rows.length === 0) return null;
+  const count = (status: string) =>
+    rows.filter((row) => row.status === status).length;
+  const chips = [
+    `${formatSchoolCount(rows.length)} reported`,
+    count("visited") ? `${count("visited")} visited` : null,
+    count("visit_scheduled")
+      ? `${count("visit_scheduled")} visit${count("visit_scheduled") === 1 ? "" : "s"} scheduled`
+      : null,
+  ].filter((chip): chip is string => chip !== null);
   return (
     <section>
-      <SectionHead title="Reported offers" />
-      <div className="mb-2 flex flex-wrap gap-1.5">
-        <span className="bg-secondary text-secondary-foreground inline-flex h-6 items-center rounded-md px-2 text-xs font-medium">
-          {formatSchoolCount(offers.length)} reported
-        </span>
-      </div>
+      <SectionHead title="Offers & reported interest" />
+      <ul className="mb-2 flex flex-wrap gap-1.5">
+        {chips.map((chip) => (
+          <li
+            key={chip}
+            className="bg-secondary text-secondary-foreground inline-flex h-6 items-center rounded-md px-2 text-xs font-medium"
+          >
+            {chip}
+          </li>
+        ))}
+      </ul>
       <div className="bg-card overflow-x-auto rounded-xl border">
         <table className="w-full text-sm">
           <caption className="sr-only">
-            Schools reported to have offered, with the date of each offer
+            Schools reported to have offered, contacted, or hosted the player
           </caption>
           <thead>
             <tr className="text-muted-foreground border-b text-left text-[11px] tracking-wide uppercase">
               <th className="h-9 p-2 pl-4 font-semibold">School</th>
               <th className="h-9 p-2 font-semibold">Status</th>
-              <th className="h-9 p-2 pr-4 text-right font-semibold">Date</th>
+              <th className="h-9 p-2 font-semibold">Date</th>
+              <th className="hidden h-9 p-2 font-semibold md:table-cell">
+                Detail
+              </th>
+              <th className="h-9 p-2 pr-4">
+                <span className="sr-only">Story</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((offer) => (
+            {rows.map((row) => (
               <tr
-                key={offer.key}
+                key={row.key}
                 className="hover:bg-muted/50 border-b last:border-0"
               >
                 <td className="p-2 pl-4">
                   <div className="flex min-w-0 items-center gap-2">
-                    <SchoolMark view={offer.view} className="size-7" />
+                    <SchoolMark view={row.view} className="size-7" />
                     <span className="truncate font-medium">
-                      {offer.view?.name ?? "Undisclosed"}
+                      {row.view?.name ?? "Undisclosed"}
                     </span>
                   </div>
                 </td>
                 <td className="p-2">
-                  {offer.committed ? (
+                  {row.status === "committed" ? (
                     <StatusPill status="committed" />
                   ) : (
-                    <span className="inline-flex h-6 items-center rounded-full border px-2.5 text-xs font-medium">
-                      Offered
+                    <span
+                      className={cn(
+                        "inline-flex h-6 items-center rounded-full border px-2.5 text-xs font-medium whitespace-nowrap",
+                        INTEREST_PILLS[row.status],
+                      )}
+                    >
+                      {INTEREST_LABELS[row.status]}
                     </span>
                   )}
                 </td>
-                <td className="text-muted-foreground tabular p-2 pr-4 text-right">
-                  {offer.date}
-                  {offer.cycleYear !== sport.recruitments[0]?.cycleYear ? (
-                    <span className="ml-1 text-[11px]">
-                      ({offer.cycleYear})
-                    </span>
+                <td className="text-muted-foreground tabular p-2 whitespace-nowrap">
+                  {row.date}
+                  {row.cycleYear !== sport.recruitments[0]?.cycleYear ? (
+                    <span className="ml-1 text-[11px]">({row.cycleYear})</span>
+                  ) : null}
+                </td>
+                <td className="text-muted-foreground hidden p-2 md:table-cell">
+                  {row.detail}
+                </td>
+                <td className="p-2 pr-4 text-right">
+                  {row.storySlug ? (
+                    <StoryLink
+                      slug={row.storySlug}
+                      about={`${row.view?.name ?? "Undisclosed"}, ${INTEREST_LABELS[row.status]}`}
+                    />
                   ) : null}
                 </td>
               </tr>
@@ -570,6 +637,67 @@ function Offers({
         Only schools named in Redshirt reporting. Not predictions: Redshirt
         doesn&apos;t forecast commitments.
       </Note>
+    </section>
+  );
+}
+
+/** Articles an editor tagged with the player, newest first. */
+function Stories({ stories }: { stories: HomePost[] }) {
+  if (stories.length === 0) return null;
+  return (
+    <section>
+      <SectionHead title="Stories" />
+      <ul className="divide-y border-t">
+        {stories.map((post) => {
+          const author = post.authors?.[0]?.name;
+          return (
+            <li key={post._id}>
+              <article className="group relative grid grid-cols-[1fr_7rem] gap-4 py-4 sm:grid-cols-[1fr_10rem]">
+                <div className="min-w-0">
+                  <div className="kicker text-primary">
+                    {postArchiveKicker(post)}
+                  </div>
+                  <h3 className="font-display mt-1 text-xl leading-tight font-bold group-hover:underline">
+                    <Link
+                      href={`/${post.slug}`}
+                      prefetch={false}
+                      className="after:absolute after:inset-0"
+                    >
+                      {post.title}
+                    </Link>
+                  </h3>
+                  {post.excerpt ? (
+                    <p className="text-muted-foreground mt-1 line-clamp-2 hidden text-sm sm:block">
+                      {post.excerpt}
+                    </p>
+                  ) : null}
+                  <p className="text-muted-foreground mt-2 text-xs">
+                    {author}
+                    {author && post.publishedAt ? " · " : null}
+                    {post.publishedAt ? (
+                      <time dateTime={post.publishedAt}>
+                        {formatWireDate(post.publishedAt)}
+                      </time>
+                    ) : null}
+                  </p>
+                </div>
+                <div className="aspect-[4/3] overflow-hidden rounded-md">
+                  <CustomImage
+                    image={
+                      post.image as Parameters<typeof CustomImage>[0]["image"]
+                    }
+                    width={160}
+                    height={120}
+                    className="h-full w-full object-cover"
+                    mode="cover"
+                    sizes="160px"
+                  />
+                </div>
+              </article>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
@@ -661,10 +789,13 @@ function SideListCard({ list }: { list: SideList }) {
 export function PlayerProfile({
   data,
   sidebar,
+  stories = [],
   adSlot = null,
 }: {
   data: PortalPlayerData;
   sidebar: { wire: PortalWireData; currentCycle: number } | null;
+  /** Articles tagged with this player, newest first. */
+  stories?: HomePost[];
   /** Sidebar sponsorship placement. Loads its own data. */
   adSlot?: ReactNode;
 }) {
@@ -709,7 +840,8 @@ export function PlayerProfile({
             ) : (
               <>
                 <Journey data={data} sport={primary} />
-                <Offers data={data} sport={primary} />
+                <Interest data={data} sport={primary} />
+                <Stories stories={stories} />
               </>
             )}
             <Note>

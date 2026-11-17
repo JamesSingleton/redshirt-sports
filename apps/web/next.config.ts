@@ -7,6 +7,7 @@ import {
   studioUrl,
 } from "@redshirt-sports/sanity/api";
 import { createClient } from "@sanity/client";
+import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
 import type { Header } from "next/dist/lib/load-custom-routes";
 import { sanity } from "next-sanity/live/cache-life";
@@ -190,6 +191,9 @@ let nextConfig: NextConfig = {
     ];
   },
 };
+
+// Routes BotID's challenge through this domain, so ad blockers don't break it.
+nextConfig = withBotId(nextConfig);
 
 if (env.VERCEL) {
   nextConfig = withSentry(nextConfig);

@@ -48,6 +48,8 @@ export interface EventSource {
   sourceType?: EventSourceType | null;
   sourceUrl?: string | null;
   sourceNote?: string | null;
+  /** The Redshirt article this came from. Public, unlike the source fields. */
+  storySlug?: string | null;
 }
 
 const toSchool = (ref: SchoolRef | null | undefined): RecruitmentSchool => ({
@@ -472,6 +474,7 @@ export async function openRecruitmentLocked(
       sourceType: input.sourceType ?? null,
       sourceUrl: input.sourceUrl ?? null,
       sourceNote: input.sourceNote ?? null,
+      storySlug: input.storySlug ?? null,
       createdByUserId: input.actorUserId ?? null,
     })
     .returning({ id: recruitmentEventsTable.id });
@@ -493,7 +496,7 @@ export interface RecordEventInput extends EventSource {
   recruitmentId: number;
   type: Exclude<RecruitmentEventType, "entered">;
   occurredAt: Date;
-  /** Required for offer, commit, decommit, sign, enroll. */
+  /** Required for offer, contact, visits, commit, decommit, sign, enroll. */
   school?: SchoolRef | null;
   actorUserId?: string | null;
 }
@@ -546,6 +549,7 @@ export async function recordRecruitmentEvent(input: RecordEventInput) {
         sourceType: input.sourceType ?? null,
         sourceUrl: input.sourceUrl ?? null,
         sourceNote: input.sourceNote ?? null,
+        storySlug: input.storySlug ?? null,
         createdByUserId: input.actorUserId ?? null,
       })
       .returning({ id: recruitmentEventsTable.id });

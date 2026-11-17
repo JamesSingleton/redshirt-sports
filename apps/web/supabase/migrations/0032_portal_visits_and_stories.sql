@@ -1,0 +1,8 @@
+ALTER TABLE "published_wire_events" DROP CONSTRAINT "published_wire_events_type_check";--> statement-breakpoint
+ALTER TABLE "recruitment_events" DROP CONSTRAINT "recruitment_events_type_check";--> statement-breakpoint
+ALTER TABLE "recruitment_events" DROP CONSTRAINT "recruitment_events_school_check";--> statement-breakpoint
+ALTER TABLE "recruitment_events" ADD COLUMN "story_slug" text;--> statement-breakpoint
+ALTER TABLE "published_wire_events" ADD CONSTRAINT "published_wire_events_type_check" CHECK ("published_wire_events"."type" in ('entered', 'offered', 'contacted', 'visit_scheduled', 'visited', 'committed', 'decommitted', 'signed', 'enrolled', 'withdrew'));--> statement-breakpoint
+ALTER TABLE "recruitment_events" ADD CONSTRAINT "recruitment_events_story_slug_check" CHECK ("recruitment_events"."story_slug" is null or "recruitment_events"."story_slug" ~ '^[a-z0-9]+(-[a-z0-9]+)*$');--> statement-breakpoint
+ALTER TABLE "recruitment_events" ADD CONSTRAINT "recruitment_events_type_check" CHECK ("recruitment_events"."type" in ('entered', 'offered', 'contacted', 'visit_scheduled', 'visited', 'committed', 'decommitted', 'signed', 'enrolled', 'withdrew'));--> statement-breakpoint
+ALTER TABLE "recruitment_events" ADD CONSTRAINT "recruitment_events_school_check" CHECK (("recruitment_events"."type" in ('offered', 'contacted', 'visit_scheduled', 'visited', 'committed', 'decommitted', 'signed', 'enrolled')) = ("recruitment_events"."school_id" is not null or "recruitment_events"."school_name" is not null));

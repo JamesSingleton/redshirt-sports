@@ -16,6 +16,7 @@ import {
   conferencesTable,
   divisionsTable,
   publishedPlayersTable,
+  publishedWireEventsTable,
   recruitmentsTable,
   schoolConferenceAffiliationsTable,
   schoolsTable,
@@ -233,6 +234,80 @@ describe("listIndexablePlayers", () => {
     expect((await listIndexablePlayers(1)).map((row) => row.id)).toEqual([
       second.id,
     ]);
+  });
+});
+
+describe("reported interest and story links", () => {
+  it("publishes contact and visits on the player page, never on the tracker", async () => {
+    const player = await enter("Visitor", true);
+    const [recruitment] = await db
+      .select({ id: recruitmentsTable.id })
+      .from(recruitmentsTable)
+      .orderBy(sql`${recruitmentsTable.id} desc`)
+      .limit(1);
+    const record = (
+      type: "contacted" | "visit_scheduled" | "visited" | "offered",
+      n: number,
+      storySlug?: string,
+    ) =>
+      recordRecruitmentEvent({
+        recruitmentId: recruitment!.id,
+        type,
+        occurredAt: day(n),
+        school: { schoolId: ids.idaho },
+        storySlug,
+      });
+    await record("contacted", 6);
+    await record("visit_scheduled", 7);
+    await record("visited", 8, "portal-qb-visits-idaho");
+    await record("offered", 9, "idaho-offers-portal-qb");
+    await pushPortal({ trigger: "admin" });
+
+    const page = await getPublishedPlayer(player.id);
+    if (page?.kind !== "player") throw new Error("expected a player page");
+    const [entry] = page.data.doc.sports[0]!.recruitments;
+    expect(entry!.interest).toMatchObject([
+      { type: "contacted", schoolId: ids.idaho },
+      { type: "visit_scheduled", schoolId: ids.idaho },
+      {
+        type: "visited",
+        schoolId: ids.idaho,
+        storySlug: "portal-qb-visits-idaho",
+      },
+    ]);
+    expect(entry!.interest![0]).not.toHaveProperty("storySlug");
+    expect(entry!.offers).toMatchObject([
+      { schoolId: ids.idaho, storySlug: "idaho-offers-portal-qb" },
+    ]);
+    // The timeline holds only the moves that change where they stand.
+    expect(entry!.events.map((event) => event.type)).toEqual([
+      "entered",
+      "committed",
+    ]);
+    const wire = await db
+      .select({ type: publishedWireEventsTable.type })
+      .from(publishedWireEventsTable);
+    expect(wire.map((row) => row.type).sort()).toEqual([
+      "committed",
+      "entered",
+    ]);
+  });
+
+  it("refuses a story link that isn't a slug", async () => {
+    await enter("Slug");
+    const [recruitment] = await db
+      .select({ id: recruitmentsTable.id })
+      .from(recruitmentsTable)
+      .limit(1);
+    await expect(
+      recordRecruitmentEvent({
+        recruitmentId: recruitment!.id,
+        type: "contacted",
+        occurredAt: day(6),
+        school: { schoolId: ids.idaho },
+        storySlug: "https://redshirtsports.com/Some Story",
+      }),
+    ).rejects.toThrow();
   });
 });
 
