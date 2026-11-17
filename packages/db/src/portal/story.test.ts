@@ -29,5 +29,18 @@ describe("parseStorySlug", () => {
     ).toBeUndefined();
     expect(parseStorySlug("https://")).toBeUndefined();
     expect(parseStorySlug("a".repeat(201))).toBeUndefined();
+    expect(parseStorySlug("a".repeat(501))).toBeUndefined();
+    expect(parseStorySlug("///portal-qb///")).toBe("portal-qb");
+    expect(parseStorySlug("////")).toBeUndefined();
+  });
+
+  it("stays fast on hostile input", () => {
+    // Many slashes then a non-slash: quadratic for a /\/+$/ regex.
+    const start = performance.now();
+    for (let i = 0; i < 200; i++) {
+      parseStorySlug(`${"/".repeat(499)}x`);
+      parseStorySlug(`a${"/".repeat(498)}b`);
+    }
+    expect(performance.now() - start).toBeLessThan(250);
   });
 });
