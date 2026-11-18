@@ -1,23 +1,10 @@
 import { render, screen } from "@testing-library/react";
 
-import {
-  CachedFooterServer,
-  DynamicFooterServer,
-  FooterSkeleton,
-} from "@/components/footer";
+import { CachedFooterServer } from "@/components/footer";
 
-const {
-  mockResolveDynamicFetchOptions,
-  mockSanityFetch,
-  mockFetchGlobalSeoSettings,
-} = vi.hoisted(() => ({
-  mockResolveDynamicFetchOptions: vi.fn(),
+const { mockSanityFetch, mockFetchGlobalSeoSettings } = vi.hoisted(() => ({
   mockSanityFetch: vi.fn(),
   mockFetchGlobalSeoSettings: vi.fn(),
-}));
-
-vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
-  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
@@ -98,15 +85,6 @@ const settingsData = {
     threads: "https://threads.net/redshirt",
   },
 };
-
-describe("FooterSkeleton", () => {
-  it("renders the footer loading skeleton", () => {
-    const { container } = render(<FooterSkeleton />);
-    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(
-      5,
-    );
-  });
-});
 
 describe("CachedFooterServer", () => {
   beforeEach(() => {
@@ -295,19 +273,5 @@ describe("CachedFooterServer", () => {
       "href",
       "https://twitter.com/redshirt",
     );
-  });
-});
-
-describe("DynamicFooterServer", () => {
-  it("resolves fetch options before rendering the cached footer", async () => {
-    mockResolveDynamicFetchOptions.mockResolvedValue({
-      perspective: "published",
-      stega: false,
-    });
-
-    const component = await DynamicFooterServer();
-
-    expect(mockResolveDynamicFetchOptions).toHaveBeenCalled();
-    expect(component).toBeTruthy();
   });
 });

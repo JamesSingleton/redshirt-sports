@@ -62,7 +62,6 @@ import {
   bracketDescription,
   bracketTitle,
 } from "@/components/bracket/bracket-page-view";
-import { BracketSkeleton } from "@/components/bracket/bracket-skeleton";
 
 const official = bracketEdition({
   id: "official",
@@ -235,12 +234,5 @@ describe("BracketEmbed", () => {
   it("renders nothing for an unpublished edition", async () => {
     mockGetCachedPublishedBracket.mockResolvedValueOnce(null);
     expect(await BracketEmbed({ editionId: "draft" })).toBeNull();
-  });
-});
-
-describe("BracketSkeleton", () => {
-  it("renders placeholders", () => {
-    const { container } = render(<BracketSkeleton />);
-    expect(container.querySelectorAll("[data-slot='skeleton']").length).toBe(3);
   });
 });

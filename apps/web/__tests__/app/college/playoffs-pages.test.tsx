@@ -64,7 +64,6 @@ import ProjectionPage, {
 import BuilderPage, {
   generateMetadata as builderMetadata,
 } from "@/app/college/[sport]/playoffs/[division]/builder/page";
-import DivisionLayout from "@/app/college/[sport]/playoffs/[division]/layout";
 import LandingPage, {
   generateMetadata as landingMetadata,
 } from "@/app/college/[sport]/playoffs/[division]/page";
@@ -81,11 +80,6 @@ describe("playoff bracket pages", () => {
   beforeEach(() => {
     data.loadBracketPage.mockReset().mockResolvedValue(model);
     mockGetPageMetadata.mockClear();
-  });
-
-  it("wraps pages in a full-width layout", () => {
-    render(<DivisionLayout>child</DivisionLayout>);
-    expect(screen.getByText("child")).toBeInTheDocument();
   });
 
   it("renders the season bracket and its metadata", async () => {

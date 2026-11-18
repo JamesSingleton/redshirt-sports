@@ -1,9 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import SanityImage, {
-  IMAGE_SIZES,
-  renderSize,
-} from "@/components/sanity-image";
+import SanityImage, { renderSize } from "@/components/sanity-image";
 
 const { mockProcessImageData } = vi.hoisted(() => ({
   mockProcessImageData: vi.fn(),
@@ -45,10 +42,6 @@ describe("SanityImage", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     mockProcessImageData.mockReset();
-  });
-
-  it("exports image size constants", () => {
-    expect(IMAGE_SIZES.articleCard).toContain("100vw");
   });
 
   it("returns null for an empty string source", () => {

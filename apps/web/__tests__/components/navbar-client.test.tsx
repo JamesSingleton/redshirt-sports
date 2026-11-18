@@ -4,7 +4,6 @@ import userEvent from "@testing-library/user-event";
 import { sportHubBlurb } from "@/components/chrome/sport-mega-panel";
 import {
   NavbarClient,
-  NavbarSkeletonResponsive,
   NavMenuContent,
   navItemHasPanel,
   navItemLabel,
@@ -429,14 +428,5 @@ describe("NavbarClient", () => {
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
-  });
-});
-
-describe("NavbarSkeletonResponsive", () => {
-  it("renders mobile and desktop skeletons", () => {
-    const { container } = render(<NavbarSkeletonResponsive />);
-    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(
-      2,
-    );
   });
 });

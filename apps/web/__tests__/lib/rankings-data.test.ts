@@ -63,6 +63,7 @@ vi.mock("@redshirt-sports/db/queries", () => ({
   getPollVoterBallotStatsForSeason: mockGetPollVoterBallotStatsForSeason,
 }));
 
+import { rankingsInvalidationTags } from "@redshirt-sports/db/rankings-cache-tags";
 import { cacheTag } from "next/cache";
 
 import {
@@ -86,51 +87,54 @@ describe("rankings-data", () => {
     vi.clearAllMocks();
   });
 
-  it("getCachedYearsThatHaveVotes delegates to db", async () => {
-    mockGetYearsThatHaveVotes.mockResolvedValue([2024, 2025]);
-    await expect(
-      getCachedYearsThatHaveVotes({ division: "fbs" }),
-    ).resolves.toEqual([2024, 2025]);
-    expect(mockGetYearsThatHaveVotes).toHaveBeenCalledWith({
-      division: "fbs",
-    });
-  });
-
-  it("getCachedWeeksThatHaveVotes delegates to db", async () => {
-    mockGetWeeksThatHaveVotes.mockResolvedValue([{ week: 1, year: 2025 }]);
-    await expect(
-      getCachedWeeksThatHaveVotes({ year: 2025, division: "fbs" }),
-    ).resolves.toEqual([{ week: 1, year: 2025 }]);
-  });
-
-  it("getCachedFinalRankings delegates to db", async () => {
-    mockGetFinalRankingsForWeekAndYear.mockResolvedValue([]);
-    await expect(
-      getCachedFinalRankings({
-        year: 2025,
-        week: 1,
-        division: "fbs",
+  it("publishing a poll week expires every cached read of that poll", async () => {
+    mockGetSportIdBySlug.mockResolvedValue("sport-1");
+    const reads = [
+      () => getCachedYearsThatHaveVotes({ division: "fcs" }),
+      () => getCachedWeeksThatHaveVotes({ year: 2026, division: "fcs" }),
+      () =>
+        getCachedFinalRankings({
+          year: 2026,
+          week: 7,
+          division: "fcs",
+          sport: "football",
+        }),
+      () =>
+        getCachedFinalRankingsForLegacyWeeksInYear({
+          year: 2026,
+          division: "fcs",
+          sport: "football",
+          legacyWeeks: [7],
+        }),
+      () => getCachedLatestFinalRankings({ division: "fcs" }),
+      () => getCachedLatestFinalRankingsBySportSlug("football"),
+      () => getCachedRankedSchoolSanityIds(),
+      () =>
+        getCachedVotesForWeekAndYearByVoter({
+          sport: "football",
+          division: "fcs",
+          year: 2026,
+          week: 7,
+        }),
+    ];
+    const published = new Set(
+      rankingsInvalidationTags({
         sport: "football",
+        division: "fcs",
+        year: 2026,
+        week: 7,
       }),
-    ).resolves.toEqual([]);
-  });
+    );
 
-  it("getCachedFinalRankingsForLegacyWeeksInYear delegates to db", async () => {
-    mockGetFinalRankingsForLegacyWeeksInYear.mockResolvedValue(new Map());
-    await expect(
-      getCachedFinalRankingsForLegacyWeeksInYear({
-        year: 2025,
-        division: "fbs",
-        sport: "football",
-        legacyWeeks: [1, 2, 3],
-      }),
-    ).resolves.toEqual(new Map());
-    expect(mockGetFinalRankingsForLegacyWeeksInYear).toHaveBeenCalledWith({
-      year: 2025,
-      division: "fbs",
-      sport: "football",
-      legacyWeeks: [1, 2, 3],
-    });
+    for (const read of reads) {
+      vi.mocked(cacheTag).mockClear();
+      await read();
+      const tags = vi.mocked(cacheTag).mock.calls.flat();
+      expect(
+        tags.some((tag) => published.has(tag)),
+        String(read),
+      ).toBe(true);
+    }
   });
 
   it("getCachedSchoolRankingHistory tags the school and each poll season it appears in", async () => {
@@ -161,11 +165,6 @@ describe("rankings-data", () => {
     expect(cacheTag).toHaveBeenCalledWith("rankings:school:school-2");
   });
 
-  it("getCachedRankedSchoolSanityIds delegates to db", async () => {
-    mockGetRankedSchoolSanityIds.mockResolvedValue(["a", "b"]);
-    await expect(getCachedRankedSchoolSanityIds()).resolves.toEqual(["a", "b"]);
-  });
-
   it("getCachedLatestPublishedPoll scopes by sport and tags the poll", async () => {
     const latest = { division: "fcs", week: 8, year: 2026, publishedAt: null };
     mockGetLatestFinalRankings.mockResolvedValueOnce(latest);
@@ -189,31 +188,6 @@ describe("rankings-data", () => {
         division: "power-conferences",
       }),
     ).resolves.toBeNull();
-  });
-
-  it("getCachedLatestFinalRankings delegates to db", async () => {
-    mockGetLatestFinalRankings.mockResolvedValue({
-      division: "fcs",
-      week: 2,
-      year: 2026,
-    });
-    await expect(
-      getCachedLatestFinalRankings({ division: "fcs" }),
-    ).resolves.toEqual({
-      division: "fcs",
-      week: 2,
-      year: 2026,
-    });
-  });
-
-  it("getCachedLatestFinalRankingsBySportSlug delegates to db", async () => {
-    mockGetLatestFinalRankingsBySportSlug.mockResolvedValue([]);
-    await expect(
-      getCachedLatestFinalRankingsBySportSlug("football"),
-    ).resolves.toEqual([]);
-    expect(mockGetLatestFinalRankingsBySportSlug).toHaveBeenCalledWith(
-      "football",
-    );
   });
 
   const ballotContextInput = {
@@ -286,19 +260,6 @@ describe("rankings-data", () => {
         week: 1,
       }),
     ).resolves.toBeNull();
-  });
-
-  it("getCachedVotesForWeekAndYearByVoter delegates to db", async () => {
-    mockGetSportIdBySlug.mockResolvedValue("sport-1");
-    mockGetVotesForWeekAndYearByVoter.mockResolvedValue({ ballots: [] });
-    await expect(
-      getCachedVotesForWeekAndYearByVoter({
-        sport: "football",
-        division: "fbs",
-        year: 2025,
-        week: 1,
-      }),
-    ).resolves.toEqual({ ballots: [] });
   });
 
   it("getCachedActivePollVoters returns empty when the poll is unknown", async () => {

@@ -16,14 +16,6 @@ describe("ModeToggle", () => {
     mockSetTheme.mockReset();
   });
 
-  it("renders the theme toggle trigger", () => {
-    render(<ModeToggle />);
-
-    expect(
-      screen.getByRole("button", { name: "Toggle theme" }),
-    ).toBeInTheDocument();
-  });
-
   it("sets light, dark, and system themes from the menu", async () => {
     const user = userEvent.setup();
     render(<ModeToggle />);

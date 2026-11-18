@@ -89,7 +89,6 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
-import SportNewsLoading from "@/app/college/[sport]/news/loading";
 import SportNewsPage, {
   generateMetadata,
 } from "@/app/college/[sport]/news/page";
@@ -207,12 +206,5 @@ describe("SportNewsPage", () => {
     });
     render(page as ReactNode);
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
-  });
-});
-
-describe("SportNewsLoading", () => {
-  it("renders loading skeletons", () => {
-    const { container } = render(<SportNewsLoading />);
-    expect(container.firstChild).toBeTruthy();
   });
 });

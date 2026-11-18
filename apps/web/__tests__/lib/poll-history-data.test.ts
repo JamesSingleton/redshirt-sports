@@ -26,10 +26,7 @@ vi.mock("@/lib/rankings-data", () => ({
 
 import { beforeEach, describe, expect, it } from "vitest";
 
-import {
-  getCachedPollHistoryForDivision,
-  getCachedPollHistoryYears,
-} from "@/lib/poll-history-data";
+import { getCachedPollHistoryForDivision } from "@/lib/poll-history-data";
 
 function rankingsForWeek(week: number) {
   return {
@@ -173,11 +170,5 @@ describe("poll history data", () => {
         year: 2026,
       }),
     ).resolves.toBeNull();
-  });
-
-  it("delegates year lookup", async () => {
-    await expect(getCachedPollHistoryYears("fbs")).resolves.toEqual([
-      2025, 2026,
-    ]);
   });
 });

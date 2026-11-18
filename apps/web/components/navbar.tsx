@@ -10,12 +10,8 @@ import type {
 import type { StegaBranded } from "next-sanity";
 import { memo } from "react";
 
-import {
-  NavbarClient,
-  NavbarSkeletonResponsive,
-} from "@/components/navbar-client";
+import { NavbarClient } from "@/components/navbar-client";
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
-import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 
 export type NavbarItems = NonNullable<
   NonNullable<StegaBranded<QueryNavbarDataResult>>["items"]
@@ -28,10 +24,6 @@ export type NavRankingsMenuItem = Extract<
 >;
 export type NavColumnItem = Extract<NavbarItem, { _type: "navbarColumn" }>;
 export type NavLinkItem = Extract<NavbarItem, { _type: "navbarLink" }>;
-
-export async function DynamicNavbarServer() {
-  return <CachedNavbarServer {...(await resolveDynamicFetchOptions())} />;
-}
 
 /**
  * Navigation comes only from the Sanity `navbar` singleton (and the sports and
@@ -78,16 +70,3 @@ const MemoizedNavbar = memo(function Navbar({
     </header>
   );
 });
-
-export { MemoizedNavbar as Navbar };
-
-export function NavbarSkeleton() {
-  return (
-    <header className="sticky top-0 z-30 border-b bg-background/95">
-      <div className="mx-auto flex h-14 max-w-site items-center gap-3 px-4 lg:h-16 lg:px-6">
-        <div className="bg-muted h-7 w-[169px] animate-pulse rounded" />
-        <NavbarSkeletonResponsive />
-      </div>
-    </header>
-  );
-}

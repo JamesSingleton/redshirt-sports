@@ -11,7 +11,6 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 
 import { fetchGlobalSeoSettings } from "@/lib/global-seo-settings";
-import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 import { CopyrightYear } from "./copyright-year";
 import {
   BlueSkyIcon,
@@ -30,10 +29,6 @@ interface SocialLinksProps {
 interface FooterProps {
   data: NonNullable<QueryFooterDataResult>;
   settingsData: NonNullable<QueryGlobalSeoSettingsResult>;
-}
-
-export async function DynamicFooterServer() {
-  return <CachedFooterServer {...(await resolveDynamicFetchOptions())} />;
 }
 
 export async function CachedFooterServer({

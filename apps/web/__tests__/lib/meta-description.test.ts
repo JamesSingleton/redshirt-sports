@@ -18,6 +18,12 @@ describe("getBrandName", () => {
 });
 
 describe("trimMetaDescription", () => {
+  it("leaves short text unchanged", () => {
+    expect(trimMetaDescription("Short description.")).toBe(
+      "Short description.",
+    );
+  });
+
   it("normalizes whitespace", () => {
     expect(trimMetaDescription("  hello   world  ")).toBe("hello world");
   });

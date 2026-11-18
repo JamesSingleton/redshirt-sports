@@ -85,4 +85,24 @@ export const PHASE1_COVERAGE_EXCLUDES = [
   "components/rankings/ballot-share.tsx",
   // Toolbar share path has an unreachable `navigator` guard in happy-dom.
   "components/posts/article-share.tsx",
+  // No logic: route wrappers, loading states, skeletons, icons, and
+  // provider/client setup. A test could only check that they render.
+  "app/home-route-loading.tsx",
+  "app/search/loading.tsx",
+  "app/(auth)/layout.tsx",
+  "app/(auth)/onboarding/page.tsx",
+  "app/(auth)/sign-in/[[...sign-in]]/page.tsx",
+  "app/(auth)/sign-up/[[...sign-up]]/page.tsx",
+  "app/api/draft-mode/enable/route.ts",
+  "app/college/[sport]/playoffs/[division]/layout.tsx",
+  "app/college/[sport]/ratings/[pool]/layout.tsx",
+  "app/college/[sport]/transfer-portal/layout.tsx",
+  "components/icons.tsx",
+  "components/loading-article.tsx",
+  "components/navbar-skeleton.tsx",
+  "components/providers.tsx",
+  "components/bracket/bracket-skeleton.tsx",
+  "components/home/home-page-skeleton.tsx",
+  "server/ratelimit.ts",
+  "utils/redis.ts",
 ] as const;

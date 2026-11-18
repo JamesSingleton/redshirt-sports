@@ -1,27 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 
-import {
-  CachedNavbarServer,
-  DynamicNavbarServer,
-  Navbar,
-  NavbarSkeleton,
-} from "@/components/navbar";
+import { CachedNavbarServer } from "@/components/navbar";
 
-const {
-  mockResolveDynamicFetchOptions,
-  mockSanityFetch,
-  mockFetchGlobalSeoSettings,
-  mockNavbarClient,
-} = vi.hoisted(() => ({
-  mockResolveDynamicFetchOptions: vi.fn(),
-  mockSanityFetch: vi.fn(),
-  mockFetchGlobalSeoSettings: vi.fn(),
-  mockNavbarClient: vi.fn(),
-}));
-
-vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
-  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
-}));
+const { mockSanityFetch, mockFetchGlobalSeoSettings, mockNavbarClient } =
+  vi.hoisted(() => ({
+    mockSanityFetch: vi.fn(),
+    mockFetchGlobalSeoSettings: vi.fn(),
+    mockNavbarClient: vi.fn(),
+  }));
 
 vi.mock("@/lib/global-seo-settings", () => ({
   fetchGlobalSeoSettings: mockFetchGlobalSeoSettings,
@@ -55,31 +41,6 @@ const settingsData = {
   logo: { alt: "Logo" },
 };
 
-describe("Navbar", () => {
-  it("renders the client navbar", () => {
-    render(
-      <Navbar items={items as never} settingsData={settingsData as never} />,
-    );
-
-    expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
-  });
-
-  it("renders with empty settings", () => {
-    render(<Navbar items={[]} settingsData={null as never} />);
-
-    expect(screen.getByTestId("navbar-client")).toBeInTheDocument();
-  });
-});
-
-describe("NavbarSkeleton", () => {
-  it("renders the navbar loading skeleton", () => {
-    render(<NavbarSkeleton />);
-    expect(
-      screen.getByTestId("navbar-skeleton-responsive"),
-    ).toBeInTheDocument();
-  });
-});
-
 describe("CachedNavbarServer", () => {
   beforeEach(() => {
     mockSanityFetch.mockReset().mockResolvedValue({ data: { items } });
@@ -110,19 +71,5 @@ describe("CachedNavbarServer", () => {
     expect(mockNavbarClient).toHaveBeenCalledWith(
       expect.objectContaining({ items: [] }),
     );
-  });
-});
-
-describe("DynamicNavbarServer", () => {
-  it("resolves fetch options before rendering", async () => {
-    mockResolveDynamicFetchOptions.mockResolvedValue({
-      perspective: "published",
-      stega: false,
-    });
-
-    const component = await DynamicNavbarServer();
-
-    expect(mockResolveDynamicFetchOptions).toHaveBeenCalled();
-    expect(component).toBeTruthy();
   });
 });

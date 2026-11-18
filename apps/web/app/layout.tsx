@@ -20,7 +20,8 @@ import {
 import { DisableDraftMode } from "@/components/disable-draft-mode";
 import { CachedFooterServer, FooterSkeleton } from "@/components/footer";
 import { CachedCombinedJsonLd } from "@/components/json-ld";
-import { CachedNavbarServer, NavbarSkeleton } from "@/components/navbar";
+import { CachedNavbarServer } from "@/components/navbar";
+import { NavbarSkeleton } from "@/components/navbar-skeleton";
 import { Providers } from "@/components/providers";
 import {
   DraftAwareFooter,

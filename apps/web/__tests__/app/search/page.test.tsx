@@ -75,7 +75,6 @@ vi.mock("@/components/pagination-controls", () => ({
   default: () => <nav data-testid="pagination" />,
 }));
 
-import SearchLoading from "@/app/search/loading";
 import SearchPage, { generateMetadata } from "@/app/search/page";
 
 describe("SearchPage", () => {
@@ -179,14 +178,5 @@ describe("SearchPage", () => {
     render(page as ReactNode);
 
     expect(screen.getByTestId("pagination")).toBeInTheDocument();
-  });
-});
-
-describe("SearchLoading", () => {
-  it("renders skeleton placeholders", () => {
-    const { container } = render(<SearchLoading />);
-    expect(
-      container.querySelectorAll(".animate-pulse, [class*='skeleton']").length,
-    ).toBeGreaterThan(0);
   });
 });

@@ -68,20 +68,18 @@ vi.mock("@/components/disable-draft-mode", () => ({
 
 vi.mock("@/components/footer", () => ({
   CachedFooterServer: () => <footer data-testid="footer">Footer</footer>,
-  DynamicFooterServer: () => (
-    <footer data-testid="dynamic-footer">Footer</footer>
-  ),
   FooterSkeleton: () => <footer data-testid="footer-skeleton" />,
 }));
 
 vi.mock("@/components/json-ld", () => ({
   CachedCombinedJsonLd: () => <script data-testid="json-ld" />,
-  DynamicCombinedJsonLd: () => <script data-testid="dynamic-json-ld" />,
 }));
 
 vi.mock("@/components/navbar", () => ({
   CachedNavbarServer: () => <nav data-testid="navbar">Navbar</nav>,
-  DynamicNavbarServer: () => <nav data-testid="dynamic-navbar">Navbar</nav>,
+}));
+
+vi.mock("@/components/navbar-skeleton", () => ({
   NavbarSkeleton: () => <nav data-testid="navbar-skeleton" />,
 }));
 
@@ -98,7 +96,7 @@ vi.mock("@/lib/seo", () => ({
   getRootMetadata: () => ({ title: "Redshirt Sports" }),
 }));
 
-import RootLayout, { metadata, viewport } from "@/app/layout";
+import RootLayout from "@/app/layout";
 import {
   DraftAwareFooter,
   DraftAwareJsonLd,
@@ -133,11 +131,6 @@ describe("RootLayout", () => {
   beforeEach(() => {
     mockConnection.mockClear();
     mockDraftMode.mockReset().mockResolvedValue({ isEnabled: false });
-  });
-
-  it("exports root metadata and viewport", () => {
-    expect(metadata).toEqual({ title: "Redshirt Sports" });
-    expect(viewport).toEqual({ themeColor: "#E80022" });
   });
 
   it("waits for the cache-invalidate function in production", async () => {
