@@ -309,12 +309,13 @@ describe("VotePageAuth", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("renders vote page via default export with valid params", async () => {
-    const ui = await VotePage({
-      params: Promise.resolve({ sport: "football", division: "fbs" }),
-      searchParams: Promise.resolve({}),
-    });
-    expect(ui).toBeTruthy();
+  it("opens the vote page for a valid sport and division", async () => {
+    await expect(
+      VotePage({
+        params: Promise.resolve({ sport: "football", division: "fbs" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).resolves.toBeTruthy();
   });
 
   it.each(divisionHeaders)(

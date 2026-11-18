@@ -29,7 +29,6 @@ import {
 } from "@/lib/article-entities";
 import { getArticleTagNames } from "@/lib/article-seo";
 import { getBaseUrl } from "@/lib/get-base-url";
-import { resolveDynamicFetchOptions } from "@/lib/resolve-dynamic-fetch-options";
 import { sportNavLabel } from "@/lib/sport-nav";
 import { getCollegeSportSection } from "@/lib/sport-section";
 
@@ -558,10 +557,6 @@ export function WebSiteJsonLd({ settings }: { settings: any }) {
   };
 
   return <JsonLdScript data={webSiteJsonLd} id="website-json-ld" />;
-}
-
-export async function DynamicCombinedJsonLd() {
-  return <CachedCombinedJsonLd {...(await resolveDynamicFetchOptions())} />;
 }
 
 export async function CachedCombinedJsonLd({

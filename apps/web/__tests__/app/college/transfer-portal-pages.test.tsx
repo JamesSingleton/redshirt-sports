@@ -87,7 +87,6 @@ vi.mock("next/link", () => ({
 import CyclePage, {
   generateMetadata as cycleMetadata,
 } from "@/app/college/[sport]/transfer-portal/[year]/page";
-import TransferPortalLayout from "@/app/college/[sport]/transfer-portal/layout";
 import Loading from "@/app/college/[sport]/transfer-portal/loading";
 import TransferPortalPage, {
   generateMetadata,
@@ -347,13 +346,7 @@ describe("transfer portal pages", () => {
     expect(portalSportLabel("lacrosse")).toBe("lacrosse");
   });
 
-  it("renders the layout and loading skeleton", () => {
-    render(
-      <TransferPortalLayout>
-        <p>child</p>
-      </TransferPortalLayout>,
-    );
-    expect(screen.getByText("child")).toBeInTheDocument();
+  it("marks the loading skeleton busy", () => {
     const { container } = render(<Loading />);
     expect(container.querySelector("[aria-busy]")).not.toBeNull();
   });

@@ -7,7 +7,7 @@ export const ABSENT_RANK = TOP_25 + 1;
  * Maximum footrule distance when every consensus team is absent (rank 26).
  * Σ (26 − r) for r = 1..25 = 325
  */
-export const MAX_FOOTRULE_ERROR = (TOP_25 * (TOP_25 + 1)) / 2;
+const MAX_FOOTRULE_ERROR = (TOP_25 * (TOP_25 + 1)) / 2;
 
 export type ConsensusRank = {
   id: string;

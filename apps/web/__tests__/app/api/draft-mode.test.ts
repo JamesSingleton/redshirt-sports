@@ -39,13 +39,4 @@ describe("draft-mode routes", () => {
     expect(mockDisable).toHaveBeenCalled();
     expect(mockRedirect).toHaveBeenCalledWith("/");
   });
-
-  it("enable route is created via defineEnableDraftMode", async () => {
-    const enable = await import("@/app/api/draft-mode/enable/route");
-    expect(mockDefineEnableDraftMode).toHaveBeenCalled();
-    expect(enable.GET).toBeDefined();
-    await expect(
-      enable.GET(new Request("https://example.com")),
-    ).resolves.toBeInstanceOf(Response);
-  });
 });

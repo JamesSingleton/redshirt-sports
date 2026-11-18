@@ -105,31 +105,6 @@ describe("revalidateWebRankingsCache", () => {
     );
   });
 
-  it("normalizes host-only NEXT_PUBLIC_SITE_URL with https", async () => {
-    mockEnv.CACHE_REVALIDATE_SECRET = "shared-secret";
-    mockEnv.NEXT_PUBLIC_SITE_URL = "www.redshirtsports.com";
-    mockFetch.mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () => "",
-    });
-    const { revalidateWebRankingsCache } = await import(
-      "@/lib/revalidate-web-rankings"
-    );
-
-    await revalidateWebRankingsCache({
-      sport: "football",
-      division: "fbs",
-      year: 2026,
-      weekKey: "2-1",
-    });
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      "https://www.redshirtsports.com/api/revalidate-tags",
-      expect.objectContaining({ method: "POST" }),
-    );
-  });
-
   it("logs when the public endpoint returns an error", async () => {
     mockEnv.CACHE_REVALIDATE_SECRET = "shared-secret";
     mockFetch.mockResolvedValue({

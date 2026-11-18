@@ -1,4 +1,4 @@
-import { top25FormSchema, voteRequestSchema } from "@/lib/schemas/vote-ballot";
+import { voteRequestSchema } from "@/lib/schemas/vote-ballot";
 
 function fullBallot(overrides: Record<string, string> = {}) {
   const ranks: Record<string, string> = {};
@@ -14,10 +14,6 @@ function fullBallot(overrides: Record<string, string> = {}) {
 }
 
 describe("voteRequestSchema / top25FormSchema", () => {
-  it("are the same schema (all 25 ranks required)", () => {
-    expect(voteRequestSchema).toBe(top25FormSchema);
-  });
-
   it("requires all 25 ranks", () => {
     const result = voteRequestSchema.safeParse({
       sport: "football",

@@ -1,8 +1,6 @@
 import {
-  ABSENT_RANK,
   type ConsensusRank,
   computeBallotMatchPercent,
-  MAX_FOOTRULE_ERROR,
 } from "@/lib/ballot-match";
 
 function consensusOf(ids: string[]): ConsensusRank[] {
@@ -85,10 +83,5 @@ describe("computeBallotMatchPercent", () => {
     );
     expect(percent).toBeGreaterThan(0);
     expect(percent).toBeLessThanOrEqual(100);
-  });
-
-  it("exposes ABSENT_RANK and MAX_FOOTRULE_ERROR used by the formula", () => {
-    expect(ABSENT_RANK).toBe(26);
-    expect(MAX_FOOTRULE_ERROR).toBe(325);
   });
 });

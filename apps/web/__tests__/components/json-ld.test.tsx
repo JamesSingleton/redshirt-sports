@@ -3,7 +3,6 @@ import {
   buildSafeImageUrl,
   buildTeamPageJsonLd,
   CachedCombinedJsonLd,
-  DynamicCombinedJsonLd,
   JsonLdScript,
   newsroomPolicyLinks,
   OrganizationJsonLd,
@@ -14,13 +13,8 @@ import {
   websiteId,
 } from "@/components/json-ld";
 
-const { mockResolveDynamicFetchOptions, mockSanityFetch } = vi.hoisted(() => ({
-  mockResolveDynamicFetchOptions: vi.fn(),
+const { mockSanityFetch } = vi.hoisted(() => ({
   mockSanityFetch: vi.fn(),
-}));
-
-vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
-  resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
 vi.mock("@redshirt-sports/sanity/live", () => ({
@@ -483,12 +477,8 @@ describe("WebSiteJsonLd", () => {
   });
 });
 
-describe("DynamicCombinedJsonLd", () => {
+describe("CachedCombinedJsonLd", () => {
   beforeEach(() => {
-    mockResolveDynamicFetchOptions.mockResolvedValue({
-      perspective: "published",
-      stega: false,
-    });
     mockSanityFetch.mockResolvedValue({
       data: {
         name: "Redshirt Sports",
@@ -496,13 +486,6 @@ describe("DynamicCombinedJsonLd", () => {
         siteDescription: "College sports coverage",
       },
     });
-  });
-
-  it("resolves fetch options before rendering cached JSON-LD", async () => {
-    const component = await DynamicCombinedJsonLd();
-
-    expect(mockResolveDynamicFetchOptions).toHaveBeenCalled();
-    expect(component).toBeTruthy();
   });
 
   it("can be called directly with fetch options", async () => {

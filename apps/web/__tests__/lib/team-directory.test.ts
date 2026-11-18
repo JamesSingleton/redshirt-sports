@@ -64,27 +64,17 @@ describe("team directory", () => {
     expect(groups.map((g) => g.letter)).toEqual(["#", "A", "B"]);
   });
 
-  it("drops schools without slugs in directory mapping", () => {
-    expect(
-      mapTeamDirectorySchool({
-        _id: "1",
-        name: "No Slug U",
-        shortName: "No Slug",
-        nickname: null,
-        slug: "",
-      }),
-    ).toBeNull();
-  });
-
   it("drops schools without slugs", () => {
-    expect(
-      mapTeamDirectorySchool({
-        _id: "1",
-        name: "Test U",
-        shortName: "Test",
-        nickname: "Cats",
-        slug: null,
-      }),
-    ).toBeNull();
+    for (const slug of ["", null]) {
+      expect(
+        mapTeamDirectorySchool({
+          _id: "1",
+          name: "Test U",
+          shortName: "Test",
+          nickname: null,
+          slug,
+        }),
+      ).toBeNull();
+    }
   });
 });

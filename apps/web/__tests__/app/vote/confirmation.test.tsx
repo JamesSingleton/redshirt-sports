@@ -108,6 +108,7 @@ vi.mock("@/components/sanity-image", () => ({
 }));
 
 import { render, screen } from "@testing-library/react";
+import { Suspense } from "react";
 
 import VoteConfirmationPage, {
   VoteConfirmationContent,
@@ -350,11 +351,12 @@ describe("VoteConfirmationContent", () => {
     ).toBeInTheDocument();
   });
 
-  it("default export wraps confirmation content in Suspense", () => {
-    const ui = VoteConfirmationPage({
-      params: Promise.resolve({ sport: "football", division: "fbs" }),
-    });
-    expect(ui).toBeTruthy();
+  it("streams the ballot behind Suspense, outside the static shell", () => {
+    const params = Promise.resolve({ sport: "football", division: "fbs" });
+    const ui = VoteConfirmationPage({ params });
+    expect(ui.type).toBe(Suspense);
+    expect(ui.props.children.type).toBe(VoteConfirmationContent);
+    expect(ui.props.children.props.params).toBe(params);
   });
 
   it("falls back to school name and unknown sport or division labels", async () => {

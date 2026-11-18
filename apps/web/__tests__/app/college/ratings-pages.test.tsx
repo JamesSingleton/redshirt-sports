@@ -102,7 +102,6 @@ import TeamSheetsPage, {
 import AccuracyPage, {
   generateMetadata as accuracyMeta,
 } from "@/app/college/[sport]/ratings/[pool]/accuracy/page";
-import RatingsLayout from "@/app/college/[sport]/ratings/[pool]/layout";
 import Loading from "@/app/college/[sport]/ratings/[pool]/loading";
 import LatestPage, {
   generateMetadata as latestMeta,
@@ -143,9 +142,7 @@ describe("ratings pages", () => {
     mockValidationReport.mockReturnValue({ championRanks: [] });
   });
 
-  it("renders the layout and loading state", () => {
-    render(<RatingsLayout>child</RatingsLayout>);
-    expect(screen.getByText("child")).toBeInTheDocument();
+  it("announces the loading state", () => {
     render(<Loading />);
     expect(screen.getByLabelText("Loading ratings")).toBeInTheDocument();
   });

@@ -11,43 +11,15 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
 import { sanityFetchPage, sanityFetchRequestTime } from "@/lib/sanity-fetch";
 
 describe("sanityFetchPage", () => {
-  beforeEach(() => {
-    mockSanityFetch.mockReset();
-  });
-
-  it("delegates to cachedSanity with perspective and stega", async () => {
-    mockSanityFetch.mockResolvedValue({ data: { title: "Hello" } });
-
+  it("reads with the page's perspective, so drafts show only in preview", async () => {
+    mockSanityFetch.mockReset().mockResolvedValue({ data: { title: "Draft" } });
     await expect(
-      sanityFetchPage({
-        query: '*[_type == "post"][0]',
-        params: { slug: "hello" },
-        perspective: "published",
-        stega: false,
-      }),
-    ).resolves.toEqual({ data: { title: "Hello" } });
-
+      sanityFetchPage({ query: "post", perspective: "drafts", stega: true }),
+    ).resolves.toEqual({ data: { title: "Draft" } });
     expect(mockSanityFetch).toHaveBeenCalledWith({
-      query: '*[_type == "post"][0]',
-      params: { slug: "hello" },
-      perspective: "published",
-      stega: false,
-    });
-  });
-
-  it("defaults params to an empty object", async () => {
-    mockSanityFetch.mockResolvedValue({ data: null });
-
-    await sanityFetchPage({
-      query: '*[_type == "post"][0]',
-      perspective: "previewDrafts",
-      stega: true,
-    });
-
-    expect(mockSanityFetch).toHaveBeenCalledWith({
-      query: '*[_type == "post"][0]',
+      query: "post",
       params: {},
-      perspective: "previewDrafts",
+      perspective: "drafts",
       stega: true,
     });
   });

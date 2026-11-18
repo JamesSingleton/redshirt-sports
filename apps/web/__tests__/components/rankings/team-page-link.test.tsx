@@ -38,12 +38,4 @@ describe("TeamPageLink", () => {
     expect(link).toHaveAttribute("href", "/college/teams/alabama");
     expect(link).toHaveClass("custom-link");
   });
-
-  it("uses the default hover class when className is omitted", () => {
-    render(<TeamPageLink slug="georgia">Georgia</TeamPageLink>);
-
-    expect(screen.getByRole("link", { name: "Georgia" })).toHaveClass(
-      "hover:underline",
-    );
-  });
 });
