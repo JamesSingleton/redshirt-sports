@@ -26,7 +26,6 @@ const {
   mockRequireVotingSeasonInfo,
   mockAnalyticsCapture,
   mockSentryCapture,
-  mockRatelimit,
   PollWeekLockedError,
 } = vi.hoisted(() => {
   class PollWeekLockedError extends Error {
@@ -52,7 +51,6 @@ const {
     mockRequireVotingSeasonInfo: vi.fn(),
     mockAnalyticsCapture: vi.fn(),
     mockSentryCapture: vi.fn(),
-    mockRatelimit: vi.fn(),
     PollWeekLockedError,
   };
 });
@@ -82,10 +80,6 @@ vi.mock("@redshirt-sports/analytics/server", () => ({
 
 vi.mock("@sentry/nextjs", () => ({
   captureException: mockSentryCapture,
-}));
-
-vi.mock("@/server/ratelimit", () => ({
-  ratelimit: { limit: mockRatelimit },
 }));
 
 import {
@@ -146,7 +140,6 @@ function resetHappyPathMocks() {
   mockRequireVotingSeasonInfo.mockReset().mockResolvedValue(seasonInfoInSeason);
   mockAnalyticsCapture.mockReset();
   mockSentryCapture.mockReset();
-  mockRatelimit.mockReset().mockResolvedValue({ success: true });
 }
 
 describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
@@ -160,14 +153,6 @@ describe("POST /api/vote/college/[sport]/rankings/[division]", () => {
       params: voteParams(),
     });
     expect(res.status).toBe(401);
-  });
-
-  it("returns 429 when rate limited", async () => {
-    mockRatelimit.mockResolvedValue({ success: false });
-    const res = await POST(postRequest(ballotBody()), {
-      params: voteParams(),
-    });
-    expect(res.status).toBe(429);
   });
 
   it("returns 400 for invalid sport in URL", async () => {

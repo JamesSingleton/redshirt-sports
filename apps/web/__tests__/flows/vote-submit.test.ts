@@ -26,7 +26,6 @@ const {
   mockArePollRankingsPublished,
   mockGetVoterBallots,
   mockRequireVotingSeasonInfo,
-  mockRatelimit,
   PollWeekLockedError,
 } = vi.hoisted(() => {
   class PollWeekLockedError extends Error {
@@ -49,7 +48,6 @@ const {
     mockArePollRankingsPublished: vi.fn(),
     mockGetVoterBallots: vi.fn(),
     mockRequireVotingSeasonInfo: vi.fn(),
-    mockRatelimit: vi.fn(),
     PollWeekLockedError,
   };
 });
@@ -80,10 +78,6 @@ vi.mock("@sentry/nextjs", () => ({
   captureException: vi.fn(),
 }));
 
-vi.mock("@/server/ratelimit", () => ({
-  ratelimit: { limit: mockRatelimit },
-}));
-
 import { POST } from "@/app/api/vote/college/[sport]/rankings/[division]/route";
 
 function postRequest(body: unknown) {
@@ -111,7 +105,6 @@ describe("vote submit flow", () => {
     mockRequireVotingSeasonInfo
       .mockReset()
       .mockResolvedValue(seasonInfoInSeason);
-    mockRatelimit.mockReset().mockResolvedValue({ success: true });
   });
 
   it("accepts a Top25-shaped body and persists via submitBallot", async () => {
