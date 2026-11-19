@@ -9,10 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { toast } from "@redshirt-sports/ui/components/toast";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useId, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import { createBracketEditionAction } from "@/actions/brackets";
 import { bracketEditionName } from "@/lib/bracket-season";
@@ -105,7 +106,7 @@ export function BracketCreateForm({
     <div className="flex flex-wrap items-end gap-4 rounded-xl border p-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={`${id}-format`}>Format</Label>
-        <Select value={formatId} onValueChange={setFormatId}>
+        <Select value={formatId} onValueChange={whenSelected(setFormatId)}>
           <SelectTrigger id={`${id}-format`} className="w-40">
             <SelectValue />
           </SelectTrigger>
@@ -123,7 +124,9 @@ export function BracketCreateForm({
         <Label htmlFor={`${id}-kind`}>Bracket</Label>
         <Select
           value={kind}
-          onValueChange={(value) => setKind(value as typeof kind)}
+          onValueChange={whenSelected((value: string) =>
+            setKind(value as typeof kind),
+          )}
         >
           <SelectTrigger id={`${id}-kind`} className="w-44">
             <SelectValue />
@@ -142,7 +145,7 @@ export function BracketCreateForm({
       {kind === "projection" ? (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${id}-week`}>After week</Label>
-          <Select value={chosenWeek} onValueChange={setWeekId}>
+          <Select value={chosenWeek} onValueChange={whenSelected(setWeekId)}>
             <SelectTrigger id={`${id}-week`} className="w-32">
               <SelectValue placeholder="No open week" />
             </SelectTrigger>

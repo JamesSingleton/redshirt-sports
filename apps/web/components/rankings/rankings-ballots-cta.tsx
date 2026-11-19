@@ -48,7 +48,7 @@ export function RankingsBallotsCta({
   }
 
   return (
-    <Card className="hidden gap-0 border-primary/30 bg-accent/30 shadow-xs lg:flex">
+    <Card className="hidden gap-0 py-0 border-primary/30 bg-accent/30 shadow-xs lg:flex">
       <CardContent className="grid gap-4 p-5">
         <div className="flex items-center gap-2">
           <span className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -84,11 +84,12 @@ export function RankingsBallotsCta({
             ) : null}
           </div>
         ) : null}
-        <Button asChild className="h-10 font-semibold shadow-xs">
-          <Link href={ballotsHref} prefetch={false}>
-            Open the full ballot breakdown
-            <ChevronRight className="size-4" aria-hidden />
-          </Link>
+        <Button
+          className="h-10 font-semibold shadow-xs"
+          render={<Link href={ballotsHref} prefetch={false} />}
+        >
+          Open the full ballot breakdown
+          <ChevronRight className="size-4" aria-hidden />
         </Button>
         <div className="flex items-center justify-between text-sm">
           <Link

@@ -35,7 +35,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@redshirt-sports/analytics", () => ({
   analytics: { capture: mocks.capture },
 }));
-vi.mock("sonner", () => ({ toast: { error: mocks.toastError } }));
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
+  toast: { error: mocks.toastError },
+}));
 vi.mock("@/lib/bracket-capture", () => ({
   captureBracketImage: mocks.captureImage,
   captureBracketPdf: mocks.capturePdf,

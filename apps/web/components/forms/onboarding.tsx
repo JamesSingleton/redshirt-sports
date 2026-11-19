@@ -12,7 +12,6 @@ import {
 } from "@redshirt-sports/ui/components/card";
 import {
   Form,
-  FormControl,
   FormDescription,
   FormField,
   FormItem,
@@ -20,9 +19,9 @@ import {
   FormMessage,
 } from "@redshirt-sports/ui/components/form";
 import { Input } from "@redshirt-sports/ui/components/input";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { completeOnboarding } from "@/actions/complete-onboarding";
 import { safeRedirectPath } from "@/lib/safe-redirect";
@@ -80,12 +79,10 @@ export default function Onboarding() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your organization's name"
-                      {...field}
-                    />
-                  </FormControl>
+                  <Input
+                    placeholder="Enter your organization's name"
+                    {...field}
+                  />
                   <FormDescription>
                     Please provide the name of the organization you are
                     representing.
@@ -100,12 +97,10 @@ export default function Onboarding() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization Role</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your job title or role"
-                      {...field}
-                    />
-                  </FormControl>
+                  <Input
+                    placeholder="Enter your job title or role"
+                    {...field}
+                  />
                   <FormDescription>
                     Please provide your job title or role within the
                     organization.

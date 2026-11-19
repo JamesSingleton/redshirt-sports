@@ -1,18 +1,33 @@
 "use client";
 
+import {
+  CellGrid,
+  CellGridCell,
+  type GridCell,
+} from "@redshirt-sports/ui/components/cell-grid";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChipRemove,
+  ComboboxChips,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+  ComboboxList,
+  ComboboxValue,
+} from "@redshirt-sports/ui/components/combobox";
 import { Input } from "@redshirt-sports/ui/components/input";
 import { Label } from "@redshirt-sports/ui/components/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@redshirt-sports/ui/components/select";
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@redshirt-sports/ui/components/segmented-control";
 import { Switch } from "@redshirt-sports/ui/components/switch";
-import { cn } from "@redshirt-sports/ui/lib/utils";
+import { cn, whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { MouseEvent } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { TeamMark } from "@/components/rankings/team-mark";
@@ -27,26 +42,45 @@ import {
 import type { BallotsPageMatrix } from "@/lib/ballots-page-data";
 import { TOP_25 } from "@/lib/constants";
 
-function isHighlightModeActive(
-  highlightVoter: string,
-  highlightSet: Set<string>,
-) {
-  return highlightVoter !== "__all__" || highlightSet.size > 0;
-}
-
 function isVoterColumnHighlighted(
   voter: BallotsPageMatrix["voters"][number] | undefined,
-  highlightVoter: string,
   highlightSet: Set<string>,
 ) {
-  if (!voter) {
-    return false;
-  }
-  return (
-    (highlightVoter !== "__all__" && highlightVoter === voter.slug) ||
-    highlightSet.has(voter.userId)
-  );
+  return voter ? highlightSet.has(voter.userId) : false;
 }
+
+function ordinal(rank: number) {
+  const tens = rank % 100;
+  if (tens >= 11 && tens <= 13) return `${rank}th`;
+  return `${rank}${["th", "st", "nd", "rd"][rank % 10] ?? "th"}`;
+}
+
+/** One line describing a voter's pick for a team. */
+export function describePick(
+  row: BallotsPageMatrix["rows"][number],
+  voter: BallotsPageMatrix["voters"][number],
+  cell: BallotsPageMatrix["rows"][number]["cells"][number] | undefined,
+) {
+  const team = row.shortName;
+  const name = voter.label.trim();
+  const published = row.isReceivingVotesOnly
+    ? "receiving votes"
+    : `No. ${row.publishedRank}`;
+  if (cell?.isLeftOff) {
+    return `${name} left ${team} (${published}) off their ballot`;
+  }
+  if (cell?.rank == null) {
+    return `${name} didn't rank ${team} (${published})`;
+  }
+  const pick = `${name} ranked ${team} ${ordinal(cell.rank)} (${published})`;
+  return cell.isOutlier ? `${pick}, an outlier pick` : pick;
+}
+
+const COLUMN_MODES = [
+  { value: "all", label: "All voters" },
+  { value: "summary", label: "Summary" },
+  { value: "on-range", label: "On & range" },
+] as const;
 
 function matrixHoverBackground(
   rowHovered: boolean,
@@ -170,27 +204,24 @@ export function BallotsMatrixPanel({
     setShowReceivingVotes(receivingVotesFromUrl);
   }, [receivingVotesFromUrl]);
 
-  const highlightVoter = useMemo(() => {
-    const fromUrl = searchParams.get("voter")?.trim();
-    if (fromUrl) {
-      return fromUrl;
-    }
-    if (highlightVoterIds.length === 1) {
-      const voter = matrix.voters.find((v) =>
-        highlightVoterIds.includes(v.userId),
-      );
-      return voter?.slug ?? "__all__";
-    }
-    return "__all__";
-  }, [highlightVoterIds, matrix.voters, searchParams]);
+  // Same gap as the switches: show the new highlight before the URL catches up.
+  const [highlightIds, setHighlightIds] = useState(highlightVoterIds);
+  const highlightKey = highlightVoterIds.join(",");
+  const [syncedHighlightKey, setSyncedHighlightKey] = useState(highlightKey);
+  if (syncedHighlightKey !== highlightKey) {
+    setSyncedHighlightKey(highlightKey);
+    setHighlightIds(highlightVoterIds);
+  }
 
   const [hoverRowId, setHoverRowId] = useState<string | null>(null);
   const [hoverVoterIndex, setHoverVoterIndex] = useState<number | null>(null);
 
-  const highlightSet = useMemo(
-    () => new Set(highlightVoterIds),
-    [highlightVoterIds],
-  );
+  const highlightSet = useMemo(() => new Set(highlightIds), [highlightIds]);
+  const highlightedSlugs = matrix.voters
+    .filter((voter) => highlightSet.has(voter.userId))
+    .map((voter) => voter.slug);
+  const voterLabel = (slug: string) =>
+    matrix.voters.find((voter) => voter.slug === slug)?.label ?? slug;
 
   const voterOutlierFlags = useMemo(
     () => voterHasOutlierByIndex(matrix),
@@ -235,7 +266,17 @@ export function BallotsMatrixPanel({
 
   const top25Rows = filteredRows.filter((row) => !row.isReceivingVotesOnly);
   const rvRows = filteredRows.filter((row) => row.isReceivingVotesOnly);
-  const highlightMode = isHighlightModeActive(highlightVoter, highlightSet);
+  const highlightMode = highlightSet.size > 0;
+  const gridRows = [...top25Rows, ...rvRows];
+  const showGrid = visibleVoterIndexes.length > 0 && gridRows.length > 0;
+  const activeRow = gridRows.find((row) => row.teamId === hoverRowId);
+  const activeVoter =
+    hoverVoterIndex == null ? undefined : matrix.voters[hoverVoterIndex];
+
+  const onActiveCell = (cell: GridCell) => {
+    setHoverRowId(gridRows[cell.row]?.teamId ?? null);
+    setHoverVoterIndex(visibleVoterIndexes[cell.col] ?? null);
+  };
 
   return (
     <div className="grid min-w-0 gap-4">
@@ -255,60 +296,82 @@ export function BallotsMatrixPanel({
           </div>
           <div className="grid min-w-0 grid-cols-2 gap-3 sm:contents">
             <div className="min-w-0">
-              <Label htmlFor="ballots-highlight-voter" className="text-sm">
-                Highlight voter
-              </Label>
-              <Select
-                value={highlightVoter}
-                onValueChange={(slug) =>
-                  patchQuery({
-                    voter: slug === "__all__" ? null : slug,
-                    voters: null,
-                  })
-                }
+              <Combobox
+                multiple
+                value={highlightedSlugs}
+                onValueChange={(slugs) => {
+                  setHighlightIds(
+                    matrix.voters
+                      .filter((voter) => slugs.includes(voter.slug))
+                      .map((voter) => voter.userId),
+                  );
+                  patchQuery({ voter: null, voters: slugs.join(",") || null });
+                }}
+                itemToLabel={voterLabel}
+                presentation="auto"
               >
-                <SelectTrigger
-                  id="ballots-highlight-voter"
-                  className="mt-1 h-9 w-full min-w-0"
-                >
-                  <SelectValue placeholder="All voters" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All voters</SelectItem>
-                  {matrix.voters.map((voter) => (
-                    <SelectItem key={voter.userId} value={voter.slug}>
-                      {voter.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <ComboboxLabel className="text-sm">
+                  Highlight voters
+                </ComboboxLabel>
+                <ComboboxChips className="mt-1">
+                  <ComboboxValue>
+                    {(state) =>
+                      (state.value as string[]).map((slug, index) => (
+                        <ComboboxChip key={slug} value={slug}>
+                          <span className="truncate">
+                            {state.labels[index]}
+                          </span>
+                          <ComboboxChipRemove
+                            aria-label={`Stop highlighting ${state.labels[index]}`}
+                          />
+                        </ComboboxChip>
+                      ))
+                    }
+                  </ComboboxValue>
+                  <ComboboxInput
+                    placeholder={
+                      highlightedSlugs.length > 0 ? "Add…" : "All voters"
+                    }
+                  />
+                </ComboboxChips>
+                <ComboboxContent>
+                  <ComboboxEmpty>No voter found.</ComboboxEmpty>
+                  <ComboboxList>
+                    {matrix.voters.map((voter) => (
+                      <ComboboxItem
+                        key={voter.userId}
+                        value={voter.slug}
+                        label={voter.label}
+                      >
+                        {voter.label}
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
             </div>
             <div className="min-w-0">
-              <Label htmlFor="ballots-columns" className="text-sm">
+              <Label id="ballots-columns-label" className="text-sm">
                 Columns
               </Label>
-              <Select
+              <SegmentedControl
+                aria-labelledby="ballots-columns-label"
+                className="mt-1 w-full"
                 value={columnMode}
-                onValueChange={(v) =>
+                onValueChange={whenSelected((value: string) =>
                   patchQuery({
                     columns: ballotMatrixColumnModeQueryValue(
-                      parseBallotMatrixColumnMode(v),
+                      parseBallotMatrixColumnMode(value),
                     ),
-                  })
-                }
+                  }),
+                )}
               >
-                <SelectTrigger
-                  id="ballots-columns"
-                  className="mt-1 h-9 w-full min-w-0"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All voters</SelectItem>
-                  <SelectItem value="summary">Summary only</SelectItem>
-                  <SelectItem value="on-range">On &amp; range</SelectItem>
-                </SelectContent>
-              </Select>
+                {COLUMN_MODES.map((mode) => (
+                  <SegmentedControlItem key={mode.value} value={mode.value}>
+                    {mode.label}
+                  </SegmentedControlItem>
+                ))}
+              </SegmentedControl>
               <p className="mt-1 hidden text-sm leading-snug text-muted-foreground sm:block">
                 {columnMode === "all"
                   ? "Full matrix with every voter column."
@@ -396,23 +459,44 @@ export function BallotsMatrixPanel({
       ) : null}
 
       <div className="min-w-0 overflow-clip rounded-xl border bg-card">
+        {showGrid ? (
+          <p
+            className="min-h-11 border-b px-3 py-2.5 text-sm text-muted-foreground sm:px-4"
+            aria-hidden
+          >
+            {activeRow && activeVoter ? (
+              <span className="text-foreground">
+                {describePick(
+                  activeRow,
+                  activeVoter,
+                  hoverVoterIndex == null
+                    ? undefined
+                    : activeRow.cells[hoverVoterIndex],
+                )}
+              </span>
+            ) : (
+              "Hover or tap a cell, or use the arrow keys, to read a pick."
+            )}
+          </p>
+        ) : null}
         <div
           className="relative w-full min-w-0 max-w-full overflow-x-auto overflow-y-clip overscroll-x-contain pe-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          // Keyboard users need a tab stop so they can scroll this overflow region.
-          // biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable region has no focusable cells
-          tabIndex={0}
-          aria-label="Ballot matrix"
+          // Without voter cells, keyboard users need a tab stop to scroll this
+          // region; with them, the grid's cell is that stop.
+          tabIndex={showGrid ? undefined : 0}
+          aria-label={showGrid ? undefined : "Ballot matrix"}
+          role={showGrid ? undefined : "region"}
         >
-          <table
-            className="w-full min-w-max caption-bottom text-sm sm:text-base"
+          <MatrixTable
+            grid={showGrid}
+            rows={gridRows.length}
+            cols={visibleVoterIndexes.length}
+            onActiveChange={onActiveCell}
             onMouseLeave={() => {
               setHoverRowId(null);
               setHoverVoterIndex(null);
             }}
           >
-            <caption className="sr-only">
-              Ballot matrix: team ranks by voter
-            </caption>
             <thead>
               <tr className="border-b">
                 <th
@@ -452,7 +536,6 @@ export function BallotsMatrixPanel({
                       if (!voter) return null;
                       const emphasized = isVoterColumnHighlighted(
                         voter,
-                        highlightVoter,
                         highlightSet,
                       );
                       const colHovered = hoverVoterIndex === voterIndex;
@@ -507,14 +590,14 @@ export function BallotsMatrixPanel({
               </tr>
             </thead>
             <tbody>
-              {top25Rows.map((row) => (
+              {top25Rows.map((row, rowIndex) => (
                 <MatrixRow
                   key={row.teamId}
+                  rowIndex={rowIndex}
                   row={row}
                   voters={matrix.voters}
                   showPtsFirstColumns={showPtsFirstColumns}
                   visibleVoterIndexes={visibleVoterIndexes}
-                  highlightVoter={highlightVoter}
                   highlightSet={highlightSet}
                   highlightMode={highlightMode}
                   hoverRowId={hoverRowId}
@@ -553,7 +636,6 @@ export function BallotsMatrixPanel({
                     const voter = matrix.voters[voterIndex];
                     const emphasized = isVoterColumnHighlighted(
                       voter,
-                      highlightVoter,
                       highlightSet,
                     );
                     const colHovered = hoverVoterIndex === voterIndex;
@@ -584,14 +666,14 @@ export function BallotsMatrixPanel({
                   <td className="bg-muted/40" aria-hidden />
                 </tr>
               ) : null}
-              {rvRows.map((row) => (
+              {rvRows.map((row, rowIndex) => (
                 <MatrixRow
                   key={row.teamId}
+                  rowIndex={top25Rows.length + rowIndex}
                   row={row}
                   voters={matrix.voters}
                   showPtsFirstColumns={showPtsFirstColumns}
                   visibleVoterIndexes={visibleVoterIndexes}
-                  highlightVoter={highlightVoter}
                   highlightSet={highlightSet}
                   highlightMode={highlightMode}
                   hoverRowId={hoverRowId}
@@ -602,7 +684,7 @@ export function BallotsMatrixPanel({
                 />
               ))}
             </tbody>
-          </table>
+          </MatrixTable>
         </div>
       </div>
 
@@ -666,12 +748,51 @@ function StatCard({
   );
 }
 
+function MatrixTable({
+  grid,
+  rows,
+  cols,
+  onActiveChange,
+  onMouseLeave,
+  children,
+}: {
+  grid: boolean;
+  rows: number;
+  cols: number;
+  onActiveChange: (cell: GridCell) => void;
+  onMouseLeave: () => void;
+  children: ReactNode;
+}) {
+  const className = "w-full min-w-max caption-bottom text-sm sm:text-base";
+  const caption = (
+    <caption className="sr-only">Ballot matrix: team ranks by voter</caption>
+  );
+  return grid ? (
+    <CellGrid
+      aria-label="Ballot matrix"
+      rows={rows}
+      cols={cols}
+      onActiveChange={onActiveChange}
+      onMouseLeave={onMouseLeave}
+      className={className}
+    >
+      {caption}
+      {children}
+    </CellGrid>
+  ) : (
+    <table className={className} onMouseLeave={onMouseLeave}>
+      {caption}
+      {children}
+    </table>
+  );
+}
+
 function MatrixRow({
+  rowIndex,
   row,
   voters,
   showPtsFirstColumns,
   visibleVoterIndexes,
-  highlightVoter,
   highlightSet,
   highlightMode,
   hoverRowId,
@@ -684,7 +805,6 @@ function MatrixRow({
   voters: BallotsPageMatrix["voters"];
   showPtsFirstColumns: boolean;
   visibleVoterIndexes: number[];
-  highlightVoter: string;
   highlightSet: Set<string>;
   highlightMode: boolean;
   hoverRowId: string | null;
@@ -692,6 +812,7 @@ function MatrixRow({
   onHoverRowId: (teamId: string | null) => void;
   onHoverVoterIndex: (voterIndex: number | null) => void;
   receivingVotes?: boolean;
+  rowIndex: number;
 }) {
   const rowHovered = hoverRowId === row.teamId;
 
@@ -756,20 +877,19 @@ function MatrixRow({
         </>
       ) : null}
       {visibleVoterIndexes.length > 0
-        ? visibleVoterIndexes.map((voterIndex) => {
+        ? visibleVoterIndexes.map((voterIndex, col) => {
             const cell = row.cells[voterIndex];
             const voter = voters[voterIndex];
             const rank = cell?.rank ?? null;
-            const emphasized = isVoterColumnHighlighted(
-              voter,
-              highlightVoter,
-              highlightSet,
-            );
+            const emphasized = isVoterColumnHighlighted(voter, highlightSet);
             const colHovered = hoverVoterIndex === voterIndex;
             const dimmed = highlightMode && !emphasized;
             return (
-              <td
+              <CellGridCell
                 key={voter?.userId ?? voterIndex}
+                id={`${row.teamId}:${voter?.userId ?? voterIndex}`}
+                row={rowIndex}
+                col={col}
                 data-voter-col={voterIndex}
                 onMouseEnter={() => onHoverVoterIndex(voterIndex)}
                 onMouseLeave={(event) =>
@@ -778,7 +898,7 @@ function MatrixRow({
                   )
                 }
                 className={cn(
-                  "p-0 transition-colors",
+                  "p-0 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
                   voterCellSurface(emphasized, rowHovered, colHovered),
                 )}
               >
@@ -791,7 +911,6 @@ function MatrixRow({
                       dimmed && "opacity-35",
                       cell?.isOutlier && "ring-2 ring-inset ring-gold",
                     )}
-                    title={cell?.isOutlier ? "Outlier pick" : undefined}
                   >
                     {rank}
                     {cell?.isOutlier ? (
@@ -804,7 +923,6 @@ function MatrixRow({
                       "mx-auto flex h-8 min-w-9 w-9 items-center justify-center text-base font-semibold text-gold sm:h-10 sm:min-w-11 sm:w-11",
                       dimmed && "opacity-35",
                     )}
-                    title="Left off the published Top 25"
                   >
                     <span aria-hidden>—</span>
                     <span className="sr-only">
@@ -817,7 +935,7 @@ function MatrixRow({
                     aria-hidden
                   />
                 )}
-              </td>
+              </CellGridCell>
             );
           })
         : null}

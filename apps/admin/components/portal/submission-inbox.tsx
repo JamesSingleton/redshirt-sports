@@ -7,10 +7,10 @@ import {
 } from "@redshirt-sports/db/portal";
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { toast } from "sonner";
 
 import { reviewSubmission, type SubmissionInbox } from "@/actions/portal";
 
@@ -134,10 +134,11 @@ function SubmissionCard({ submission }: { submission: Submission }) {
       {submission.status === "new" ? (
         <div className="flex flex-wrap gap-2">
           {payload ? (
-            <Button asChild size="sm">
-              <Link href={`/portal/new?submission=${submission.id}`}>
-                Add as a new player
-              </Link>
+            <Button
+              size="sm"
+              render={<Link href={`/portal/new?submission=${submission.id}`} />}
+            >
+              Add as a new player
             </Button>
           ) : null}
           <Button

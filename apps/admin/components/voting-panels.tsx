@@ -2,8 +2,7 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -17,10 +16,18 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandGroupLabel,
   CommandInput,
   CommandItem,
   CommandList,
 } from "@redshirt-sports/ui/components/command";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@redshirt-sports/ui/components/drawer";
 import { Input } from "@redshirt-sports/ui/components/input";
 import {
   Popover,
@@ -29,18 +36,11 @@ import {
 } from "@redshirt-sports/ui/components/popover";
 import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
 import { Separator } from "@redshirt-sports/ui/components/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@redshirt-sports/ui/components/sheet";
 import { Switch } from "@redshirt-sports/ui/components/switch";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { PlusIcon, UserMinusIcon, UsersIcon, XIcon } from "lucide-react";
 import { useMemo, useOptimistic, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import { setPollAssignment, setVoterCredential } from "@/actions/poll-voters";
 
@@ -330,11 +330,11 @@ export function VotingPanels({
             </div>
 
             <Popover open={addOpen} onOpenChange={setAddOpen}>
-              <PopoverTrigger asChild>
-                <Button disabled={pending || !selectedPoll}>
-                  <PlusIcon data-icon="inline-start" />
-                  Add to panel
-                </Button>
+              <PopoverTrigger
+                render={<Button disabled={pending || !selectedPoll} />}
+              >
+                <PlusIcon data-icon="inline-start" />
+                Add to panel
               </PopoverTrigger>
               <PopoverContent className="w-80 p-0" align="end">
                 <Command>
@@ -345,11 +345,16 @@ export function VotingPanels({
                         ? "Everyone with credentials is already on this panel, or nobody has credentials yet."
                         : "No matching voters."}
                     </CommandEmpty>
-                    <CommandGroup heading="Credentialed voters">
+                    <CommandGroup>
+                      <CommandGroupLabel>Credentialed voters</CommandGroupLabel>
                       {addableVoters.map((user) => (
                         <CommandItem
                           key={user.id}
-                          value={`${displayName(user)} ${user.organization ?? ""}`}
+                          value={user.id}
+                          label={displayName(user)}
+                          keywords={
+                            user.organization ? [user.organization] : undefined
+                          }
                           onSelect={() => {
                             if (!selectedPoll) return;
                             setAddOpen(false);
@@ -457,15 +462,22 @@ export function VotingPanels({
         </section>
       </div>
 
-      <Sheet open={credentialsOpen} onOpenChange={setCredentialsOpen}>
-        <SheetContent className="flex h-full w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
-          <SheetHeader className="shrink-0 border-b">
-            <SheetTitle>Voter credentials</SheetTitle>
-            <SheetDescription>
+      <Drawer
+        side="right"
+        open={credentialsOpen}
+        onOpenChange={setCredentialsOpen}
+      >
+        <DrawerContent
+          showCloseButton
+          className="flex h-full w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md"
+        >
+          <DrawerHeader className="shrink-0 border-b">
+            <DrawerTitle>Voter credentials</DrawerTitle>
+            <DrawerDescription>
               Turning access off removes someone from every panel. Past ballots
               stay on record.
-            </SheetDescription>
-          </SheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
 
           <div className="flex shrink-0 flex-col gap-3 px-4 py-3">
             <Input
@@ -520,8 +532,8 @@ export function VotingPanels({
               ) : null}
             </ul>
           </div>
-        </SheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
 
       <AlertDialog
         open={confirmUser != null}
@@ -539,8 +551,8 @@ export function VotingPanels({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose
               variant="destructive"
               onClick={() => {
                 if (!confirmUser) return;
@@ -550,7 +562,7 @@ export function VotingPanels({
             >
               <UserMinusIcon data-icon="inline-start" />
               Remove access
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -10,9 +10,9 @@ import {
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
 import { Input } from "@redshirt-sports/ui/components/input";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import { mapTeamToSchool, type RatingsActionResult } from "@/actions/ratings";
 import {

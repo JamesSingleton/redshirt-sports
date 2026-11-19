@@ -12,7 +12,7 @@ vi.mock("@/hooks/use-mobile", () => ({
 
 vi.mock("@redshirt-sports/ui/components/dialog", () => ({
   Dialog: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DialogTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  DialogTrigger: ({ render }: { render: ReactNode }) => <>{render}</>,
   DialogContent: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
@@ -27,7 +27,7 @@ vi.mock("@redshirt-sports/ui/components/dialog", () => ({
 
 vi.mock("@redshirt-sports/ui/components/drawer", () => ({
   Drawer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DrawerTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  DrawerTrigger: ({ render }: { render: ReactNode }) => <>{render}</>,
   DrawerContent: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),

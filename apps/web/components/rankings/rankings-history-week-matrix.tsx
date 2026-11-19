@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -79,12 +80,12 @@ export function RankingsHistoryWeekMatrix({
           />
           <Select
             value={String(activeSeason.year)}
-            onValueChange={(value) => {
+            onValueChange={whenSelected((value: string) => {
               router.push(
                 `/college/${sport}/rankings/${division}/history?year=${value}`,
                 { transitionTypes: [...NAV_LATERAL_TRANSITION] },
               );
-            }}
+            })}
           >
             <SelectTrigger className="h-9 w-[7rem] text-sm" aria-label="Season">
               <SelectValue />

@@ -27,10 +27,11 @@ import {
 } from "@redshirt-sports/ui/components/select";
 import {
   Tabs,
-  TabsContent,
   TabsList,
-  TabsTrigger,
+  TabsPanel,
+  TabsTab,
 } from "@redshirt-sports/ui/components/tabs";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -157,7 +158,7 @@ function PollRankingChart({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {poll.years.length > 1 ? (
-            <Select value={year} onValueChange={setYear}>
+            <Select value={year} onValueChange={whenSelected(setYear)}>
               <SelectTrigger className="w-37.5" size="sm">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
@@ -294,15 +295,15 @@ export function TeamRankingHistory({
           <Tabs defaultValue={defaultPollId}>
             <TabsList variant="line" className="mb-4 w-full justify-start">
               {history.polls.map((poll) => (
-                <TabsTrigger key={poll.pollId} value={poll.pollId}>
+                <TabsTab key={poll.pollId} value={poll.pollId}>
                   {pollTabLabel(poll)}
-                </TabsTrigger>
+                </TabsTab>
               ))}
             </TabsList>
             {history.polls.map((poll) => (
-              <TabsContent key={poll.pollId} value={poll.pollId}>
+              <TabsPanel key={poll.pollId} value={poll.pollId}>
                 <PollRankingChart poll={poll} teamName={teamName} />
-              </TabsContent>
+              </TabsPanel>
             ))}
           </Tabs>
         )}

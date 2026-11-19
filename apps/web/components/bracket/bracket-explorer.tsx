@@ -12,13 +12,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@redshirt-sports/ui/components/drawer";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@redshirt-sports/ui/components/sheet";
 import { useIsMobile } from "@redshirt-sports/ui/hooks/use-mobile";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -116,15 +109,22 @@ export function BracketExplorer({
           </DrawerContent>
         </Drawer>
       ) : (
-        <Sheet open={game !== undefined} onOpenChange={onOpenChange}>
-          <SheetContent className="w-full overflow-y-auto sm:max-w-md">
-            <SheetHeader>
-              <SheetDescription>{subheading}</SheetDescription>
-              <SheetTitle>{heading}</SheetTitle>
-            </SheetHeader>
+        <Drawer
+          side="right"
+          open={game !== undefined}
+          onOpenChange={onOpenChange}
+        >
+          <DrawerContent
+            showCloseButton
+            className="w-full overflow-y-auto sm:max-w-md"
+          >
+            <DrawerHeader>
+              <DrawerDescription>{subheading}</DrawerDescription>
+              <DrawerTitle>{heading}</DrawerTitle>
+            </DrawerHeader>
             <div className="px-4 pb-6">{panel}</div>
-          </SheetContent>
-        </Sheet>
+          </DrawerContent>
+        </Drawer>
       )}
     </>
   );

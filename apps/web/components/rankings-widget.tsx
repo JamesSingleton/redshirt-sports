@@ -11,10 +11,11 @@ import {
 } from "@redshirt-sports/ui/components/card";
 import {
   Tabs,
-  TabsContent,
   TabsList,
-  TabsTrigger,
+  TabsPanel,
+  TabsTab,
 } from "@redshirt-sports/ui/components/tabs";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -36,7 +37,7 @@ export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
   }
 
   return (
-    <Card data-testid="rankings-widget" className="gap-0 shadow-xs">
+    <Card data-testid="rankings-widget" className="gap-0 py-0 shadow-xs">
       <CardHeader className="flex items-start justify-between gap-2 px-5 pt-5">
         <div className="grid gap-1">
           <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
@@ -49,24 +50,26 @@ export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
         {polls.length > 1 ? (
           <Tabs
             value={active}
-            onValueChange={(value) => setActive(value as typeof active)}
+            onValueChange={whenSelected((value: string) =>
+              setActive(value as typeof active),
+            )}
           >
             <TabsList className="h-8 text-sm">
               {polls.map((poll) => (
-                <TabsTrigger key={poll.division} value={poll.division}>
+                <TabsTab key={poll.division} value={poll.division}>
                   {poll.label}
-                </TabsTrigger>
+                </TabsTab>
               ))}
             </TabsList>
             {polls.map((poll) => (
-              <TabsContent
+              <TabsPanel
                 key={poll.division}
                 value={poll.division}
-                forceMount
+                keepMounted
                 className="sr-only"
               >
                 {poll.label} rankings
-              </TabsContent>
+              </TabsPanel>
             ))}
           </Tabs>
         ) : null}
@@ -116,16 +119,22 @@ export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
         </ol>
       </CardContent>
       <CardFooter className="flex gap-2 px-5 pt-3 pb-5">
-        <Button variant="outline" size="sm" className="flex-1" asChild>
-          <Link href={activePoll.weekHref} prefetch={false}>
-            Full poll
-          </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1"
+          render={<Link href={activePoll.weekHref} prefetch={false} />}
+        >
+          Full poll
         </Button>
-        <Button variant="ghost" size="sm" className="flex-1" asChild>
-          <Link href={activePoll.ballotsHref} prefetch={false}>
-            <Eye className="size-4" aria-hidden />
-            Ballots
-          </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex-1"
+          render={<Link href={activePoll.ballotsHref} prefetch={false} />}
+        >
+          <Eye className="size-4" aria-hidden />
+          Ballots
         </Button>
       </CardFooter>
     </Card>

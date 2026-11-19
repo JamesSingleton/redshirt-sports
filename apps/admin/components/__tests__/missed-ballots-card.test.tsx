@@ -60,7 +60,7 @@ vi.mock("@redshirt-sports/ui/components/select", async () => {
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: mocks.refresh }),
 }));
-vi.mock("sonner", () => ({
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
   toast: { success: mocks.success, error: mocks.error },
 }));
 

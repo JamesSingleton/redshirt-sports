@@ -2,13 +2,13 @@
 
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@redshirt-sports/ui/components/dropdown-menu";
+  Menu,
+  MenuContent,
+  MenuGroupLabel,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "@redshirt-sports/ui/components/menu";
 import { ChevronDown, Download } from "lucide-react";
 
 function Item({
@@ -21,12 +21,14 @@ function Item({
   detail: string;
 }) {
   return (
-    <DropdownMenuItem asChild>
-      <a href={href} download className="flex flex-col items-start gap-0.5">
-        <span className="font-medium">{title}</span>
-        <span className="text-muted-foreground text-xs">{detail}</span>
-      </a>
-    </DropdownMenuItem>
+    <MenuItem
+      render={
+        <a href={href} download className="flex flex-col items-start gap-0.5" />
+      }
+    >
+      <span className="font-medium">{title}</span>
+      <span className="text-muted-foreground text-xs">{detail}</span>
+    </MenuItem>
   );
 }
 
@@ -46,16 +48,14 @@ export function RatingsDownloadMenu({
   seasonHref: string;
 }) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Download className="size-4" />
-          Download
-          <ChevronDown className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>{weekLabel}</DropdownMenuLabel>
+    <Menu>
+      <MenuTrigger render={<Button variant="outline" size="sm" />}>
+        <Download className="size-4" />
+        Download
+        <ChevronDown className="size-4" />
+      </MenuTrigger>
+      <MenuContent align="end" className="w-64">
+        <MenuGroupLabel>{weekLabel}</MenuGroupLabel>
         <Item
           href={csvHref}
           title="CSV"
@@ -66,14 +66,14 @@ export function RatingsDownloadMenu({
           title="JSON"
           detail="Every number plus each team's games"
         />
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>{year} season</DropdownMenuLabel>
+        <MenuSeparator />
+        <MenuGroupLabel>{year} season</MenuGroupLabel>
         <Item
           href={seasonHref}
           title="Excel workbook"
           detail="One sheet per week, plus column notes"
         />
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </MenuContent>
+    </Menu>
   );
 }

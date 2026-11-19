@@ -1,7 +1,7 @@
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
+  AccordionPanel,
   AccordionTrigger,
 } from "@redshirt-sports/ui/components/accordion";
 import { Eye, List, Users } from "lucide-react";
@@ -297,15 +297,15 @@ export function RankingsMethodologyContent({
         </MethodSection>
 
         <MethodSection id="faq" title="FAQ">
-          <Accordion type="single" collapsible defaultValue="item-0">
+          <Accordion collapsible defaultValue={["item-0"]}>
             {FAQ.map(([question, answer], index) => (
               <AccordionItem key={question} value={`item-${index}`}>
                 <AccordionTrigger className="text-left font-semibold">
                   {question}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground">
+                <AccordionPanel className="text-sm text-muted-foreground">
                   {answer}
-                </AccordionContent>
+                </AccordionPanel>
               </AccordionItem>
             ))}
           </Accordion>

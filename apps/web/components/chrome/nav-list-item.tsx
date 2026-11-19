@@ -19,22 +19,24 @@ export function NavListItem({
 }) {
   return (
     <li>
-      <NavigationMenuLink asChild>
-        <Link
-          href={href}
-          prefetch={false}
-          className={cn("block", className)}
-          {...(openInNewTab
-            ? { target: "_blank", rel: "noopener noreferrer" }
-            : {})}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          {children ? (
-            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-              {children}
-            </p>
-          ) : null}
-        </Link>
+      <NavigationMenuLink
+        render={
+          <Link
+            href={href}
+            prefetch={false}
+            className={cn("block", className)}
+            {...(openInNewTab
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+          />
+        }
+      >
+        <div className="text-sm font-medium leading-none">{title}</div>
+        {children ? (
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        ) : null}
       </NavigationMenuLink>
     </li>
   );

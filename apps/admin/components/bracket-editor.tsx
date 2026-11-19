@@ -3,21 +3,17 @@
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@redshirt-sports/ui/components/command";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxSearch,
+  ComboboxTrigger,
+} from "@redshirt-sports/ui/components/combobox";
 import { DateTimePicker } from "@redshirt-sports/ui/components/date-time-picker";
 import { Input } from "@redshirt-sports/ui/components/input";
 import { Label } from "@redshirt-sports/ui/components/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@redshirt-sports/ui/components/popover";
 import {
   Select,
   SelectContent,
@@ -25,9 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
-import { cn } from "@redshirt-sports/ui/lib/utils";
+import { toast } from "@redshirt-sports/ui/components/toast";
+import { cn, whenSelected } from "@redshirt-sports/ui/lib/utils";
 import {
-  IconCheck,
   IconCopy,
   IconExternalLink,
   IconSelector,
@@ -35,7 +31,6 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useId, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import {
   type BracketActionResult,
@@ -81,13 +76,16 @@ function conferenceLabel(conference: string | null) {
   return conference ? (CONFERENCE_LABELS[conference] ?? conference) : null;
 }
 
-type ComboboxOption = { value: string; label: string; hint?: string | null };
+type PickerOption = { value: string; label: string; hint?: string | null };
+
+const CLEAR = "__clear__";
+const CUSTOM = "__custom__";
 
 /**
- * Searchable picker (shadcn Popover + Command). With `allowCustom`, typed text
- * that matches no option can be used as the value.
+ * Searchable picker. With `allowCustom`, typed text that matches no option
+ * can be used as the value.
  */
-function Combobox({
+function Picker({
   label,
   value,
   options,
@@ -100,7 +98,7 @@ function Combobox({
 }: {
   label: string;
   value: string | null;
-  options: ComboboxOption[];
+  options: PickerOption[];
   placeholder: string;
   /** Adds a first item that clears the value. */
   emptyLabel?: string;
@@ -109,7 +107,7 @@ function Combobox({
   className?: string;
   onChange: (value: string | null) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [button, setButton] = useState<HTMLButtonElement | null>(null);
   const [search, setSearch] = useState("");
   const selected = options.find((option) => option.value === value);
   const typed = search.trim();
@@ -121,75 +119,66 @@ function Combobox({
     );
 
   function pick(next: string | null) {
-    setOpen(false);
-    setSearch("");
-    if (next !== value) onChange(next);
+    const resolved = next === CLEAR ? null : next === CUSTOM ? typed : next;
+    if (resolved !== value) onChange(resolved);
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-label={label}
-          aria-expanded={open}
-          disabled={disabled}
-          className={cn("justify-between font-normal", className)}
-        >
-          <span className={cn("truncate", !value && "text-muted-foreground")}>
-            {selected?.label ?? value ?? placeholder}
-          </span>
-          <IconSelector className="text-muted-foreground" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-72 p-0" align="start">
-        <Command>
-          <CommandInput
-            placeholder="Search…"
-            value={search}
-            onValueChange={setSearch}
-          />
-          <CommandList>
-            <CommandEmpty>No match.</CommandEmpty>
-            <CommandGroup>
-              {emptyLabel && value ? (
-                <CommandItem value="__clear__" onSelect={() => pick(null)}>
-                  <span className="text-muted-foreground">{emptyLabel}</span>
-                </CommandItem>
+    <Combobox
+      value={value}
+      onValueChange={pick}
+      query={search}
+      onQueryChange={setSearch}
+      onOpenChange={(open) => open && setSearch("")}
+      onOpenChangeComplete={(open) => !open && button?.focus()}
+      disabled={disabled}
+    >
+      <ComboboxTrigger
+        ref={setButton}
+        aria-label={label}
+        className={cn("w-auto font-normal", className)}
+      >
+        <span className={cn("truncate", !value && "text-muted-foreground")}>
+          {selected?.label ?? value ?? placeholder}
+        </span>
+        <IconSelector className="text-muted-foreground" />
+      </ComboboxTrigger>
+      <ComboboxContent anchor={button} className="w-72">
+        <ComboboxSearch
+          autoFocus
+          aria-label={`Search ${label}`}
+          placeholder="Search…"
+        />
+        <ComboboxEmpty>No match.</ComboboxEmpty>
+        <ComboboxList>
+          {emptyLabel && value ? (
+            <ComboboxItem value={CLEAR} label={emptyLabel} indicator={false}>
+              <span className="text-muted-foreground">{emptyLabel}</span>
+            </ComboboxItem>
+          ) : null}
+          {canUseTyped ? (
+            <ComboboxItem value={CUSTOM} label={typed} indicator={false}>
+              Use “{typed}”
+            </ComboboxItem>
+          ) : null}
+          {options.map((option) => (
+            <ComboboxItem
+              key={option.value}
+              value={option.value}
+              label={option.label}
+              keywords={option.hint ? [option.hint] : undefined}
+            >
+              <span className="truncate">{option.label}</span>
+              {option.hint ? (
+                <span className="text-muted-foreground ml-auto text-xs">
+                  {option.hint}
+                </span>
               ) : null}
-              {canUseTyped ? (
-                <CommandItem
-                  value={`__custom__ ${typed}`}
-                  onSelect={() => pick(typed)}
-                >
-                  Use “{typed}”
-                </CommandItem>
-              ) : null}
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={`${option.label} ${option.hint ?? ""}`}
-                  onSelect={() => pick(option.value)}
-                >
-                  <IconCheck
-                    className={cn(
-                      option.value === value ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  <span className="truncate">{option.label}</span>
-                  {option.hint ? (
-                    <span className="text-muted-foreground ml-auto text-xs">
-                      {option.hint}
-                    </span>
-                  ) : null}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+            </ComboboxItem>
+          ))}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
@@ -250,7 +239,7 @@ function SlotRow({
         {slot.showSeed ? `No. ${slot.seed}` : `Unseeded (${slot.seed})`}
       </td>
       <td className="py-1.5 pr-3">
-        <Combobox
+        <Picker
           label={`School for ${slot.key}`}
           className="w-64"
           value={slot.schoolId}
@@ -275,9 +264,9 @@ function SlotRow({
         <Select
           value={slot.bidType ?? ""}
           disabled={pending || !slot.schoolId}
-          onValueChange={(value) =>
-            save({ bidType: value as EditorSlot["bidType"] })
-          }
+          onValueChange={whenSelected((value: string) =>
+            save({ bidType: value as EditorSlot["bidType"] }),
+          )}
         >
           <SelectTrigger aria-label={`Bid for ${slot.key}`} className="w-32">
             <SelectValue placeholder="Bid" />
@@ -289,7 +278,7 @@ function SlotRow({
         </Select>
       </td>
       <td className="py-1.5">
-        <Combobox
+        <Picker
           label={`Bid label for ${slot.key}`}
           className="w-44"
           value={slot.bidLabel}
@@ -347,9 +336,9 @@ function GameRow({ editionId, game }: { editionId: string; game: EditorGame }) {
       <td className="py-2 pr-3">
         <Select
           value={homeSide || "default"}
-          onValueChange={(value) =>
-            setHomeSide(value === "default" ? "" : value)
-          }
+          onValueChange={whenSelected((value: string) =>
+            setHomeSide(value === "default" ? "" : value),
+          )}
         >
           <SelectTrigger aria-label={`${game.key} host`} className="w-40">
             <SelectValue />
@@ -465,11 +454,12 @@ export function BracketEditor({
             Copy embed ID
           </Button>
           {published ? (
-            <Button variant="ghost" asChild>
-              <a href={publicUrl} target="_blank" rel="noreferrer">
-                <IconExternalLink />
-                View on site
-              </a>
+            <Button
+              variant="ghost"
+              render={<a href={publicUrl} target="_blank" rel="noreferrer" />}
+            >
+              <IconExternalLink />
+              View on site
             </Button>
           ) : (
             <Button

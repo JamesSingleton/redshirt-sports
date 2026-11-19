@@ -2,21 +2,26 @@
 
 import { client } from "@redshirt-sports/sanity/client";
 import { postsSearchQuery } from "@redshirt-sports/sanity/queries";
-import { Button } from "@redshirt-sports/ui/components/button";
-import { Card } from "@redshirt-sports/ui/components/card";
-import { Input } from "@redshirt-sports/ui/components/input";
-import { Search, X } from "lucide-react";
+import {
+  Autocomplete,
+  AutocompleteClear,
+  AutocompleteContent,
+  AutocompleteEmpty,
+  AutocompleteInput,
+  AutocompleteItem,
+  AutocompleteList,
+  useAsyncOptions,
+} from "@redshirt-sports/ui/components/autocomplete";
+import { cn } from "@redshirt-sports/ui/lib/utils";
+import { Search } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import * as React from "react";
-
-import { useDebounce } from "@/hooks/use-debounce";
+import { useState } from "react";
 
 interface SearchResult {
   _id: string;
-  _type: string;
   title: string;
   slug: string;
-  publishedAt: string;
 }
 
 interface SearchBarProps {
@@ -24,191 +29,106 @@ interface SearchBarProps {
   className?: string;
 }
 
-const realSearch = async (query: string): Promise<any> => {
+async function searchPosts(query: string): Promise<SearchResult[]> {
   try {
-    const results = await client.fetch(postsSearchQuery, { q: query });
-
-    return results;
+    return (await client.fetch(postsSearchQuery, { q: query })) ?? [];
   } catch (error) {
     console.error("Search error:", error);
     return [];
   }
-};
+}
 
+function searchHref(query: string) {
+  return `/search?q=${encodeURIComponent(query)}`;
+}
+
+/** Suggests articles as someone types; Enter searches for the text. */
 export function SearchBar({
   placeholder = "Search...",
   className,
 }: SearchBarProps) {
   const router = useRouter();
-  const [query, setQuery] = React.useState("");
-  const [results, setResults] = React.useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [showResults, setShowResults] = React.useState(false);
-  const [selectedIndex, setSelectedIndex] = React.useState(-1);
+  const [text, setText] = useState("");
+  const results = useAsyncOptions<SearchResult>(
+    (query) => searchPosts(query.trim()),
+    { debounce: 300, minLength: 1 },
+  );
+  const query = text.trim();
 
-  const debouncedQuery = useDebounce(query, 300);
-  const searchRef = React.useRef<HTMLDivElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (debouncedQuery.trim()) {
-      setIsLoading(true);
-      realSearch(debouncedQuery)
-        .then(setResults)
-        .finally(() => setIsLoading(false));
-    } else {
-      setResults([]);
-    }
-  }, [debouncedQuery]);
-
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setShowResults(false);
-        setSelectedIndex(-1);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-      setShowResults(false);
-      inputRef.current?.blur();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showResults || results.length === 0) return;
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setSelectedIndex((prev) =>
-          prev < results.length - 1 ? prev + 1 : prev,
-        );
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (selectedIndex >= 0 && results[selectedIndex]) {
-          const result = results[selectedIndex];
-          router.push(`/${result.slug}`);
-          setShowResults(false);
-          inputRef.current?.blur();
-        } else {
-          handleSubmit(e);
-        }
-        break;
-      case "Escape":
-        setShowResults(false);
-        setSelectedIndex(-1);
-        inputRef.current?.blur();
-        break;
-    }
-  };
-
-  const handleResultClick = (result: SearchResult) => {
-    router.push(`/${result.slug}`);
-    setShowResults(false);
-    setQuery("");
-  };
-
-  const clearSearch = () => {
-    setQuery("");
-    setResults([]);
-    setShowResults(false);
-    setSelectedIndex(-1);
-    inputRef.current?.focus();
-  };
+  function reset() {
+    setText("");
+    results.setQuery("");
+  }
 
   return (
-    <div ref={searchRef} className={`relative ${className}`}>
-      <form onSubmit={handleSubmit} className="relative">
-        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setShowResults(true)}
-          onKeyDown={handleKeyDown}
-          className="pr-10 pl-10 text-sm md:text-base"
-          autoComplete="off"
+    <form
+      role="search"
+      className={cn("relative", className)}
+      onSubmit={(event) => event.preventDefault()}
+    >
+      <Autocomplete
+        value={text}
+        onValueChange={(next, details) => {
+          // Choosing a suggestion opens its article, so the field starts over.
+          if (details.reason === "item-press") {
+            reset();
+            return;
+          }
+          setText(next);
+          results.setQuery(next.trim() ? next : "");
+        }}
+        filter={false}
+        status={results.status}
+        onSubmit={(value) => {
+          const trimmed = value.trim();
+          if (trimmed) router.push(searchHref(trimmed));
+        }}
+      >
+        <Search
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
         />
-        {query && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2"
-            onClick={clearSearch}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        )}
-      </form>
-
-      {showResults && (query.trim() || results.length > 0) && (
-        <Card className="absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden shadow-lg">
-          {isLoading ? (
-            <div className="text-muted-foreground p-4 text-center text-sm">
-              Searching...
-            </div>
-          ) : results.length > 0 ? (
-            <div className="flex max-h-[400px] flex-col md:max-h-[500px]">
-              <div className="flex-1 overflow-y-auto">
-                {results.map((result, index) => (
-                  <button
-                    type="button"
-                    key={result._id}
-                    className={`hover:bg-muted border-border w-full border-b px-4 py-3 text-left transition-colors last:border-b-0 ${
-                      index === selectedIndex ? "bg-muted" : ""
-                    }`}
-                    onClick={() => handleResultClick(result)}
-                  >
-                    <div className="flex flex-col">
-                      <div className="line-clamp-2 text-sm font-medium">
-                        {result.title}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {query.trim() && (
-                <div className="border-border bg-background border-t">
-                  <button
-                    type="button"
-                    className="hover:bg-muted text-muted-foreground w-full px-4 py-3 text-left text-sm transition-colors"
-                    onClick={handleSubmit}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Search className="h-4 w-4" />
-                      <span>Search for &quot;{query}&quot;</span>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-muted-foreground p-4 text-center text-sm">
-              No articles found for &quot;{query}&quot;
-            </div>
-          )}
-        </Card>
-      )}
-    </div>
+        <AutocompleteInput
+          type="search"
+          aria-label="Search articles"
+          placeholder={placeholder}
+          className="pr-9 pl-9"
+        />
+        <AutocompleteClear className="absolute top-1/2 right-1.5 -translate-y-1/2" />
+        <AutocompleteContent className="w-[min(28rem,calc(100vw-2rem))]">
+          <AutocompleteEmpty>
+            {(state) =>
+              state.loading
+                ? "Searching…"
+                : state.empty && query
+                  ? `No articles found for “${query}”`
+                  : null
+            }
+          </AutocompleteEmpty>
+          <AutocompleteList>
+            {results.items.map((result) => (
+              <AutocompleteItem
+                key={result._id}
+                value={result.slug}
+                label={result.title}
+                render={<Link href={`/${result.slug}`} prefetch={false} />}
+              >
+                <span className="line-clamp-2 font-medium">{result.title}</span>
+              </AutocompleteItem>
+            ))}
+          </AutocompleteList>
+          {query ? (
+            <Link
+              href={searchHref(query)}
+              prefetch={false}
+              className="flex items-center gap-3 border-t px-4 py-3 text-sm text-muted-foreground hover:bg-muted"
+            >
+              <Search className="size-4" aria-hidden />
+              Search for “{query}”
+            </Link>
+          ) : null}
+        </AutocompleteContent>
+      </Autocomplete>
+    </form>
   );
 }

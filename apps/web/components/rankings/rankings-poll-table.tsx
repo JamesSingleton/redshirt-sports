@@ -11,7 +11,7 @@ import Link from "next/link";
 
 import { RankMovement } from "@/components/rankings/rank-movement";
 import { TeamMark } from "@/components/rankings/team-mark";
-import { TeamPageLink } from "@/components/rankings/team-page-link";
+import { TeamPreviewLink } from "@/components/rankings/team-preview-link";
 import { TeamHubLogoTransition } from "@/components/view-transitions/team-hub-logo-transition";
 import type { Movement, RankingTeamRef } from "@/lib/rankings-movement";
 import { displayName } from "@/lib/rankings-movement";
@@ -37,6 +37,30 @@ function formatPreviousRank(
     return "—";
   }
   return String(previousRank);
+}
+
+function plural(count: number, word: string) {
+  return `${count} ${word}${count === 1 ? "" : "s"}`;
+}
+
+/** The lines a team's hover preview shows for this week. */
+export function teamWeekDetails(team: PollTableTeam, ballotsCounted: number) {
+  const lastWeek =
+    team.movement?.kind === "nr" || team.previousRank == null
+      ? "Unranked last week"
+      : team.movement?.kind === "up"
+        ? `Up ${team.movement.delta} from No. ${team.previousRank}`
+        : team.movement?.kind === "down"
+          ? `Down ${team.movement.delta} from No. ${team.previousRank}`
+          : `No. ${team.previousRank} last week too`;
+  return [
+    plural(team._points, "point"),
+    ...(team.firstPlaceVotes
+      ? [plural(team.firstPlaceVotes, "first-place vote")]
+      : []),
+    lastWeek,
+    `On ${team.ballotsListed} of ${plural(ballotsCounted, "ballot")}`,
+  ];
 }
 
 export function RankingsPollTable({
@@ -127,12 +151,26 @@ export function RankingsPollTable({
                       />
                     )}
                     <div className="min-w-0">
-                      <TeamPageLink
-                        slug={team.slug}
-                        className="font-semibold hover:underline"
-                      >
-                        {displayName(team)}
-                      </TeamPageLink>
+                      {team.slug ? (
+                        <TeamPreviewLink
+                          slug={team.slug}
+                          team={{
+                            name: team.name ?? displayName(team),
+                            shortName: team.shortName ?? displayName(team),
+                            abbreviation: team.abbreviation,
+                            image: team.image,
+                          }}
+                          heading={`No. ${rankLabel}`}
+                          details={teamWeekDetails(team, ballotsCounted)}
+                          className="font-semibold hover:underline"
+                        >
+                          {displayName(team)}
+                        </TeamPreviewLink>
+                      ) : (
+                        <span className="font-semibold">
+                          {displayName(team)}
+                        </span>
+                      )}
                       {team.firstPlaceVotes ? (
                         <span className="text-sm text-muted-foreground">
                           {" "}

@@ -1,3 +1,4 @@
+import { toast } from "@redshirt-sports/ui/components/toast";
 import {
   act,
   fireEvent,
@@ -7,7 +8,6 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
-import { toast } from "sonner";
 
 const { mockPush, mockParams, mockFetch, mockCapture } = vi.hoisted(() => ({
   mockPush: vi.fn(),
@@ -25,7 +25,7 @@ vi.mock("@redshirt-sports/analytics", () => ({
   analytics: { capture: mockCapture },
 }));
 
-vi.mock("sonner", () => ({
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
   toast: {
     promise: vi.fn((promise: Promise<unknown>, _msgs?: unknown) => {
       return promise.catch(() => undefined);
@@ -122,6 +122,23 @@ describe("Top25 form", () => {
     expect(toast.success).toHaveBeenCalledWith(
       "Form populated with your previous ballot",
     );
+  });
+
+  it("shows how many teams are ranked", async () => {
+    const ref = createRef<Top25FormRef>();
+    render(
+      <Top25
+        ref={ref}
+        schools={makeSchools(25)}
+        previousBallot={makePreviousBallot(18)}
+      />,
+    );
+
+    const meter = screen.getByRole("meter", { name: "Teams ranked" });
+    expect(meter).toHaveAttribute("aria-valuenow", "0");
+    await populateWithPreviousBallot(ref);
+    expect(meter).toHaveAttribute("aria-valuenow", "18");
+    expect(meter).toHaveAttribute("aria-valuetext", "18 of 25");
   });
 
   it("submits to the college vote API and redirects on success", async () => {

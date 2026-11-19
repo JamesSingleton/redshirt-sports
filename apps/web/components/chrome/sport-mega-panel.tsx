@@ -38,24 +38,26 @@ export function SportMenuContent({ item }: { item: NavSportMenuItem }) {
 
   return (
     <div className="grid w-[560px] gap-3 p-1 lg:w-[620px] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
-      <NavigationMenuLink asChild>
-        <Link
-          href={sportHubPath(sport.slug)}
-          prefetch={false}
-          className="flex h-full min-h-44 flex-col justify-end rounded-md bg-linear-to-br from-primary/15 via-muted/60 to-muted p-5 no-underline outline-hidden select-none focus:shadow-md"
-        >
-          <span className="kicker text-primary">News hub</span>
-          <span className="mt-1 font-display text-2xl font-bold uppercase leading-tight">
-            {label}
-          </span>
-          <span className="mt-2 text-sm leading-snug text-muted-foreground">
-            {sportHubBlurb(divisions.map((division) => division.name))}
-          </span>
-          <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium">
-            All {label} news
-            <ArrowRight className="size-3.5" aria-hidden />
-          </span>
-        </Link>
+      <NavigationMenuLink
+        render={
+          <Link
+            href={sportHubPath(sport.slug)}
+            prefetch={false}
+            className="flex h-full min-h-44 flex-col justify-end rounded-md bg-linear-to-br from-primary/15 via-muted/60 to-muted p-5 no-underline outline-hidden select-none focus:shadow-md"
+          />
+        }
+      >
+        <span className="kicker text-primary">News hub</span>
+        <span className="mt-1 font-display text-2xl font-bold uppercase leading-tight">
+          {label}
+        </span>
+        <span className="mt-2 text-sm leading-snug text-muted-foreground">
+          {sportHubBlurb(divisions.map((division) => division.name))}
+        </span>
+        <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium">
+          All {label} news
+          <ArrowRight className="size-3.5" aria-hidden />
+        </span>
       </NavigationMenuLink>
       <div className="grid content-start gap-3">
         {polls.length > 0 ? (
@@ -84,14 +86,16 @@ export function SportMenuContent({ item }: { item: NavSportMenuItem }) {
             <ul className="flex flex-wrap gap-1.5 px-2">
               {divisions.map((division) => (
                 <li key={division._id}>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href={`/college/${sport.slug}/news/${division.slug}`}
-                      prefetch={false}
-                      className="inline-flex flex-row items-center rounded-full border px-3 py-1 text-xs font-medium"
-                    >
-                      {division.name}
-                    </Link>
+                  <NavigationMenuLink
+                    render={
+                      <Link
+                        href={`/college/${sport.slug}/news/${division.slug}`}
+                        prefetch={false}
+                        className="inline-flex flex-row items-center rounded-full border px-3 py-1 text-xs font-medium"
+                      />
+                    }
+                  >
+                    {division.name}
                   </NavigationMenuLink>
                 </li>
               ))}

@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 
 const ALL_VALUE = "__all__";
 
@@ -41,7 +42,9 @@ export function NewsArchiveFilterSelect({
   const mapIn = (raw: string) => (includeAllOption ? toSelectValue(raw) : raw);
   const mapOut = (raw: string) =>
     includeAllOption ? fromSelectValue(raw) : raw;
-  const handleChange = (next: string) => onValueChange(mapOut(next));
+  const handleChange = whenSelected((next: string) =>
+    onValueChange(mapOut(next)),
+  );
 
   return (
     <div className="grid gap-1">

@@ -1,38 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { VirtualizedCombobox } from "@/components/virtualized-combobox";
-
-const { mockUseVirtualizer } = vi.hoisted(() => ({
-  mockUseVirtualizer: vi.fn(
-    ({
-      count,
-      getScrollElement,
-      estimateSize,
-    }: {
-      count: number;
-      getScrollElement: () => HTMLElement | null;
-      estimateSize: () => number;
-    }) => {
-      getScrollElement();
-      estimateSize();
-
-      return {
-        getVirtualItems: () =>
-          Array.from({ length: count }, (_, index) => ({
-            index,
-            size: 35,
-            start: index * 35,
-          })),
-        getTotalSize: () => count * 35,
-      };
-    },
-  ),
-}));
-
-vi.mock("@tanstack/react-virtual", () => ({
-  useVirtualizer: mockUseVirtualizer,
-}));
+import {
+  schoolMatchScore,
+  VirtualizedCombobox,
+} from "@/components/virtualized-combobox";
 
 vi.mock("@/components/sanity-image", () => ({
   __esModule: true,
@@ -94,11 +66,17 @@ const options = [
 ] as never;
 
 describe("VirtualizedCombobox", () => {
-  it("opens the popover and selects a school", async () => {
+  async function open(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(screen.getByRole("button", { name: "Rank 1" }));
+    return screen.getByRole("listbox");
+  }
+
+  it("opens the list and picks a school", async () => {
     const onChange = vi.fn();
     const user = userEvent.setup();
     render(
       <VirtualizedCombobox
+        aria-label="Rank 1"
         options={options}
         selectedOptions={[]}
         onChange={onChange}
@@ -106,107 +84,85 @@ describe("VirtualizedCombobox", () => {
       />,
     );
 
-    await user.click(screen.getByRole("combobox"));
-    await user.click(screen.getByText("Alabama"));
+    expect(screen.getByRole("button", { name: "Rank 1" })).toHaveTextContent(
+      "Pick a school",
+    );
+    const list = await open(user);
+    await user.click(within(list).getByRole("option", { name: /Alabama/ }));
 
     expect(onChange).toHaveBeenCalledWith("school-1");
   });
 
-  it("filters schools with search", async () => {
-    const user = userEvent.setup();
+  it("shows the picked school with its logo", () => {
     render(
       <VirtualizedCombobox
+        aria-label="Rank 1"
         options={options}
-        selectedOptions={["school-2"]}
+        selectedOptions={[]}
         value="school-1"
       />,
     );
 
-    await user.click(screen.getByRole("combobox"));
-    await user.type(screen.getByPlaceholderText("Select a school..."), "zzz");
-    expect(screen.getByText("No school found.")).toBeInTheDocument();
-
-    await user.clear(screen.getByPlaceholderText("Select a school..."));
-    await waitFor(() => {
-      expect(screen.getAllByText("Alabama").length).toBeGreaterThan(0);
-    });
-
-    await user.type(
-      screen.getByPlaceholderText("Select a school..."),
-      "Alabama",
-    );
-    await waitFor(() => {
-      expect(screen.getAllByText("Alabama").length).toBeGreaterThan(0);
-    });
+    const trigger = screen.getByRole("button", { name: "Rank 1" });
+    expect(trigger).toHaveTextContent("Alabama");
+    expect(within(trigger).getByRole("img", { name: "Alabama" })).toBeVisible();
   });
 
-  it("keeps only schools whose names contain the typed letters", async () => {
+  it("leaves out schools picked for other ranks", async () => {
     const user = userEvent.setup();
-    render(
-      <VirtualizedCombobox options={options} selectedOptions={[]} value="" />,
-    );
-
-    await user.click(screen.getByRole("combobox"));
-    await user.type(screen.getByPlaceholderText("Select a school..."), "Mont");
-
-    await waitFor(() => {
-      expect(screen.getByText("Montana")).toBeInTheDocument();
-      expect(screen.getByText("Montana State")).toBeInTheDocument();
-    });
-
-    expect(screen.queryByText("Alabama")).not.toBeInTheDocument();
-    expect(screen.queryByText("Georgia")).not.toBeInTheDocument();
-    expect(screen.queryByText("Minnesota")).not.toBeInTheDocument();
-  });
-
-  it("restores every school when the search is cleared", async () => {
-    const user = userEvent.setup();
-    render(
-      <VirtualizedCombobox options={options} selectedOptions={[]} value="" />,
-    );
-
-    await user.click(screen.getByRole("combobox"));
-    const searchInput = screen.getByPlaceholderText("Select a school...");
-    await user.type(searchInput, "Mont");
-    expect(screen.queryByText("Georgia")).not.toBeInTheDocument();
-
-    await user.clear(searchInput);
-    expect(screen.getByText("Georgia")).toBeInTheDocument();
-  });
-
-  it("searches schools with missing short names and abbreviations", async () => {
-    const user = userEvent.setup();
-    render(
-      <VirtualizedCombobox options={options} selectedOptions={[]} value="" />,
-    );
-
-    await user.click(screen.getByRole("combobox"));
-    await user.type(
-      screen.getByPlaceholderText("Select a school..."),
-      "University",
-    );
-
-    expect(screen.getAllByRole("option")).toHaveLength(7);
-  });
-
-  it("shows the placeholder when no school image is available", () => {
     render(
       <VirtualizedCombobox
+        aria-label="Rank 1"
         options={options}
-        selectedOptions={[]}
-        value=""
-        searchPlaceholder="Choose team"
+        selectedOptions={["school-1", "school-2"]}
+        value="school-1"
       />,
     );
 
-    expect(screen.getByRole("combobox")).toHaveTextContent("Choose team");
+    const list = await open(user);
+    expect(within(list).getByRole("option", { name: /Alabama/ })).toBeVisible();
+    expect(within(list).queryByRole("option", { name: /Georgia/ })).toBeNull();
   });
 
-  it("deselects a chosen school when selecting it again", async () => {
+  it("searches names, short names and abbreviations", async () => {
+    const user = userEvent.setup();
+    render(
+      <VirtualizedCombobox
+        aria-label="Rank 1"
+        options={options}
+        selectedOptions={[]}
+      />,
+    );
+
+    const list = await open(user);
+    const search = screen.getByRole("combobox", { name: "Search schools" });
+
+    await user.type(search, "Mont");
+    expect(
+      within(list)
+        .getAllByRole("option")
+        .map((option) => option.textContent),
+    ).toEqual(["Montana", "Montana State"]);
+
+    await user.clear(search);
+    await user.type(search, "UGA");
+    expect(within(list).getAllByRole("option")).toHaveLength(1);
+
+    await user.clear(search);
+    await user.type(search, "University");
+    expect(within(list).getAllByRole("option")).toHaveLength(7);
+
+    await user.clear(search);
+    await user.type(search, "zzz");
+    expect(screen.getByText("No school found.")).toBeVisible();
+  });
+
+  it("clears the pick", async () => {
     const onChange = vi.fn();
     const user = userEvent.setup();
     render(
       <VirtualizedCombobox
+        aria-label="Rank 1"
         options={options}
         selectedOptions={[]}
         value="school-1"
@@ -214,61 +170,22 @@ describe("VirtualizedCombobox", () => {
       />,
     );
 
-    await user.click(screen.getByRole("combobox"));
-    const alabamaOptions = screen.getAllByText("Alabama");
-    await user.click(alabamaOptions[alabamaOptions.length - 1]!);
-
+    const list = await open(user);
+    await user.click(
+      within(list).getByRole("option", { name: "Clear this pick" }),
+    );
     expect(onChange).toHaveBeenCalledWith("");
   });
 
-  it("uses the trigger width when the popover opens", async () => {
-    const user = userEvent.setup();
-    render(
-      <VirtualizedCombobox
-        options={options}
-        selectedOptions={[]}
-        value="school-1"
-      />,
+  it("ranks a prefix match above a match inside a name", () => {
+    const item = { value: "a", label: "Montana State", keywords: ["MSU"] };
+    expect(schoolMatchScore(item, "")).toBe(true);
+    expect(schoolMatchScore(item, "msu")).toBe(2);
+    expect(schoolMatchScore(item, "state")).toBe(1);
+    expect(schoolMatchScore(item, "boise")).toBe(false);
+    expect(schoolMatchScore({ value: "b", label: "Lamar" }, "lam")).toBe(2);
+    expect(schoolMatchScore({ value: "__clear", label: "Clear" }, "c")).toBe(
+      false,
     );
-
-    const trigger = screen.getByRole("combobox");
-    Object.defineProperty(trigger, "offsetWidth", {
-      configurable: true,
-      value: 240,
-    });
-
-    await user.click(trigger);
-    expect(screen.getByText("Georgia")).toBeInTheDocument();
-  });
-
-  it("skips virtual rows when the filtered option is missing", async () => {
-    const user = userEvent.setup();
-
-    mockUseVirtualizer.mockImplementationOnce(
-      ({
-        count,
-        getScrollElement,
-      }: {
-        count: number;
-        getScrollElement: () => HTMLElement | null;
-      }) => {
-        getScrollElement();
-        return {
-          getVirtualItems: () => [
-            { index: 99, size: 35, start: 0 },
-            { index: 0, size: 35, start: 35 },
-          ],
-          getTotalSize: () => count * 35,
-        };
-      },
-    );
-
-    render(
-      <VirtualizedCombobox options={options} selectedOptions={[]} value="" />,
-    );
-
-    await user.click(screen.getByRole("combobox"));
-    expect(screen.getByText("Alabama")).toBeInTheDocument();
-    expect(screen.queryByText("Georgia")).not.toBeInTheDocument();
   });
 });

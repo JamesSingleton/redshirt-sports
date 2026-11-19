@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useRouter } from "next/navigation";
 
 export interface WireScopeProps {
@@ -41,7 +42,9 @@ export function WireScope({
     <>
       <Select
         value={String(year)}
-        onValueChange={(value) => router.push(path(sport, Number(value)))}
+        onValueChange={whenSelected((value: string) =>
+          router.push(path(sport, Number(value))),
+        )}
       >
         <SelectTrigger aria-label="Season" className={triggerClassName}>
           <SelectValue>{year}</SelectValue>
@@ -57,7 +60,9 @@ export function WireScope({
       <Select
         value={sport}
         // Another sport opens on its own newest season.
-        onValueChange={(value) => router.push(path(value))}
+        onValueChange={whenSelected((value: string) =>
+          router.push(path(value)),
+        )}
       >
         <SelectTrigger aria-label="Sport" className={triggerClassName}>
           <SelectValue>

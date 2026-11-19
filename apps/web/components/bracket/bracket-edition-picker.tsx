@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 
@@ -42,12 +43,12 @@ export function BracketEditionPicker({
         <Label htmlFor={`${id}-season`}>Season</Label>
         <Select
           value={String(year)}
-          onValueChange={(value) => {
+          onValueChange={whenSelected((value: string) => {
             const season = seasons.find(
               (option) => String(option.year) === value,
             );
             if (season && season.year !== year) go(season.href);
-          }}
+          })}
         >
           <SelectTrigger id={`${id}-season`} className="w-28">
             <SelectValue>{String(year)}</SelectValue>
@@ -65,9 +66,9 @@ export function BracketEditionPicker({
         <Label htmlFor={`${id}-bracket`}>Bracket</Label>
         <Select
           value={currentHref}
-          onValueChange={(value) => {
+          onValueChange={whenSelected((value: string) => {
             if (value !== currentHref) go(value);
-          }}
+          })}
         >
           <SelectTrigger id={`${id}-bracket`} className="w-44">
             <SelectValue>

@@ -2,8 +2,7 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -13,6 +12,13 @@ import {
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@redshirt-sports/ui/components/drawer";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -21,13 +27,6 @@ import {
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@redshirt-sports/ui/components/sheet";
-import {
   Table,
   TableBody,
   TableCell,
@@ -35,9 +34,10 @@ import {
   TableHeader,
   TableRow,
 } from "@redshirt-sports/ui/components/table";
+import { toast } from "@redshirt-sports/ui/components/toast";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { IconRefresh, IconRocket, IconTrash } from "@tabler/icons-react";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import {
   getVoterNudgeMailto,
@@ -333,10 +333,10 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           </span>
           <Select
             value={pollId}
-            onValueChange={(value) => {
+            onValueChange={whenSelected((value: string) => {
               setPollId(value);
               setPreview(null);
-            }}
+            })}
           >
             <SelectTrigger className="min-w-56">
               <SelectValue placeholder="Select poll" />
@@ -359,7 +359,9 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
           </span>
           <Select
             value={year?.toString() ?? ""}
-            onValueChange={(value) => setYear(Number(value))}
+            onValueChange={whenSelected((value: string) =>
+              setYear(Number(value)),
+            )}
             disabled={!years.length}
           >
             <SelectTrigger className="min-w-28">
@@ -565,10 +567,14 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={runPublish} disabled={pending}>
+            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose
+              variant="default"
+              onClick={runPublish}
+              disabled={pending}
+            >
               {preview?.alreadyPublished ? "Re-publish" : "Publish"}
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -584,31 +590,36 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={runUnpublish} disabled={pending}>
+            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose
+              variant="default"
+              onClick={runUnpublish}
+              disabled={pending}
+            >
               Unpublish
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <Sheet
+      <Drawer
+        side="right"
         open={sheetVoter != null}
         onOpenChange={(open) => !open && setSheetVoter(null)}
       >
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>
+        <DrawerContent showCloseButton>
+          <DrawerHeader>
+            <DrawerTitle>
               {sheetVoter
                 ? `${sheetVoter.firstName} ${sheetVoter.lastName}`
                 : "Ballot"}
-            </SheetTitle>
-            <SheetDescription>
+            </DrawerTitle>
+            <DrawerDescription>
               {sheetVoter?.organization ?? "No organization"} ·{" "}
               {selectedPoll?.name ?? "Poll"} ·{" "}
               {selectedWeek?.label ?? "selected week"}
-            </SheetDescription>
-          </SheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           {sheetVoter && sheetVoter.ballotEntries.length === 0 ? (
             <p className="text-muted-foreground px-4 text-sm">
               No ballot entries found.
@@ -645,8 +656,8 @@ export function PublishRankingsDesk({ polls }: { polls: PollOption[] }) {
               </div>
             )
           )}
-        </SheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

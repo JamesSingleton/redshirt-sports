@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@redshirt-sports/auth/provider";
-import { Toaster } from "@redshirt-sports/ui/components/sonner";
+import { Toaster } from "@redshirt-sports/ui/components/toast";
 import { ThemeProvider } from "next-themes";
 import type { ComponentProps, ReactNode } from "react";
 

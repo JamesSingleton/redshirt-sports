@@ -29,10 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@redshirt-sports/ui/components/table";
+import { toast } from "@redshirt-sports/ui/components/toast";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import { createPollAction, updatePollAction } from "@/actions/polls";
 import { AutoPublishNote } from "@/components/auto-publish-note";
@@ -209,7 +210,7 @@ export function PollsManager({
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="poll-sport">Sport</Label>
-              <Select value={sportId} onValueChange={setSportId}>
+              <Select value={sportId} onValueChange={whenSelected(setSportId)}>
                 <SelectTrigger id="poll-sport" className="w-full">
                   <SelectValue placeholder="Sport" />
                 </SelectTrigger>

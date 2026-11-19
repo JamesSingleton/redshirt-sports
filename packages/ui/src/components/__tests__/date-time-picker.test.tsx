@@ -27,7 +27,9 @@ describe("DateTimePicker", () => {
       <DateTimePicker value={null} onChange={onChange} defaultTime="14:00" />,
     );
     await userEvent.click(screen.getByRole("button", { name: "Date" }));
-    await userEvent.click(screen.getAllByRole("button", { name: /15th/ })[0]!);
+    await userEvent.click(
+      screen.getAllByRole("gridcell", { name: /\b15, \d{4}$/ })[0]!,
+    );
     expect(onChange).toHaveBeenLastCalledWith(
       expect.stringMatching(/^\d{4}-\d{2}-15T14:00$/),
     );

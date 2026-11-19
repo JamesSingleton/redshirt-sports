@@ -269,7 +269,7 @@ describe("WireView", () => {
 
     await pick(user, "Divisions", "NAIA");
     expect(rows()).toHaveLength(1);
-    await user.click(screen.getByRole("combobox", { name: "School" }));
+    await user.click(screen.getByRole("button", { name: "School" }));
     const list = await screen.findByRole("listbox");
     await user.click(
       within(list).getByRole("option", { name: /Carroll College/ }),
@@ -356,7 +356,9 @@ describe("WireView", () => {
     expect(
       within(sheet).getByRole("combobox", { name: "Divisions" }),
     ).toBeInTheDocument();
-    await user.click(within(sheet).getByLabelText("Grad transfers"));
+    await user.click(
+      within(sheet).getByRole("checkbox", { name: "Grad transfers" }),
+    );
     expect(
       // The open sheet hides the page from the accessibility tree.
       screen.getByRole("button", { name: "Filters · 1", hidden: true }),

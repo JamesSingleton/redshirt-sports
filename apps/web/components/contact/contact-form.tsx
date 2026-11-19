@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 
 const TOPICS = [
@@ -107,7 +108,9 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
           </Label>
           <Select
             value={topic}
-            onValueChange={(value) => setTopic(value as Topic)}
+            onValueChange={whenSelected((value: string) =>
+              setTopic(value as Topic),
+            )}
           >
             <SelectTrigger id="contact-topic" className="w-full">
               <SelectValue />

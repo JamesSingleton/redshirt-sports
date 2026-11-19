@@ -109,15 +109,16 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild>
-              <Link href={methodologyHref} prefetch={false}>
-                How the poll works
-              </Link>
+            <Button render={<Link href={methodologyHref} prefetch={false} />}>
+              How the poll works
             </Button>
-            <Button variant="outline" asChild>
-              <Link href="/college/football/rankings" prefetch={false}>
-                See the rankings
-              </Link>
+            <Button
+              variant="outline"
+              render={
+                <Link href="/college/football/rankings" prefetch={false} />
+              }
+            >
+              See the rankings
             </Button>
           </div>
         </div>
@@ -172,19 +173,17 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:justify-end">
-            <Button asChild>
-              <Link href="/contact" prefetch={false}>
-                Contact us
-              </Link>
+            <Button render={<Link href="/contact" prefetch={false} />}>
+              Contact us
             </Button>
             <Button
               variant="outline"
               className="border-white/30 bg-transparent text-ink-foreground hover:bg-white/10"
-              asChild
+              render={
+                <a href={`mailto:contact@${emailDomain}?subject=Advertising`} />
+              }
             >
-              <a href={`mailto:contact@${emailDomain}?subject=Advertising`}>
-                Advertise
-              </a>
+              Advertise
             </Button>
           </div>
         </div>

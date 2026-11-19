@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 
@@ -49,11 +50,11 @@ export function RatingsWeekPicker({
         <Label htmlFor={`${id}-season`}>Season</Label>
         <Select
           value={String(year)}
-          onValueChange={(value) => {
+          onValueChange={whenSelected((value: string) => {
             const latest = weeks.find((week) => String(week.year) === value);
             if (latest && value !== String(year))
               go(latest.year, latest.segment);
-          }}
+          })}
         >
           <SelectTrigger id={`${id}-season`} className="w-28">
             <SelectValue>{String(year)}</SelectValue>
@@ -71,9 +72,9 @@ export function RatingsWeekPicker({
         <Label htmlFor={`${id}-week`}>Week</Label>
         <Select
           value={segment}
-          onValueChange={(value) => {
+          onValueChange={whenSelected((value: string) => {
             if (value !== segment) go(year, value);
-          }}
+          })}
         >
           <SelectTrigger id={`${id}-week`} className="w-36">
             <SelectValue>

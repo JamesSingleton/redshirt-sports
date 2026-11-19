@@ -96,7 +96,7 @@ vi.mock("@/actions/publish-rankings", () => ({
   reassignVoterBallotWeek: vi.fn(async () => undefined),
 }));
 
-vi.mock("sonner", () => ({
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
   toast: {
     success: vi.fn(),
     error: vi.fn(),
@@ -127,7 +127,7 @@ describe("PublishRankingsDesk", () => {
     const user = userEvent.setup();
     render(<PublishRankingsDesk polls={polls} />);
 
-    await screen.findByText("Week 3");
+    await screen.findAllByText("Week 3");
     const loadButton = await screen.findByRole("button", {
       name: /load week/i,
     });
@@ -154,19 +154,24 @@ describe("PublishRankingsDesk", () => {
 
   it("opens the ballot sheet when a submitted voter is clicked", async () => {
     await openSubmittedBallot();
+    const sheet = screen.getByRole("dialog");
 
     expect(
-      screen.getByRole("heading", { name: /marcus thompson/i }),
+      within(sheet).getByRole("heading", { name: /marcus thompson/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("cell", { name: "Alabama" })).toBeInTheDocument();
-    expect(screen.getByRole("cell", { name: "25" })).toBeInTheDocument();
-    expect(screen.getByRole("cell", { name: "Georgia" })).toBeInTheDocument();
+    expect(
+      within(sheet).getByRole("cell", { name: "Alabama" }),
+    ).toBeInTheDocument();
+    expect(within(sheet).getByRole("cell", { name: "25" })).toBeInTheDocument();
+    expect(
+      within(sheet).getByRole("cell", { name: "Georgia" }),
+    ).toBeInTheDocument();
   });
 
   it("shows the submitted voter's ballot entries in the sheet", async () => {
     await openSubmittedBallot();
 
-    const rows = screen
+    const rows = within(screen.getByRole("dialog"))
       .getAllByRole("row")
       .filter(
         (row) =>

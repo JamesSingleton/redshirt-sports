@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { IconCopy, IconMail } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -86,7 +87,10 @@ export function BallotInboxVoter({
       ) : null}
       {otherWeeks.length > 0 ? (
         <>
-          <Select value={reassignTarget} onValueChange={onReassignTargetChange}>
+          <Select
+            value={reassignTarget}
+            onValueChange={whenSelected(onReassignTargetChange)}
+          >
             <SelectTrigger className="w-full" size="sm">
               <SelectValue placeholder="Move to…" />
             </SelectTrigger>
@@ -171,7 +175,7 @@ export function BallotInboxVoter({
       </Badge>
       {isMobile ? (
         <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+          <DrawerTrigger render={trigger} />
           <DrawerContent>
             <DrawerHeader className="text-left">
               <DrawerTitle>{name}</DrawerTitle>
@@ -182,7 +186,7 @@ export function BallotInboxVoter({
         </Drawer>
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>{trigger}</DialogTrigger>
+          <DialogTrigger render={trigger} />
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>{name}</DialogTitle>

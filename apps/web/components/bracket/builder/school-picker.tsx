@@ -59,30 +59,26 @@ export function SchoolPicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        {current ? (
-          <button
-            type="button"
-            aria-label={`Change the ${slotLabel}: ${name(current)}`}
-            title="Change team"
-            className="flex w-6 shrink-0 cursor-pointer items-center justify-center border-border border-l text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset aria-expanded:bg-accent aria-expanded:text-foreground"
-          >
-            <ChevronsUpDown className="size-3.5" aria-hidden />
-          </button>
-        ) : (
-          <button
-            type="button"
-            aria-label={`Choose the ${slotLabel}`}
-            className={`${row} text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset aria-expanded:bg-accent`}
-          >
-            {seed === null ? null : <span className={seedCell}>{seed}</span>}
-            <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-muted-foreground/50 border-dashed transition-colors group-hover:border-foreground/60">
-              <Plus className="size-3" aria-hidden />
-            </span>
-            <span className="truncate">Choose team</span>
-          </button>
-        )}
-      </PopoverTrigger>
+      {current ? (
+        <PopoverTrigger
+          aria-label={`Change the ${slotLabel}: ${name(current)}`}
+          title="Change team"
+          className="flex w-6 shrink-0 cursor-pointer items-center justify-center border-border border-l text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset data-open:bg-accent data-open:text-foreground"
+        >
+          <ChevronsUpDown className="size-3.5" aria-hidden />
+        </PopoverTrigger>
+      ) : (
+        <PopoverTrigger
+          aria-label={`Choose the ${slotLabel}`}
+          className={`${row} text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset data-open:bg-accent`}
+        >
+          {seed === null ? null : <span className={seedCell}>{seed}</span>}
+          <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-muted-foreground/50 border-dashed transition-colors group-hover:border-foreground/60">
+            <Plus className="size-3" aria-hidden />
+          </span>
+          <span className="truncate">Choose team</span>
+        </PopoverTrigger>
+      )}
       <PopoverContent className="w-72 p-0" align="start">
         <Command>
           <CommandInput placeholder={`Search for the ${slotLabel}…`} />
@@ -99,7 +95,11 @@ export function SchoolPicker({
                 return (
                   <CommandItem
                     key={school.schoolId}
-                    value={`${name(school)} ${school.conference ?? ""}`}
+                    value={school.schoolId}
+                    label={name(school)}
+                    keywords={
+                      school.conference ? [school.conference] : undefined
+                    }
                     onSelect={() => place(school.schoolId)}
                   >
                     <TeamMark
