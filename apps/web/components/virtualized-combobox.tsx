@@ -63,7 +63,7 @@ function SchoolLabel({ school }: { school: SchoolOption }) {
           image={school.image}
           width={32}
           height={32}
-          className="size-7 shrink-0 object-contain"
+          className="size-6 shrink-0 object-contain"
         />
       ) : null}
       <span className="truncate">{school.shortName ?? school.name}</span>
@@ -145,11 +145,14 @@ export function VirtualizedCombobox({
         )}
         <ChevronsUpDown className="opacity-50" aria-hidden />
       </ComboboxTrigger>
-      <ComboboxContent anchor={button}>
+      <ComboboxContent
+        anchor={button}
+        className="max-h-[min(22rem,var(--available-height))]"
+      >
         <ComboboxSearch
           autoFocus
           aria-label="Search schools"
-          placeholder={searchPlaceholder}
+          placeholder="Search by name or abbreviation"
         />
         <ComboboxEmpty>No school found.</ComboboxEmpty>
         <ComboboxList>

@@ -74,7 +74,7 @@ function AutocompleteList({
   return (
     <AutocompleteListPrimitive
       className={cn(
-        "min-h-0 flex-1 overflow-y-auto overscroll-contain p-1 empty:hidden",
+        "min-h-0 flex-1 overflow-y-auto overscroll-contain p-1 [scrollbar-width:thin] empty:hidden",
         className,
       )}
       {...props}

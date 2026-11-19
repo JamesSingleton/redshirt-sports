@@ -59,7 +59,7 @@ function ComboboxSearch({
   ...props
 }: WithClassName<ComponentProps<typeof ComboboxInputPrimitive>>) {
   return (
-    <div className="flex h-9 items-center gap-2 border-b px-3">
+    <div className="flex h-10 shrink-0 items-center gap-2 border-b px-3">
       <SearchIcon aria-hidden="true" className="size-4 shrink-0 opacity-50" />
       <ComboboxInputPrimitive
         className={cn(
@@ -115,7 +115,7 @@ function ComboboxList({
   return (
     <ComboboxListPrimitive
       className={cn(
-        "min-h-0 flex-1 overflow-y-auto overscroll-contain p-1 empty:hidden",
+        "min-h-0 flex-1 overflow-y-auto overscroll-contain p-1 [scrollbar-width:thin] empty:hidden",
         className,
       )}
       {...props}
