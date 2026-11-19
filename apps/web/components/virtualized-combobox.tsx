@@ -154,7 +154,12 @@ export function VirtualizedCombobox({
       items={listItems}
       filter={schoolMatchScore}
       value={value || null}
-      onValueChange={(next) => onChange?.(next === CLEAR || !next ? "" : next)}
+      onValueChange={(next, details) => {
+        onChange?.(next === CLEAR || !next ? "" : next);
+        // The owner decides what this slot holds, and a pick can move the
+        // school elsewhere on the ballot, so never keep the choice here.
+        details.cancel();
+      }}
       query={query}
       onQueryChange={setQuery}
       onOpenChange={(open) => open && setQuery("")}

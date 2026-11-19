@@ -599,40 +599,40 @@ function Top25Form({
             </Button>
           </div>
         </div>
-
-        <AlertDialog open={confirming} onOpenChange={setConfirming}>
-          <AlertDialogContent className="sm:max-w-xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle>{submit.confirmTitle}</AlertDialogTitle>
-              <AlertDialogDescription>
-                You can still change it until voting closes.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <ol
-              aria-label="Your ballot"
-              className="grid max-h-[50dvh] grid-flow-col grid-rows-[repeat(13,auto)] gap-x-6 gap-y-1 overflow-y-auto text-sm"
-            >
-              {ballot.map((team, index) => (
-                <li key={team || index} className="flex gap-2">
-                  <span className="w-6 text-right font-bold tabular">
-                    {index + 1}
-                  </span>
-                  <span className="truncate">{nameOf(team)}</span>
-                </li>
-              ))}
-            </ol>
-            <AlertDialogFooter>
-              <AlertDialogClose>Keep editing</AlertDialogClose>
-              <AlertDialogClose
-                variant="default"
-                onClick={() => form.handleSubmit(onSubmit)()}
-              >
-                {submit.confirm}
-              </AlertDialogClose>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </form>
+      {/* Outside the form, so the dialog doesn't nest one form in another. */}
+      <AlertDialog open={confirming} onOpenChange={setConfirming}>
+        <AlertDialogContent className="sm:max-w-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{submit.confirmTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              You can still change it until voting closes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <ol
+            aria-label="Your ballot"
+            className="grid max-h-[50dvh] grid-flow-col grid-rows-[repeat(13,auto)] gap-x-6 gap-y-1 overflow-y-auto text-sm"
+          >
+            {ballot.map((team, index) => (
+              <li key={team || index} className="flex gap-2">
+                <span className="w-6 text-right font-bold tabular">
+                  {index + 1}
+                </span>
+                <span className="truncate">{nameOf(team)}</span>
+              </li>
+            ))}
+          </ol>
+          <AlertDialogFooter>
+            <AlertDialogClose>Keep editing</AlertDialogClose>
+            <AlertDialogClose
+              variant="default"
+              onClick={() => form.handleSubmit(onSubmit)()}
+            >
+              {submit.confirm}
+            </AlertDialogClose>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Form>
   );
 }
