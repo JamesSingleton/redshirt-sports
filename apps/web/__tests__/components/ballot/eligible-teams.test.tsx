@@ -160,7 +160,7 @@ describe("EligibleTeams", () => {
       within(group)
         .getAllByRole("button")
         .map((chip) => chip.textContent);
-    expect(chips()).toEqual(["All", "B", "A", "C", "D", "More"]);
+    expect(chips()).toEqual(["All", "B", "A", "C", "More"]);
 
     await user.click(
       within(group).getByRole("button", { name: "More conferences" }),
@@ -170,10 +170,10 @@ describe("EligibleTeams", () => {
       within(menu)
         .getAllByRole("menuitemradio")
         .map((item) => item.textContent),
-    ).toEqual(["E", "F"]);
+    ).toEqual(["D", "E", "F"]);
     await user.click(within(menu).getByRole("menuitemradio", { name: "F" }));
 
-    expect(chips()).toEqual(["All", "B", "A", "C", "D", "F"]);
+    expect(chips()).toEqual(["All", "B", "A", "C", "F"]);
     expect(
       within(group).getByRole("button", {
         name: "More conferences, F chosen",
@@ -182,7 +182,7 @@ describe("EligibleTeams", () => {
     expect(teamNames()).toEqual(["School 6"]);
 
     await user.click(within(group).getByRole("button", { name: "B" }));
-    expect(chips()).toEqual(["All", "B", "A", "C", "D", "More"]);
+    expect(chips()).toEqual(["All", "B", "A", "C", "More"]);
   });
 
   it("hides the conference chips when there's only one conference", () => {

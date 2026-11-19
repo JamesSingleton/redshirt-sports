@@ -28,8 +28,8 @@ export function conferenceOf(school: School) {
 const chip =
   "rounded-md border px-2.5 py-1 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground data-picked:border-primary data-picked:bg-primary data-picked:text-primary-foreground";
 
-/** Conference chips shown before "More". */
-const FEW_CONFERENCES = 4;
+/** Conference chips shown before "More", so they fit one line with it. */
+const FEW_CONFERENCES = 3;
 
 type EligibleTeamsProps = {
   schools: SchoolsBySportAndSubgroupingStringQueryResult;
