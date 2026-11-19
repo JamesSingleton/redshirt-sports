@@ -20,6 +20,7 @@ import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import z from "zod";
 
@@ -179,6 +180,9 @@ export async function VotePageAuth({
   options: DynamicFetchOptions;
   searchParams?: Promise<{ edit?: string }>;
 }) {
+  // A voter's own ballot: never part of a prerendered shell. Without this,
+  // prerendering reaches the season lookup, whose `new Date()` Next rejects.
+  await connection();
   const { userId } = await auth.protect();
 
   const sportId = await getSportIdBySlug(sport);

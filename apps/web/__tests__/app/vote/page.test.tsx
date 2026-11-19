@@ -96,6 +96,10 @@ vi.mock("next/navigation", () => ({
   notFound: mockNotFound,
 }));
 
+vi.mock("next/server", () => ({
+  connection: vi.fn(),
+}));
+
 vi.mock("@/components/vote-form-wrapper", () => ({
   __esModule: true,
   default: () => <div data-testid="vote-form-wrapper" />,
