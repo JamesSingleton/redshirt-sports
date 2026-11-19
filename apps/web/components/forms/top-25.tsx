@@ -3,12 +3,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { analytics } from "@redshirt-sports/analytics";
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@redshirt-sports/ui/components/alert-dialog";
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@redshirt-sports/ui/components/form";
 import {
@@ -17,6 +25,10 @@ import {
   MeterTrack,
   MeterValue,
 } from "@redshirt-sports/ui/components/meter";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@redshirt-sports/ui/components/segmented-control";
 import {
   type ReorderMessage,
   reorderMessage,
@@ -27,19 +39,21 @@ import {
   SortableListUp,
 } from "@redshirt-sports/ui/components/sortable-list";
 import { toast } from "@redshirt-sports/ui/components/toast";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { ArrowDown, ArrowUp, GripVertical, Loader2, XIcon } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import {
+  conferenceOf,
+  EligibleTeams,
+} from "@/components/ballot/eligible-teams";
+import CustomImage from "@/components/sanity-image";
 import { type Ballot, clearSlot, placeTeam } from "@/lib/ballot-order";
 import type { VoterBallotWithSchool } from "@/types/votes";
 import { VirtualizedCombobox } from "../virtualized-combobox";
-
-export type Top25FormRef = {
-  populateWithPreviousBallot: () => void;
-};
 
 function rankString(rank: number) {
   const message = `Please select a team for rank ${rank}.`;
@@ -110,18 +124,20 @@ type RankField = `rank_${number}` & keyof Top25Values;
 
 const RANKS = Array.from({ length: 25 }, (_, i) => i + 1);
 const EMPTY = "empty:";
+const EMPTY_BALLOT = RANKS.map(() => "");
 
 type Top25FormProps = {
   schools: SchoolsBySportAndSubgroupingStringQueryResult;
   previousBallot?: VoterBallotWithSchool[];
   currentBallot?: Array<{ teamId: string; rank: number }>;
-  ref?: React.Ref<Top25FormRef>;
   submit: {
     button: string;
     loading: string;
     method: "PATCH" | "POST";
     success: string;
     error: string;
+    confirmTitle: string;
+    confirm: string;
   };
 };
 
@@ -129,7 +145,6 @@ function Top25Form({
   schools,
   previousBallot,
   currentBallot,
-  ref,
   submit,
 }: Top25FormProps) {
   const defaultValues = useMemo(() => {
@@ -150,14 +165,23 @@ function Top25Form({
   const rankedCount = ballot.filter(Boolean).length;
   // Empty slots get keys too, so a team can move past them.
   const keys = ballot.map((team, index) => team || `${EMPTY}${index}`);
-  const schoolNames = useMemo(
-    () =>
-      new Map(
-        schools.map((school) => [school._id, school.shortName ?? school.name]),
-      ),
+  const schoolsById = useMemo(
+    () => new Map(schools.map((school) => [school._id, school])),
     [schools],
   );
-  const nameOf = (team: string) => schoolNames.get(team) ?? team;
+  const nameOf = (team: string) => {
+    const school = schoolsById.get(team);
+    return school ? (school.shortName ?? school.name) : team;
+  };
+  const lastWeek = useMemo(
+    () =>
+      new Map((previousBallot ?? []).map((pick) => [pick.teamId, pick.rank])),
+    [previousBallot],
+  );
+  const hasPreviousBallot = lastWeek.size > 0;
+
+  const [view, setView] = useState<"ballot" | "teams">("ballot");
+  const [confirming, setConfirming] = useState(false);
 
   const params = useParams();
   const { sport, division } = params as {
@@ -177,13 +201,10 @@ function Top25Form({
 
   // A pick or a removal can remount its row, so focus that rank's picker
   // once the new rows are in.
-  const formRef = useRef<HTMLFormElement>(null);
   const focusRank = useRef<number | null>(null);
   useEffect(() => {
     if (focusRank.current === null) return;
-    formRef.current
-      ?.querySelector<HTMLElement>(`[aria-label="Rank ${focusRank.current}"]`)
-      ?.focus();
+    document.getElementById(pickerId(focusRank.current))?.focus();
     focusRank.current = null;
   });
 
@@ -200,6 +221,15 @@ function Top25Form({
     });
   }
 
+  /** Replaces the ballot and offers to put the old one back. */
+  function replaceBallot(next: Ballot, message: string) {
+    const before = ballot;
+    setBallot(next);
+    toast(message, {
+      action: { label: "Undo", onAction: () => setBallot(before) },
+    });
+  }
+
   function pick(index: number, team: string) {
     startBallot();
     focusRank.current = index + 1;
@@ -207,14 +237,32 @@ function Top25Form({
       setBallot(clearSlot(ballot, index));
       return;
     }
-    const before = ballot;
     const { ballot: next, dropped } = placeTeam(ballot, index, team);
-    setBallot(next);
     if (dropped) {
-      toast(`${nameOf(dropped)} dropped off`, {
-        action: { label: "Undo", onAction: () => setBallot(before) },
-      });
+      replaceBallot(next, `${nameOf(dropped)} dropped off`);
+    } else {
+      setBallot(next);
     }
+  }
+
+  /** Adds a team from the eligible list to the first empty rank. */
+  function add(team: string) {
+    const index = ballot.indexOf("");
+    startBallot();
+    setBallot(placeTeam(ballot, index, team).ballot);
+    toast(`${nameOf(team)} added at #${index + 1}`);
+  }
+
+  function clearAll() {
+    startBallot();
+    replaceBallot(EMPTY_BALLOT, "Ballot cleared");
+  }
+
+  function copyLastWeek() {
+    analytics?.capture("previous_ballot_populated", {
+      previous_ballot_count: lastWeek.size,
+    });
+    fillPreviousBallot();
   }
 
   function announce(message: ReorderMessage) {
@@ -223,26 +271,17 @@ function Top25Form({
       : reorderMessage(message);
   }
 
-  useImperativeHandle(ref, () => ({
-    populateWithPreviousBallot,
-  }));
-
-  function populateWithPreviousBallot() {
-    if (!previousBallot || previousBallot.length === 0) return;
-
-    previousBallot.forEach((ballot) => {
-      form.setValue(
-        `rank_${ballot.rank}` as keyof z.infer<typeof formSchema>,
-        ballot.teamId,
-        {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        },
-      );
-    });
-
-    toast.success("Form populated with your previous ballot");
+  function fillPreviousBallot() {
+    const next = RANKS.map(
+      (rank) =>
+        previousBallot?.find((entry) => entry.rank === rank)?.teamId ?? "",
+    );
+    if (rankedCount) {
+      replaceBallot(next, "Filled in your previous ballot");
+    } else {
+      setBallot(next);
+      toast.success("Form populated with your previous ballot");
+    }
   }
 
   async function onSubmit(values: Top25Values) {
@@ -287,145 +326,273 @@ function Top25Form({
   return (
     <Form {...form}>
       <form
-        ref={formRef}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mx-auto space-y-6"
+        className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_24rem]"
       >
-        <Meter
-          value={rankedCount}
-          max={25}
-          format={(value) => `${value} of 25`}
-          className="sticky top-14 z-10 grid gap-2 border-b bg-background/95 py-3 backdrop-blur lg:top-16"
+        <SegmentedControl
+          aria-label="Show"
+          value={view}
+          onValueChange={(next) => setView(next as "ballot" | "teams")}
+          className="h-11 w-full lg:hidden"
         >
-          <div className="flex items-center justify-between text-sm">
-            <MeterLabel className="font-medium">Teams ranked</MeterLabel>
-            <MeterValue className="tabular text-muted-foreground" />
+          <SegmentedControlItem value="ballot">
+            Ballot {rankedCount}/25
+          </SegmentedControlItem>
+          <SegmentedControlItem value="teams">Add teams</SegmentedControlItem>
+        </SegmentedControl>
+
+        <section
+          aria-labelledby="ranking-title"
+          className={cn("grid gap-3", view === "teams" && "max-lg:hidden")}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2
+              id="ranking-title"
+              className="font-display text-xl font-bold uppercase"
+            >
+              Ranking
+            </h2>
+            <div className="flex gap-2">
+              {hasPreviousBallot ? (
+                <Button type="button" variant="outline" onClick={copyLastWeek}>
+                  Copy last week
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={!rankedCount}
+                onClick={clearAll}
+              >
+                Clear
+              </Button>
+            </div>
           </div>
-          <MeterTrack />
-        </Meter>
-        <p id="ballot-reorder-help" className="sr-only">
-          To move a team, press Alt with the up or down arrow, or press Space on
-          its reorder button and use the arrows.
-        </p>
-        <SortableList
-          aria-label="Your Top 25"
-          className="space-y-6"
-          value={keys}
-          onValueChange={(next) => {
-            startBallot();
-            setBallot(next.map((key) => (key.startsWith(EMPTY) ? "" : key)));
-          }}
-          isDisabled={(key) => key.startsWith(EMPTY)}
-          label={(key) => nameOf(key)}
-          message={announce}
-        >
-          {({ order }) =>
-            order.map((key, index) => {
-              const rank = index + 1;
-              const team = key.startsWith(EMPTY) ? "" : key;
-              const name = team ? nameOf(team) : "";
-              return (
-                <SortableListItem
-                  key={key}
-                  value={key}
-                  aria-describedby={team ? "ballot-reorder-help" : undefined}
-                  className="relative rounded-md bg-background data-dragging:z-10 data-dragging:translate-x-(--drag-x) data-dragging:translate-y-(--drag-y) data-dragging:shadow-lg data-grabbed:ring-2 data-grabbed:ring-ring"
-                >
-                  <FormField
-                    control={form.control}
-                    // @ts-expect-error zodResolver doesn't support this
-                    name={`rank_${rank}`}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Rank {rank}</FormLabel>
-                        <div className="flex items-center gap-1">
-                          {team ? (
-                            <SortableListHandle
-                              aria-label={`Reorder ${name}`}
-                              className="hidden size-11 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing aria-pressed:bg-accent pointer-fine:inline-flex"
-                            >
-                              <GripVertical aria-hidden className="size-4" />
-                            </SortableListHandle>
-                          ) : null}
-                          <div className="min-w-0 flex-1">
-                            <VirtualizedCombobox
-                              aria-label={`Rank ${rank}`}
-                              options={schools}
-                              value={field.value}
-                              onChange={(next) => pick(index, next)}
-                              ballot={ballot}
-                            />
-                          </div>
-                          {team ? (
-                            <>
-                              <SortableListUp
-                                aria-label={`Move ${name} up`}
-                                className={rowButton("pointer-fine:hidden")}
-                              >
-                                <ArrowUp aria-hidden className="size-4" />
-                              </SortableListUp>
-                              <SortableListDown
-                                aria-label={`Move ${name} down`}
-                                className={rowButton("pointer-fine:hidden")}
-                              >
-                                <ArrowDown aria-hidden className="size-4" />
-                              </SortableListDown>
-                              <button
-                                type="button"
-                                aria-label={`Remove ${name} from rank ${rank}`}
-                                className={rowButton()}
-                                onClick={() => pick(index, "")}
-                              >
-                                <XIcon aria-hidden className="size-4" />
-                              </button>
-                            </>
-                          ) : null}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
+          <p id="ballot-reorder-help" className="sr-only">
+            To move a team, press Alt with the up or down arrow, or press Space
+            on its reorder button and use the arrows.
+          </p>
+          <SortableList
+            aria-label="Your Top 25"
+            className="grid gap-1.5"
+            value={keys}
+            onValueChange={(next) => {
+              startBallot();
+              setBallot(next.map((key) => (key.startsWith(EMPTY) ? "" : key)));
+            }}
+            isDisabled={(key) => key.startsWith(EMPTY)}
+            label={(key) => nameOf(key)}
+            message={announce}
+          >
+            {({ order }) =>
+              order.map((key, index) => {
+                const rank = index + 1;
+                const team = key.startsWith(EMPTY) ? "" : key;
+                const school = schoolsById.get(team);
+                const name = team ? nameOf(team) : "";
+                const previous = lastWeek.get(team);
+                const meta = [
+                  school && conferenceOf(school),
+                  previous ? `your #${previous} last week` : undefined,
+                ].filter(Boolean);
+                return (
+                  <SortableListItem
+                    key={key}
+                    value={key}
+                    aria-describedby={team ? "ballot-reorder-help" : undefined}
+                    className={cn(
+                      "relative flex items-start gap-1 rounded-lg border bg-card p-1 data-dragging:z-10 data-dragging:translate-x-(--drag-x) data-dragging:translate-y-(--drag-y) data-dragging:shadow-lg data-grabbed:ring-2 data-grabbed:ring-primary/50",
+                      !team && "border-dashed bg-transparent",
                     )}
-                  />
-                </SortableListItem>
-              );
-            })
-          }
-        </SortableList>
-        <Button
-          className="w-full"
-          type="submit"
-          disabled={form.formState.isSubmitting || !form.formState.isValid}
-        >
-          {form.formState.isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} />{" "}
-              {submit.loading}
-            </>
-          ) : (
-            submit.button
+                  >
+                    {team ? (
+                      <SortableListHandle
+                        aria-label={`Reorder ${name}`}
+                        className={cn(
+                          rowButton,
+                          "hidden cursor-grab touch-none active:cursor-grabbing aria-pressed:bg-accent pointer-fine:inline-flex",
+                        )}
+                      >
+                        <GripVertical aria-hidden className="size-4" />
+                      </SortableListHandle>
+                    ) : (
+                      <span
+                        aria-hidden
+                        className="hidden size-11 shrink-0 pointer-fine:block"
+                      />
+                    )}
+                    <span
+                      aria-hidden
+                      className="flex h-11 w-7 shrink-0 items-center justify-end font-display text-lg font-bold tabular"
+                    >
+                      {rank}
+                    </span>
+                    <FormField
+                      control={form.control}
+                      // @ts-expect-error zodResolver doesn't support this
+                      name={`rank_${rank}`}
+                      render={({ field }) => (
+                        <FormItem className="min-w-0 flex-1 gap-0">
+                          <VirtualizedCombobox
+                            id={pickerId(rank)}
+                            aria-label={`Rank ${rank}: ${name || "empty"}`}
+                            options={schools}
+                            value={field.value}
+                            onChange={(next) => pick(index, next)}
+                            ballot={ballot}
+                            searchPlaceholder="Pick a team"
+                            triggerClassName="h-auto min-h-11 border-transparent bg-transparent px-2 py-1 shadow-none hover:bg-accent dark:bg-transparent"
+                          >
+                            {school ? (
+                              <span className="flex min-w-0 items-center gap-2 text-left">
+                                <span className="flex size-7 shrink-0 items-center justify-center">
+                                  {school.image ? (
+                                    <CustomImage
+                                      image={school.image}
+                                      width={32}
+                                      height={32}
+                                      className="size-7 object-contain"
+                                    />
+                                  ) : null}
+                                </span>
+                                <span className="min-w-0">
+                                  <span className="block truncate font-medium">
+                                    {name}
+                                  </span>
+                                  {meta.length ? (
+                                    <span className="block truncate text-xs text-muted-foreground">
+                                      {meta.join(" · ")}
+                                    </span>
+                                  ) : null}
+                                </span>
+                              </span>
+                            ) : null}
+                          </VirtualizedCombobox>
+                          <FormMessage className="px-2 pb-1" />
+                        </FormItem>
+                      )}
+                    />
+                    {team ? (
+                      <>
+                        <SortableListUp
+                          aria-label={`Move ${name} up`}
+                          className={rowButton}
+                        >
+                          <ArrowUp aria-hidden className="size-4" />
+                        </SortableListUp>
+                        <SortableListDown
+                          aria-label={`Move ${name} down`}
+                          className={rowButton}
+                        >
+                          <ArrowDown aria-hidden className="size-4" />
+                        </SortableListDown>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${name} from rank ${rank}`}
+                          className={rowButton}
+                          onClick={() => pick(index, "")}
+                        >
+                          <XIcon aria-hidden className="size-4" />
+                        </button>
+                      </>
+                    ) : null}
+                  </SortableListItem>
+                );
+              })
+            }
+          </SortableList>
+        </section>
+
+        <EligibleTeams
+          schools={schools}
+          ballot={ballot}
+          lastWeek={lastWeek}
+          onAdd={add}
+          className={cn(
+            "rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-10rem)]",
+            view === "ballot" && "max-lg:hidden",
           )}
-        </Button>
+        />
+
+        <div className="sticky bottom-0 z-20 -mx-4 flex items-center gap-4 border-t bg-background/95 px-4 py-3 backdrop-blur lg:col-span-2">
+          <Meter
+            value={rankedCount}
+            max={25}
+            format={(value) => `${value} of 25`}
+            className="grid flex-1 gap-1.5"
+          >
+            <div className="flex items-center gap-1 text-sm">
+              <MeterValue className="tabular font-medium" />
+              <MeterLabel className="font-medium">ranked</MeterLabel>
+            </div>
+            <MeterTrack />
+          </Meter>
+          <Button
+            type="button"
+            onClick={() => setConfirming(true)}
+            disabled={form.formState.isSubmitting || !form.formState.isValid}
+          >
+            {form.formState.isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} />{" "}
+                {submit.loading}
+              </>
+            ) : (
+              submit.button
+            )}
+          </Button>
+        </div>
+
+        <AlertDialog open={confirming} onOpenChange={setConfirming}>
+          <AlertDialogContent className="sm:max-w-xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{submit.confirmTitle}</AlertDialogTitle>
+              <AlertDialogDescription>
+                You can still change it until voting closes.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <ol
+              aria-label="Your ballot"
+              className="grid max-h-[50dvh] grid-flow-col grid-rows-[repeat(13,auto)] gap-x-6 gap-y-1 overflow-y-auto text-sm"
+            >
+              {ballot.map((team, index) => (
+                <li key={team || index} className="flex gap-2">
+                  <span className="w-6 text-right font-bold tabular">
+                    {index + 1}
+                  </span>
+                  <span className="truncate">{nameOf(team)}</span>
+                </li>
+              ))}
+            </ol>
+            <AlertDialogFooter>
+              <AlertDialogClose>Keep editing</AlertDialogClose>
+              <AlertDialogClose
+                variant="default"
+                onClick={() => form.handleSubmit(onSubmit)()}
+              >
+                {submit.confirm}
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </form>
     </Form>
   );
 }
 
-function rowButton(extra?: string) {
-  return [
-    "inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-disabled:pointer-events-none aria-disabled:opacity-40",
-    extra,
-  ]
-    .filter(Boolean)
-    .join(" ");
+const rowButton =
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-disabled:pointer-events-none aria-disabled:opacity-40";
+
+function pickerId(rank: number) {
+  return `ballot-rank-${rank}`;
 }
 
 export function CreateTop25({
   schools,
   previousBallot,
-  ref,
 }: Omit<Top25FormProps, "currentBallot" | "submit">) {
   return (
     <Top25Form
-      ref={ref}
       schools={schools}
       previousBallot={previousBallot}
       submit={{
@@ -434,6 +601,8 @@ export function CreateTop25({
         method: "POST",
         success: "Ballot submitted successfully",
         error: "An error occurred while submitting your ballot",
+        confirmTitle: "Submit your ballot?",
+        confirm: "Yes, submit",
       }}
     />
   );
@@ -442,11 +611,9 @@ export function CreateTop25({
 export function EditTop25({
   schools,
   currentBallot,
-  ref,
 }: Omit<Top25FormProps, "previousBallot" | "submit">) {
   return (
     <Top25Form
-      ref={ref}
       schools={schools}
       currentBallot={currentBallot}
       submit={{
@@ -455,6 +622,8 @@ export function EditTop25({
         method: "PATCH",
         success: "Ballot updated successfully",
         error: "An error occurred while saving your ballot",
+        confirmTitle: "Save your changes?",
+        confirm: "Yes, save",
       }}
     />
   );

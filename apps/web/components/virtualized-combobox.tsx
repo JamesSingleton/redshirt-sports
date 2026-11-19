@@ -10,8 +10,9 @@ import {
   ComboboxSearch,
   ComboboxTrigger,
 } from "@redshirt-sports/ui/components/combobox";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { ChevronsUpDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import CustomImage from "@/components/sanity-image";
 
@@ -100,6 +101,11 @@ interface VirtualizedComboboxProps {
    */
   ballot: readonly string[];
   "aria-label"?: string;
+  /** The trigger's id, so a form can focus it. */
+  id?: string;
+  /** What the trigger shows for a picked school, in place of its logo and name. */
+  children?: ReactNode;
+  triggerClassName?: string;
 }
 
 /** Pick one school for a ballot slot, searching by name, short name or abbreviation. */
@@ -110,6 +116,9 @@ export function VirtualizedCombobox({
   onChange,
   ballot,
   "aria-label": ariaLabel,
+  id,
+  children,
+  triggerClassName,
 }: VirtualizedComboboxProps) {
   const [button, setButton] = useState<HTMLButtonElement | null>(null);
   const [content, setContent] = useState<HTMLDivElement | null>(null);
@@ -163,11 +172,12 @@ export function VirtualizedCombobox({
     >
       <ComboboxTrigger
         ref={setButton}
+        id={id}
         aria-label={ariaLabel}
-        className="h-11 font-normal"
+        className={cn("h-11 font-normal", triggerClassName)}
       >
         {selected ? (
-          <SchoolLabel school={selected} />
+          (children ?? <SchoolLabel school={selected} />)
         ) : (
           <span className="text-muted-foreground">{searchPlaceholder}</span>
         )}

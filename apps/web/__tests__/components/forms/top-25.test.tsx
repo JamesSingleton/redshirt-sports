@@ -5,9 +5,9 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createRef } from "react";
 
 const { mockPush, mockParams, mockFetch, mockCapture } = vi.hoisted(() => ({
   mockPush: vi.fn(),
@@ -34,17 +34,21 @@ vi.mock("@redshirt-sports/ui/components/toast", () => ({
   }),
 }));
 
-vi.mock("@/components/virtualized-combobox", () => ({
+vi.mock("@/components/virtualized-combobox", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
   VirtualizedCombobox: ({
     value,
     onChange,
     "aria-label": ariaLabel,
+    id,
   }: {
     value?: string;
     onChange: (v: string) => void;
     "aria-label": string;
+    id: string;
   }) => (
     <input
+      id={id}
       aria-label={ariaLabel}
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}
@@ -52,14 +56,24 @@ vi.mock("@/components/virtualized-combobox", () => ({
   ),
 }));
 
-import Top25, {
-  EditTop25,
-  formSchema,
-  type Top25FormRef,
-} from "@/components/forms/top-25";
+vi.mock("@/components/sanity-image", () => ({
+  __esModule: true,
+  default: () => <img alt="" />,
+}));
+
+import Top25, { EditTop25, formSchema } from "@/components/forms/top-25";
+
+async function submitBallot(
+  user: ReturnType<typeof userEvent.setup>,
+  button: RegExp,
+  confirm: string,
+) {
+  await user.click(screen.getByRole("button", { name: button }));
+  await user.click(await screen.findByRole("button", { name: confirm }));
+}
 
 function rankInput(rank: number) {
-  return screen.getByRole("textbox", { name: `Rank ${rank}` });
+  return screen.getByRole("textbox", { name: new RegExp(`^Rank ${rank}:`) });
 }
 
 function ranks(count = 25) {
@@ -114,43 +128,37 @@ describe("Top25 form", () => {
     vi.unstubAllGlobals();
   });
 
-  async function populateWithPreviousBallot(
-    ref: React.RefObject<Top25FormRef | null>,
-  ) {
-    await act(async () => {
-      ref.current?.populateWithPreviousBallot();
-    });
+  async function populateWithPreviousBallot() {
+    await userEvent.click(
+      screen.getByRole("button", { name: "Copy last week" }),
+    );
   }
 
   it("populates ranks from previous ballot and toasts success", async () => {
-    const ref = createRef<Top25FormRef>();
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
     expect(toast.success).toHaveBeenCalledWith(
       "Form populated with your previous ballot",
     );
   });
 
   it("shows how many teams are ranked", async () => {
-    const ref = createRef<Top25FormRef>();
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(18)}
       />,
     );
 
-    const meter = screen.getByRole("meter", { name: "Teams ranked" });
+    const meter = screen.getByRole("meter", { name: "ranked" });
     expect(meter).toHaveAttribute("aria-valuenow", "0");
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
     expect(meter).toHaveAttribute("aria-valuenow", "18");
     expect(meter).toHaveAttribute("aria-valuetext", "18 of 25");
   });
@@ -161,18 +169,16 @@ describe("Top25 form", () => {
       json: async () => ({ message: "Vote submitted successfully" }),
     });
 
-    const ref = createRef<Top25FormRef>();
     const user = userEvent.setup();
 
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
 
     await waitFor(() => {
       expect(
@@ -180,7 +186,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+    await submitBallot(user, /^Submit$/i, "Yes, submit");
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
@@ -222,7 +228,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /Save changes/i }));
+    await submitBallot(user, /Save changes/i, "Yes, save");
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
@@ -267,7 +273,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /Save changes/i }));
+    await submitBallot(user, /Save changes/i, "Yes, save");
 
     await waitFor(() => {
       expect(toastMessages.success?.({})).toBe("Ballot updated successfully");
@@ -285,18 +291,16 @@ describe("Top25 form", () => {
       json: async () => ({ error: "You have already voted for this week" }),
     });
 
-    const ref = createRef<Top25FormRef>();
     const user = userEvent.setup();
 
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
 
     await waitFor(() => {
       expect(
@@ -304,7 +308,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+    await submitBallot(user, /^Submit$/i, "Yes, submit");
 
     await waitFor(() => {
       expect(mockCapture).toHaveBeenCalledWith(
@@ -318,17 +322,14 @@ describe("Top25 form", () => {
   });
 
   it("fires ballot_started once on the first manual edit, not on prefill", async () => {
-    const ref = createRef<Top25FormRef>();
-
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
     expect(mockCapture).not.toHaveBeenCalledWith(
       "ballot_started",
       expect.anything(),
@@ -369,18 +370,16 @@ describe("Top25 form", () => {
       },
     });
 
-    const ref = createRef<Top25FormRef>();
     const user = userEvent.setup();
 
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
 
     await waitFor(() => {
       expect(
@@ -388,7 +387,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+    await submitBallot(user, /^Submit$/i, "Yes, submit");
 
     await waitFor(() => {
       expect(mockCapture).toHaveBeenCalledWith(
@@ -408,18 +407,16 @@ describe("Top25 form", () => {
       json: async () => ({}),
     });
 
-    const ref = createRef<Top25FormRef>();
     const user = userEvent.setup();
 
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
 
     await waitFor(() => {
       expect(
@@ -427,7 +424,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+    await submitBallot(user, /^Submit$/i, "Yes, submit");
 
     await waitFor(() => {
       expect(mockCapture).toHaveBeenCalledWith(
@@ -460,18 +457,16 @@ describe("Top25 form", () => {
       json: async () => ({}),
     });
 
-    const ref = createRef<Top25FormRef>();
     const user = userEvent.setup();
 
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
 
     await waitFor(() => {
       expect(
@@ -479,7 +474,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+    await submitBallot(user, /^Submit$/i, "Yes, submit");
 
     await waitFor(() => {
       expect(toastMessages.success?.({})).toBe("Ballot submitted successfully");
@@ -529,12 +524,11 @@ describe("Top25 form", () => {
     expect(formSchema.safeParse(values).success).toBe(true);
   });
 
-  it("does not populate when previous ballot is empty", () => {
-    const ref = createRef<Top25FormRef>();
-    render(<Top25 ref={ref} schools={makeSchools(25)} previousBallot={[]} />);
-
-    ref.current?.populateWithPreviousBallot();
-    expect(toast.success).not.toHaveBeenCalled();
+  it("offers no copy without a previous ballot", () => {
+    render(<Top25 schools={makeSchools(25)} previousBallot={[]} />);
+    expect(
+      screen.queryByRole("button", { name: "Copy last week" }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows the submitting state while the ballot posts", async () => {
@@ -546,18 +540,16 @@ describe("Top25 form", () => {
         }),
     );
 
-    const ref = createRef<Top25FormRef>();
     const user = userEvent.setup();
 
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
 
     await waitFor(() => {
       expect(
@@ -566,7 +558,7 @@ describe("Top25 form", () => {
     });
 
     const submitButton = screen.getByRole("button", { name: /^Submit$/i });
-    await user.click(submitButton);
+    await submitBallot(user, /^Submit$/i, "Yes, submit");
 
     await waitFor(() => {
       expect(submitButton).toBeDisabled();
@@ -603,18 +595,16 @@ describe("Top25 form", () => {
       json: async () => ({ message: "Custom success" }),
     });
 
-    const ref = createRef<Top25FormRef>();
     const user = userEvent.setup();
 
     render(
       <Top25
-        ref={ref}
         schools={makeSchools(25)}
         previousBallot={makePreviousBallot(25)}
       />,
     );
 
-    await populateWithPreviousBallot(ref);
+    await populateWithPreviousBallot();
 
     await waitFor(() => {
       expect(
@@ -622,7 +612,7 @@ describe("Top25 form", () => {
       ).not.toBeDisabled();
     });
 
-    await user.click(screen.getByRole("button", { name: /^Submit$/i }));
+    await submitBallot(user, /^Submit$/i, "Yes, submit");
 
     await waitFor(() => {
       expect(toastMessages.success?.({ message: "Custom success" })).toBe(
@@ -763,5 +753,105 @@ describe("Top25 form ordering", () => {
     expect(
       screen.getByRole("button", { name: "Remove Full Name U from rank 1" }),
     ).toBeVisible();
+  });
+
+  it("adds a team from the eligible list to the first open rank", async () => {
+    const user = userEvent.setup();
+    renderBallot(2);
+    await user.click(screen.getByRole("button", { name: "Add S9" }));
+    expect(ranks(3)).toEqual(["school-1", "school-2", "school-9"]);
+    expect(toast).toHaveBeenCalledWith("S9 added at #3");
+  });
+
+  it("clears the whole ballot and can undo it", async () => {
+    const user = userEvent.setup();
+    renderBallot(3);
+    await user.click(screen.getByRole("button", { name: "Clear" }));
+    expect(ranks(3)).toEqual(["", "", ""]);
+    expect(screen.getByRole("button", { name: "Clear" })).toBeDisabled();
+
+    const [message, options] = vi.mocked(toast).mock.calls[0] as unknown as [
+      string,
+      { action: { onAction: () => void } },
+    ];
+    expect(message).toBe("Ballot cleared");
+    act(() => options.action.onAction());
+    expect(ranks(3)).toEqual(["school-1", "school-2", "school-3"]);
+  });
+
+  it("copies last week over a ballot already started, with undo", async () => {
+    const user = userEvent.setup();
+    render(
+      <Top25
+        schools={makeSchools(26)}
+        previousBallot={makePreviousBallot(2)}
+      />,
+    );
+    fireEvent.change(rankInput(1), { target: { value: "school-9" } });
+    await user.click(screen.getByRole("button", { name: "Copy last week" }));
+    expect(ranks(3)).toEqual(["school-1", "school-2", ""]);
+    expect(toast).toHaveBeenCalledWith(
+      "Filled in your previous ballot",
+      expect.anything(),
+    );
+    expect(mockCapture).toHaveBeenCalledWith("previous_ballot_populated", {
+      previous_ballot_count: 2,
+    });
+  });
+
+  it("shows each team's conference and last week's rank", () => {
+    const schools = [
+      {
+        _id: "a",
+        name: "A State",
+        shortName: "A",
+        image: { id: "logo" },
+        conferenceInfo: { conference: { name: "Big Sky", shortName: null } },
+      },
+      { _id: "b", name: "B State", shortName: "B", image: null },
+    ] as never;
+    render(
+      <Top25
+        schools={schools}
+        previousBallot={[{ teamId: "b", rank: 4 }] as never}
+      />,
+    );
+    fireEvent.change(rankInput(1), { target: { value: "a" } });
+    fireEvent.change(rankInput(2), { target: { value: "b" } });
+    expect(
+      within(screen.getByRole("list", { name: "Eligible teams" })).getByText(
+        "Big Sky",
+      ),
+    ).toBeVisible();
+    expect(screen.getAllByText("your #4 last week")).not.toHaveLength(0);
+  });
+
+  it("switches between the ballot and the team list on phones", async () => {
+    const user = userEvent.setup();
+    renderBallot(3);
+    const ballot = screen.getByRole("region", { name: "Ranking" });
+    const teams = screen.getByRole("region", { name: "Eligible teams" });
+    expect(teams).toHaveClass("max-lg:hidden");
+    expect(ballot).not.toHaveClass("max-lg:hidden");
+
+    await user.click(screen.getByRole("radio", { name: "Add teams" }));
+    expect(ballot).toHaveClass("max-lg:hidden");
+    expect(teams).not.toHaveClass("max-lg:hidden");
+    expect(screen.getByRole("radio", { name: "Ballot 3/25" })).toBeVisible();
+  });
+
+  it("asks before submitting and lets the voter keep editing", async () => {
+    mockFetch.mockReset();
+    const user = userEvent.setup();
+    renderBallot(25);
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    const dialog = await screen.findByRole("alertdialog", {
+      name: "Save your changes?",
+    });
+    expect(within(dialog).getAllByRole("listitem")).toHaveLength(25);
+    await user.click(
+      within(dialog).getByRole("button", { name: "Keep editing" }),
+    );
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });

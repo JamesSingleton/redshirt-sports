@@ -1,174 +1,38 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import type { ReactNode } from "react";
 
-const { mockCapture, mockPopulate } = vi.hoisted(() => ({
-  mockCapture: vi.fn(),
-  mockPopulate: vi.fn(),
-}));
-
-let mockAnalytics: { capture: typeof mockCapture } | undefined = {
-  capture: mockCapture,
-};
-
-vi.mock("@redshirt-sports/analytics", () => ({
-  get analytics() {
-    return mockAnalytics;
-  },
-}));
+const { mockForm } = vi.hoisted(() => ({ mockForm: vi.fn() }));
 
 vi.mock("@/components/forms/top-25", () => {
-  const React = require("react") as typeof import("react");
-  const MockTop25 = React.forwardRef(function MockTop25(
-    _props: unknown,
-    ref: React.Ref<{ populateWithPreviousBallot: () => void }>,
-  ) {
-    React.useImperativeHandle(ref, () => ({
-      populateWithPreviousBallot: mockPopulate,
-    }));
+  const MockTop25 = (props: Record<string, unknown>) => {
+    mockForm(props);
     return <div data-testid="top-25-form" />;
-  });
-
-  return {
-    __esModule: true,
-    default: MockTop25,
-    CreateTop25: MockTop25,
-    EditTop25: MockTop25,
   };
+  return { __esModule: true, CreateTop25: MockTop25, EditTop25: MockTop25 };
 });
-
-vi.mock("@/components/sanity-image", () => ({
-  __esModule: true,
-  default: () => <img alt="" />,
-}));
-
-vi.mock("@redshirt-sports/ui/components/button", () => ({
-  Button: ({
-    children,
-    onClick,
-    ...props
-  }: {
-    children: ReactNode;
-    onClick?: () => void;
-  }) => (
-    <button type="button" onClick={onClick} {...props}>
-      {children}
-    </button>
-  ),
-}));
-
-vi.mock("@redshirt-sports/ui/components/card", () => ({
-  Card: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  CardHeader: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  CardTitle: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
-  CardContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-}));
 
 import VoteFormWrapper, {
   EditVoteFormWrapper,
 } from "@/components/vote-form-wrapper";
 
-const schools = [
-  {
-    _id: "school-1",
-    name: "Alabama",
-    shortName: "Alabama",
-    abbreviation: "ALA",
-    nickname: "Crimson Tide",
-    image: null,
-  },
-] as never;
-
-const previousBallot = [
-  {
-    id: "1",
-    userId: "user-1",
-    division: "fbs",
-    week: 1,
-    year: 2025,
-    createdAt: new Date(),
-    teamId: "school-1",
-    rank: 1,
-    points: 25,
-    schoolName: "Alabama",
-    schoolShortName: "Alabama",
-    schoolAbbreviation: "ALA",
-    schoolNickname: "Crimson Tide",
-    schoolImageUrl: "",
-  },
-];
+const schools = [{ _id: "school-1", name: "Alabama" }] as never;
 
 describe("VoteFormWrapper", () => {
-  beforeEach(() => {
-    mockCapture.mockReset();
-    mockPopulate.mockReset();
-    mockAnalytics = { capture: mockCapture };
-  });
+  beforeEach(() => mockForm.mockReset());
 
-  it("hides Use Previous Ballot in edit mode even when a previous ballot exists", () => {
-    render(
-      <EditVoteFormWrapper
-        schools={schools}
-        currentBallot={[{ teamId: "school-1", rank: 1 }]}
-      />,
-    );
-
-    expect(
-      screen.queryByRole("button", { name: /Use Previous Ballot/i }),
-    ).not.toBeInTheDocument();
-    expect(screen.getByText("Edit Ballot")).toBeInTheDocument();
-  });
-
-  it("hides Use Previous Ballot when previousBallot is empty", () => {
-    render(<VoteFormWrapper schools={schools} previousBallot={[]} />);
-    expect(
-      screen.queryByRole("button", { name: /Use Previous Ballot/i }),
-    ).not.toBeInTheDocument();
-    expect(screen.getByTestId("top-25-form")).toBeInTheDocument();
-  });
-
-  it("shows previous ballot and populates form on click", async () => {
-    const user = userEvent.setup();
+  it("passes last week's ballot to a new ballot", () => {
+    const previousBallot = [{ teamId: "school-1", rank: 1 }] as never;
     render(
       <VoteFormWrapper schools={schools} previousBallot={previousBallot} />,
     );
-
-    expect(screen.getByText("Previous Ballot")).toBeInTheDocument();
-    expect(screen.getByText("Alabama")).toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("button", { name: /Use Previous Ballot/i }),
-    );
-
-    expect(mockPopulate).toHaveBeenCalled();
-    expect(mockCapture).toHaveBeenCalledWith(
-      "previous_ballot_populated",
-      expect.objectContaining({ previous_ballot_count: 1 }),
-    );
-  });
-
-  it("reports zero previous ballots when previousBallot is omitted", () => {
-    render(<VoteFormWrapper schools={schools} />);
-
-    expect(
-      screen.queryByRole("button", { name: /Use Previous Ballot/i }),
-    ).not.toBeInTheDocument();
     expect(screen.getByTestId("top-25-form")).toBeInTheDocument();
+    expect(mockForm).toHaveBeenCalledWith({ schools, previousBallot });
   });
 
-  it("handles missing analytics when populating the form", async () => {
-    mockAnalytics = undefined;
-    const user = userEvent.setup();
-
+  it("passes this week's ballot when editing", () => {
+    const currentBallot = [{ teamId: "school-1", rank: 1 }];
     render(
-      <VoteFormWrapper schools={schools} previousBallot={previousBallot} />,
+      <EditVoteFormWrapper schools={schools} currentBallot={currentBallot} />,
     );
-
-    await user.click(
-      screen.getByRole("button", { name: /Use Previous Ballot/i }),
-    );
-
-    expect(mockPopulate).toHaveBeenCalled();
-    expect(mockCapture).not.toHaveBeenCalled();
+    expect(mockForm).toHaveBeenCalledWith({ schools, currentBallot });
   });
 });
