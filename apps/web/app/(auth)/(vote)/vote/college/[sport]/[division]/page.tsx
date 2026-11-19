@@ -283,15 +283,16 @@ export async function VotePageAuth({
     : await getLatestVoterBallotWithSchools(userId, division, sport, year);
 
   return (
-    <div className="container">
+    <div>
       {title && subtitle && (
-        <div className="flex flex-col gap-4 pt-12 text-center">
+        <div className="container flex flex-col gap-4 pt-12 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             {title}
           </h1>
           <p className="text-muted-foreground text-lg">{subtitle}</p>
         </div>
       )}
+      {/* The form lays out its own container, so its submit bar can span the screen. */}
       {hasVoted ? (
         <EditVoteFormWrapper schools={schools} currentBallot={currentBallot} />
       ) : (

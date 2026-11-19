@@ -347,248 +347,257 @@ function Top25Form({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_24rem]"
-      >
-        <div
-          data-attempted={(attempted && spotsLeft > 0) || undefined}
-          className="flex gap-3 rounded-lg border p-4 data-attempted:border-destructive/50 data-attempted:bg-destructive/5 lg:col-span-2"
-        >
-          {spotsLeft ? (
-            <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
-          ) : (
-            <CircleCheck
-              aria-hidden
-              className="mt-0.5 size-4 shrink-0 text-up"
-            />
-          )}
-          <div className="grid gap-1 text-sm">
-            <p className="font-medium">
-              {spotsLeft
-                ? `${spotsLeft} ${spotsLeft === 1 ? "spot" : "spots"} left`
-                : "All 25 ranked"}
-            </p>
-            <p className="text-muted-foreground">
-              {spotsLeft
-                ? "Rank 25 teams to submit. You can edit until voting closes."
-                : "Review your order, then submit. You can edit until voting closes."}
-            </p>
-          </div>
-        </div>
-
-        <SegmentedControl
-          aria-label="Show"
-          value={view}
-          onValueChange={(next) => setView(next as "ballot" | "teams")}
-          className="h-11 w-full lg:hidden"
-        >
-          <SegmentedControlItem value="ballot">
-            Ballot {rankedCount}/25
-          </SegmentedControlItem>
-          <SegmentedControlItem value="teams">Add teams</SegmentedControlItem>
-        </SegmentedControl>
-
-        <section
-          aria-labelledby="ranking-title"
-          className={cn("grid gap-3", view === "teams" && "max-lg:hidden")}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2
-              id="ranking-title"
-              className="font-display text-xl font-bold uppercase"
-            >
-              Ranking
-            </h2>
-            <div className="flex gap-2">
-              {hasPreviousBallot ? (
-                <Button type="button" variant="outline" onClick={copyLastWeek}>
-                  Copy last week
-                </Button>
-              ) : null}
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={!rankedCount}
-                onClick={clearAll}
-              >
-                Clear
-              </Button>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="pt-6">
+        <div className="container grid gap-6 pb-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_24rem]">
+          <div
+            data-attempted={(attempted && spotsLeft > 0) || undefined}
+            className="flex gap-3 rounded-lg border p-4 data-attempted:border-destructive/50 data-attempted:bg-destructive/5 lg:col-span-2"
+          >
+            {spotsLeft ? (
+              <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
+            ) : (
+              <CircleCheck
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-up"
+              />
+            )}
+            <div className="grid gap-1 text-sm">
+              <p className="font-medium">
+                {spotsLeft
+                  ? `${spotsLeft} ${spotsLeft === 1 ? "spot" : "spots"} left`
+                  : "All 25 ranked"}
+              </p>
+              <p className="text-muted-foreground">
+                {spotsLeft
+                  ? "Rank 25 teams to submit. You can edit until voting closes."
+                  : "Review your order, then submit. You can edit until voting closes."}
+              </p>
             </div>
           </div>
-          <p id="ballot-reorder-help" className="sr-only">
-            To move a team, press Alt with the up or down arrow, or press Space
-            on its reorder button and use the arrows.
-          </p>
-          <SortableList
-            aria-label="Your Top 25"
-            className="grid gap-1.5"
-            value={keys}
-            onValueChange={(next) => {
-              startBallot();
-              setBallot(next.map((key) => (key.startsWith(EMPTY) ? "" : key)));
-            }}
-            isDisabled={(key) => key.startsWith(EMPTY)}
-            label={(key) => nameOf(key)}
-            message={announce}
+
+          <SegmentedControl
+            aria-label="Show"
+            value={view}
+            onValueChange={(next) => setView(next as "ballot" | "teams")}
+            className="h-11 w-full lg:hidden"
           >
-            {({ order }) =>
-              order.map((key, index) => {
-                const rank = index + 1;
-                const team = key.startsWith(EMPTY) ? "" : key;
-                const school = schoolsById.get(team);
-                const name = team ? nameOf(team) : "";
-                const previous = lastWeek.get(team);
-                const meta = [
-                  school && conferenceOf(school),
-                  previous ? `your #${previous} last week` : undefined,
-                ].filter(Boolean);
-                return (
-                  <SortableListItem
-                    key={key}
-                    value={key}
-                    aria-describedby={team ? "ballot-reorder-help" : undefined}
-                    className={cn(
-                      "relative flex items-start gap-1 rounded-lg border bg-card p-1 data-dragging:z-10 data-dragging:translate-x-(--drag-x) data-dragging:translate-y-(--drag-y) data-dragging:shadow-lg data-grabbed:ring-2 data-grabbed:ring-primary/50",
-                      !team && "border-dashed bg-transparent",
-                    )}
+            <SegmentedControlItem value="ballot">
+              Ballot {rankedCount}/25
+            </SegmentedControlItem>
+            <SegmentedControlItem value="teams">Add teams</SegmentedControlItem>
+          </SegmentedControl>
+
+          <section
+            aria-labelledby="ranking-title"
+            className={cn("grid gap-3", view === "teams" && "max-lg:hidden")}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2
+                id="ranking-title"
+                className="font-display text-xl font-bold uppercase"
+              >
+                Ranking
+              </h2>
+              <div className="flex gap-2">
+                {hasPreviousBallot ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={copyLastWeek}
                   >
-                    {team ? (
-                      <SortableListHandle
-                        aria-label={`Reorder ${name}`}
-                        className={cn(
-                          rowButton,
-                          "hidden cursor-grab touch-none active:cursor-grabbing aria-pressed:bg-accent pointer-fine:inline-flex",
-                        )}
-                      >
-                        <GripVertical aria-hidden className="size-4" />
-                      </SortableListHandle>
-                    ) : (
+                    Copy last week
+                  </Button>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={!rankedCount}
+                  onClick={clearAll}
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
+            <p id="ballot-reorder-help" className="sr-only">
+              To move a team, press Alt with the up or down arrow, or press
+              Space on its reorder button and use the arrows.
+            </p>
+            <SortableList
+              aria-label="Your Top 25"
+              className="grid gap-1.5"
+              value={keys}
+              onValueChange={(next) => {
+                startBallot();
+                setBallot(
+                  next.map((key) => (key.startsWith(EMPTY) ? "" : key)),
+                );
+              }}
+              isDisabled={(key) => key.startsWith(EMPTY)}
+              label={(key) => nameOf(key)}
+              message={announce}
+            >
+              {({ order }) =>
+                order.map((key, index) => {
+                  const rank = index + 1;
+                  const team = key.startsWith(EMPTY) ? "" : key;
+                  const school = schoolsById.get(team);
+                  const name = team ? nameOf(team) : "";
+                  const previous = lastWeek.get(team);
+                  const meta = [
+                    school && conferenceOf(school),
+                    previous ? `your #${previous} last week` : undefined,
+                  ].filter(Boolean);
+                  return (
+                    <SortableListItem
+                      key={key}
+                      value={key}
+                      aria-describedby={
+                        team ? "ballot-reorder-help" : undefined
+                      }
+                      className={cn(
+                        "relative flex items-start gap-1 rounded-lg border bg-card p-1 data-dragging:z-10 data-dragging:translate-x-(--drag-x) data-dragging:translate-y-(--drag-y) data-dragging:shadow-lg data-grabbed:ring-2 data-grabbed:ring-primary/50",
+                        !team && "border-dashed bg-transparent",
+                      )}
+                    >
+                      {team ? (
+                        <SortableListHandle
+                          aria-label={`Reorder ${name}`}
+                          className={cn(
+                            rowButton,
+                            "hidden cursor-grab touch-none active:cursor-grabbing aria-pressed:bg-accent pointer-fine:inline-flex",
+                          )}
+                        >
+                          <GripVertical aria-hidden className="size-4" />
+                        </SortableListHandle>
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="hidden size-11 shrink-0 pointer-fine:block"
+                        />
+                      )}
                       <span
                         aria-hidden
-                        className="hidden size-11 shrink-0 pointer-fine:block"
-                      />
-                    )}
-                    <span
-                      aria-hidden
-                      className="flex h-11 w-7 shrink-0 items-center justify-end font-display text-lg font-bold tabular"
-                    >
-                      {rank}
-                    </span>
-                    <FormField
-                      control={form.control}
-                      // @ts-expect-error zodResolver doesn't support this
-                      name={`rank_${rank}`}
-                      render={({ field }) => (
-                        <FormItem className="min-w-0 flex-1 gap-0">
-                          <VirtualizedCombobox
-                            id={pickerId(rank)}
-                            aria-label={`Rank ${rank}: ${name || "empty"}`}
-                            options={schools}
-                            value={field.value}
-                            onChange={(next) => pick(index, next)}
-                            ballot={ballot}
-                            searchPlaceholder="Pick a team"
-                            triggerClassName="h-auto min-h-11 border-transparent bg-transparent px-2 py-1 shadow-none hover:bg-accent dark:bg-transparent"
-                          >
-                            {school ? (
-                              <span className="flex min-w-0 items-center gap-2 text-left">
-                                <span className="flex size-7 shrink-0 items-center justify-center">
-                                  {school.image ? (
-                                    <CustomImage
-                                      image={school.image}
-                                      width={32}
-                                      height={32}
-                                      className="size-7 object-contain"
-                                    />
-                                  ) : null}
-                                </span>
-                                <span className="min-w-0">
-                                  <span className="block truncate font-medium">
-                                    {name}
+                        className="flex h-11 w-7 shrink-0 items-center justify-end font-display text-lg font-bold tabular"
+                      >
+                        {rank}
+                      </span>
+                      <FormField
+                        control={form.control}
+                        // @ts-expect-error zodResolver doesn't support this
+                        name={`rank_${rank}`}
+                        render={({ field }) => (
+                          <FormItem className="min-w-0 flex-1 gap-0">
+                            <VirtualizedCombobox
+                              id={pickerId(rank)}
+                              aria-label={`Rank ${rank}: ${name || "empty"}`}
+                              options={schools}
+                              value={field.value}
+                              onChange={(next) => pick(index, next)}
+                              ballot={ballot}
+                              searchPlaceholder="Pick a team"
+                              triggerClassName="h-auto min-h-11 border-transparent bg-transparent px-2 py-1 shadow-none hover:bg-accent dark:bg-transparent"
+                            >
+                              {school ? (
+                                <span className="flex min-w-0 items-center gap-2 text-left">
+                                  <span className="flex size-7 shrink-0 items-center justify-center">
+                                    {school.image ? (
+                                      <CustomImage
+                                        image={school.image}
+                                        width={32}
+                                        height={32}
+                                        className="size-7 object-contain"
+                                      />
+                                    ) : null}
                                   </span>
-                                  {meta.length ? (
-                                    <span className="block truncate text-xs text-muted-foreground">
-                                      {meta.join(" · ")}
+                                  <span className="min-w-0">
+                                    <span className="block truncate font-medium">
+                                      {name}
                                     </span>
-                                  ) : null}
+                                    {meta.length ? (
+                                      <span className="block truncate text-xs text-muted-foreground">
+                                        {meta.join(" · ")}
+                                      </span>
+                                    ) : null}
+                                  </span>
                                 </span>
-                              </span>
-                            ) : null}
-                          </VirtualizedCombobox>
-                          <FormMessage className="px-2 pb-1" />
-                        </FormItem>
-                      )}
-                    />
-                    {team ? (
-                      <>
-                        <SortableListUp
-                          aria-label={`Move ${name} up`}
-                          className={rowButton}
-                        >
-                          <ArrowUp aria-hidden className="size-4" />
-                        </SortableListUp>
-                        <SortableListDown
-                          aria-label={`Move ${name} down`}
-                          className={rowButton}
-                        >
-                          <ArrowDown aria-hidden className="size-4" />
-                        </SortableListDown>
-                        <button
-                          type="button"
-                          aria-label={`Remove ${name} from rank ${rank}`}
-                          className={rowButton}
-                          onClick={() => pick(index, "")}
-                        >
-                          <XIcon aria-hidden className="size-4" />
-                        </button>
-                      </>
-                    ) : null}
-                  </SortableListItem>
-                );
-              })
-            }
-          </SortableList>
-        </section>
+                              ) : null}
+                            </VirtualizedCombobox>
+                            <FormMessage className="px-2 pb-1" />
+                          </FormItem>
+                        )}
+                      />
+                      {team ? (
+                        <>
+                          <SortableListUp
+                            aria-label={`Move ${name} up`}
+                            className={rowButton}
+                          >
+                            <ArrowUp aria-hidden className="size-4" />
+                          </SortableListUp>
+                          <SortableListDown
+                            aria-label={`Move ${name} down`}
+                            className={rowButton}
+                          >
+                            <ArrowDown aria-hidden className="size-4" />
+                          </SortableListDown>
+                          <button
+                            type="button"
+                            aria-label={`Remove ${name} from rank ${rank}`}
+                            className={rowButton}
+                            onClick={() => pick(index, "")}
+                          >
+                            <XIcon aria-hidden className="size-4" />
+                          </button>
+                        </>
+                      ) : null}
+                    </SortableListItem>
+                  );
+                })
+              }
+            </SortableList>
+          </section>
 
-        <EligibleTeams
-          schools={schools}
-          ballot={ballot}
-          lastWeek={lastWeek}
-          onAdd={add}
-          className={cn(
-            "rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:max-h-[min(36rem,calc(100dvh-11rem))]",
-            view === "ballot" && "max-lg:hidden",
-          )}
-        />
-
-        <div className="sticky bottom-0 z-20 -mx-4 flex items-center gap-4 border-t bg-background/95 px-4 py-3 backdrop-blur lg:col-span-2">
-          <Meter
-            value={rankedCount}
-            max={25}
-            format={(value) => `${value} of 25`}
-            className="grid flex-1 gap-1.5"
-          >
-            <div className="flex items-center gap-1 text-sm">
-              <MeterValue className="tabular font-medium" />
-              <MeterLabel className="font-medium">ranked</MeterLabel>
-            </div>
-            <MeterTrack />
-          </Meter>
-          <Button
-            type="button"
-            onClick={review}
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} />{" "}
-                {submit.loading}
-              </>
-            ) : (
-              submit.button
+          <EligibleTeams
+            schools={schools}
+            ballot={ballot}
+            lastWeek={lastWeek}
+            onAdd={add}
+            className={cn(
+              "rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:h-[min(36rem,calc(100dvh-11rem))]",
+              view === "ballot" && "max-lg:hidden",
             )}
-          </Button>
+          />
+        </div>
+
+        <div className="sticky bottom-0 z-20 border-t bg-background/95 backdrop-blur">
+          <div className="container flex items-center gap-4 py-3">
+            <Meter
+              value={rankedCount}
+              max={25}
+              format={(value) => `${value} of 25`}
+              className="grid flex-1 gap-1.5"
+            >
+              <div className="flex items-center gap-1 text-sm">
+                <MeterValue className="tabular font-medium" />
+                <MeterLabel className="font-medium">ranked</MeterLabel>
+              </div>
+              <MeterTrack />
+            </Meter>
+            <Button
+              type="button"
+              onClick={review}
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} />{" "}
+                  {submit.loading}
+                </>
+              ) : (
+                submit.button
+              )}
+            </Button>
+          </div>
         </div>
 
         <AlertDialog open={confirming} onOpenChange={setConfirming}>

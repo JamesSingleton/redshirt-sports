@@ -2,8 +2,16 @@
 
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
 import { Input } from "@redshirt-sports/ui/components/input";
+import {
+  Menu,
+  MenuContent,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "@redshirt-sports/ui/components/menu";
+import { ScrollArea } from "@redshirt-sports/ui/components/scroll-area";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { ChevronDownIcon, PlusIcon, SearchIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import CustomImage from "@/components/sanity-image";
@@ -16,6 +24,9 @@ export function conferenceOf(school: School) {
   const conference = school.conferenceInfo?.conference;
   return conference?.shortName ?? conference?.name ?? undefined;
 }
+
+const chip =
+  "rounded-md border px-2.5 py-1 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground data-picked:border-primary data-picked:bg-primary data-picked:text-primary-foreground";
 
 /** Conference chips shown before "More". */
 const FEW_CONFERENCES = 4;
@@ -43,7 +54,6 @@ export function EligibleTeams({
 }: EligibleTeamsProps) {
   const [query, setQuery] = useState("");
   const [conference, setConference] = useState<string | null>(null);
-  const [allConferences, setAllConferences] = useState(false);
   const full = !ballot.includes("");
 
   // Biggest conferences first, so the few shown before "More" cover the most teams.
@@ -59,12 +69,10 @@ export function EligibleTeams({
         a.localeCompare(b),
     );
   }, [schools]);
-  const hasMore = conferences.length > FEW_CONFERENCES;
-  const chips = allConferences
-    ? conferences
-    : conferences.filter(
-        (name, index) => index < FEW_CONFERENCES || name === conference,
-      );
+  const chips = conferences.slice(0, FEW_CONFERENCES);
+  const rest = conferences.slice(FEW_CONFERENCES);
+  // A conference picked from More names the More chip, so it stays visible.
+  const picked = conference && rest.includes(conference) ? conference : null;
 
   const shown = schools.filter(
     (school) =>
@@ -113,7 +121,6 @@ export function EligibleTeams({
         <div
           role="group"
           aria-label="Conference"
-          id="conference-chips"
           className="flex shrink-0 flex-wrap gap-1.5"
         >
           {[null, ...chips].map((name) => (
@@ -122,21 +129,38 @@ export function EligibleTeams({
               type="button"
               aria-pressed={conference === name}
               onClick={() => setConference(name)}
-              className="rounded-md border px-2.5 py-1 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
+              className={chip}
             >
               {name ?? "All"}
             </button>
           ))}
-          {hasMore ? (
-            <button
-              type="button"
-              aria-expanded={allConferences}
-              aria-controls="conference-chips"
-              onClick={() => setAllConferences(!allConferences)}
-              className="rounded-md px-2.5 py-1 text-sm font-medium text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {allConferences ? "Fewer" : "More"}
-            </button>
+          {rest.length ? (
+            <Menu>
+              <MenuTrigger
+                aria-label={
+                  picked
+                    ? `More conferences, ${picked} chosen`
+                    : "More conferences"
+                }
+                data-picked={picked ? "" : undefined}
+                className={cn(chip, "inline-flex items-center gap-1")}
+              >
+                {picked ?? "More"}
+                <ChevronDownIcon aria-hidden className="size-3.5 opacity-60" />
+              </MenuTrigger>
+              <MenuContent align="end" className="max-h-72">
+                <MenuRadioGroup
+                  value={picked ?? ""}
+                  onValueChange={(value) => setConference(String(value))}
+                >
+                  {rest.map((name) => (
+                    <MenuRadioItem key={name} value={name} closeOnSelect>
+                      {name}
+                    </MenuRadioItem>
+                  ))}
+                </MenuRadioGroup>
+              </MenuContent>
+            </Menu>
           ) : null}
         </div>
       ) : null}
@@ -147,63 +171,62 @@ export function EligibleTeams({
         </p>
       ) : null}
       {shown.length ? (
-        <ul
-          aria-label="Eligible teams"
-          className="-mx-1 min-h-0 flex-1 divide-y overflow-x-hidden overflow-y-auto overscroll-contain px-1 [scrollbar-width:thin]"
-        >
-          {shown.map((school) => {
-            const name = school.shortName ?? school.name;
-            const rank = ballot.indexOf(school._id) + 1;
-            const previous = lastWeek.get(school._id);
-            const meta = [
-              conferenceOf(school),
-              previous ? `your #${previous} last week` : undefined,
-            ].filter(Boolean);
-            return (
-              <li
-                key={school._id}
-                className={cn(
-                  "flex items-center gap-3 py-2",
-                  rank && "text-muted-foreground",
-                )}
-              >
-                <span className="flex size-8 shrink-0 items-center justify-center">
-                  {school.image ? (
-                    <CustomImage
-                      image={school.image}
-                      width={32}
-                      height={32}
-                      className="size-7 object-contain"
-                    />
-                  ) : null}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{name}</span>
-                  {meta.length ? (
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {meta.join(" · ")}
-                    </span>
-                  ) : null}
-                </span>
-                {rank ? (
-                  <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 text-xs">
-                    On ballot · #{rank}
+        <ScrollArea className="-mx-1 min-h-0 flex-1">
+          <ul aria-label="Eligible teams" className="divide-y px-1 pe-3">
+            {shown.map((school) => {
+              const name = school.shortName ?? school.name;
+              const rank = ballot.indexOf(school._id) + 1;
+              const previous = lastWeek.get(school._id);
+              const meta = [
+                conferenceOf(school),
+                previous ? `your #${previous} last week` : undefined,
+              ].filter(Boolean);
+              return (
+                <li
+                  key={school._id}
+                  className={cn(
+                    "flex items-center gap-3 py-2",
+                    rank && "text-muted-foreground",
+                  )}
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center">
+                    {school.image ? (
+                      <CustomImage
+                        image={school.image}
+                        width={32}
+                        height={32}
+                        className="size-7 object-contain"
+                      />
+                    ) : null}
                   </span>
-                ) : (
-                  <button
-                    type="button"
-                    aria-label={`Add ${name}`}
-                    aria-disabled={full || undefined}
-                    onClick={() => !full && onAdd(school._id)}
-                    className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
-                  >
-                    <PlusIcon aria-hidden className="size-4" />
-                  </button>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{name}</span>
+                    {meta.length ? (
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {meta.join(" · ")}
+                      </span>
+                    ) : null}
+                  </span>
+                  {rank ? (
+                    <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 text-xs">
+                      On ballot · #{rank}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={`Add ${name}`}
+                      aria-disabled={full || undefined}
+                      onClick={() => !full && onAdd(school._id)}
+                      className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
+                    >
+                      <PlusIcon aria-hidden className="size-4" />
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </ScrollArea>
       ) : (
         <p className="py-6 text-center text-sm text-muted-foreground">
           No team found.
