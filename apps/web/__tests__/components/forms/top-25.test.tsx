@@ -26,24 +26,26 @@ vi.mock("@redshirt-sports/analytics", () => ({
 }));
 
 vi.mock("@redshirt-sports/ui/components/toast", () => ({
-  toast: {
+  toast: Object.assign(vi.fn(), {
     promise: vi.fn((promise: Promise<unknown>, _msgs?: unknown) => {
       return promise.catch(() => undefined);
     }),
     success: vi.fn(),
-  },
+  }),
 }));
 
 vi.mock("@/components/virtualized-combobox", () => ({
   VirtualizedCombobox: ({
     value,
     onChange,
+    "aria-label": ariaLabel,
   }: {
     value?: string;
     onChange: (v: string) => void;
+    "aria-label": string;
   }) => (
     <input
-      aria-label="team-select"
+      aria-label={ariaLabel}
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -55,6 +57,17 @@ import Top25, {
   formSchema,
   type Top25FormRef,
 } from "@/components/forms/top-25";
+
+function rankInput(rank: number) {
+  return screen.getByRole("textbox", { name: `Rank ${rank}` });
+}
+
+function ranks(count = 25) {
+  return Array.from(
+    { length: count },
+    (_, i) => (rankInput(i + 1) as HTMLInputElement).value,
+  );
+}
 
 function makeSchools(count: number) {
   return Array.from({ length: count }, (_, i) => ({
@@ -92,6 +105,7 @@ describe("Top25 form", () => {
     mockFetch.mockReset();
     mockCapture.mockReset();
     vi.mocked(toast.success).mockReset();
+    vi.mocked(toast).mockReset();
     vi.mocked(toast.promise).mockClear();
     vi.stubGlobal("fetch", mockFetch);
   });
@@ -320,40 +334,29 @@ describe("Top25 form", () => {
       expect.anything(),
     );
 
-    const [firstSelect, secondSelect] = screen.getAllByLabelText("team-select");
-    fireEvent.change(firstSelect as HTMLElement, { target: { value: "x" } });
-    fireEvent.change(secondSelect as HTMLElement, { target: { value: "y" } });
+    fireEvent.change(rankInput(1), { target: { value: "x" } });
+    fireEvent.change(rankInput(2), { target: { value: "y" } });
 
     expect(
       mockCapture.mock.calls.filter(([event]) => event === "ballot_started"),
     ).toHaveLength(1);
   });
 
-  it("shows validation errors for duplicate team selections", async () => {
-    const ref = createRef<Top25FormRef>();
-
-    render(
-      <Top25
-        ref={ref}
-        schools={makeSchools(25)}
-        previousBallot={makePreviousBallot(25)}
-      />,
+  it("rejects a ballot that ranks a team twice", () => {
+    const values = Object.fromEntries(
+      Array.from({ length: 25 }, (_, index) => [
+        `rank_${index + 1}`,
+        `school-${index + 1}`,
+      ]),
     );
-
-    await populateWithPreviousBallot(ref);
-
-    const selects = screen.getAllByLabelText("team-select");
-    fireEvent.change(selects[1]!, { target: { value: "school-1" } });
-
-    fireEvent.submit(
-      screen.getByRole("button", { name: /^Submit$/i }).closest("form")!,
+    const result = formSchema.safeParse({ ...values, rank_2: "school-1" });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual(
+      expect.arrayContaining([
+        "Duplicate team selected for rank 1",
+        "Duplicate team selected for rank 2",
+      ]),
     );
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/Duplicate team selected for rank 2/i),
-      ).toBeInTheDocument();
-    });
   });
 
   it("uses fallback error message when error response JSON fails", async () => {
@@ -626,5 +629,139 @@ describe("Top25 form", () => {
         "Custom success",
       );
     });
+  });
+});
+
+describe("Top25 form ordering", () => {
+  beforeEach(() => {
+    vi.mocked(toast).mockReset();
+    mockCapture.mockReset();
+  });
+
+  function renderBallot(picks: number, schools = 26) {
+    render(
+      <EditTop25
+        schools={makeSchools(schools)}
+        currentBallot={makePreviousBallot(picks)}
+      />,
+    );
+  }
+
+  it("fills an empty slot", () => {
+    renderBallot(3);
+    fireEvent.change(rankInput(4), { target: { value: "school-9" } });
+    expect(ranks(5)).toEqual([
+      "school-1",
+      "school-2",
+      "school-3",
+      "school-9",
+      "",
+    ]);
+    expect(screen.getByRole("meter")).toHaveAttribute("aria-valuenow", "4");
+  });
+
+  it("inserts into a filled slot and shifts the picks below down", () => {
+    renderBallot(3);
+    fireEvent.change(rankInput(1), { target: { value: "school-9" } });
+    expect(ranks(5)).toEqual([
+      "school-9",
+      "school-1",
+      "school-2",
+      "school-3",
+      "",
+    ]);
+    expect(toast).not.toHaveBeenCalled();
+    expect(rankInput(1)).toHaveFocus();
+  });
+
+  it("moves a team already on the ballot and closes the gap it left", () => {
+    renderBallot(5);
+    fireEvent.change(rankInput(2), { target: { value: "school-4" } });
+    expect(ranks(5)).toEqual([
+      "school-1",
+      "school-4",
+      "school-2",
+      "school-3",
+      "school-5",
+    ]);
+  });
+
+  it("offers Undo when an insert pushes a team off a full ballot", () => {
+    renderBallot(25);
+    fireEvent.change(rankInput(3), { target: { value: "school-26" } });
+    expect(ranks()[2]).toBe("school-26");
+    expect(ranks()[24]).toBe("school-24");
+    expect(toast).toHaveBeenCalledWith("S25 dropped off", {
+      action: { label: "Undo", onAction: expect.any(Function) },
+    });
+
+    const [, options] = vi.mocked(toast).mock.calls[0] as unknown as [
+      string,
+      { action: { onAction: () => void } },
+    ];
+    act(() => options.action.onAction());
+    expect(ranks()[2]).toBe("school-3");
+    expect(ranks()[24]).toBe("school-25");
+  });
+
+  it("removes a pick without moving the others and keeps focus on that rank", async () => {
+    const user = userEvent.setup();
+    renderBallot(3);
+    await user.click(
+      screen.getByRole("button", { name: "Remove S2 from rank 2" }),
+    );
+    expect(ranks(3)).toEqual(["school-1", "", "school-3"]);
+    expect(rankInput(2)).toHaveFocus();
+    expect(
+      screen.queryByRole("button", { name: /Remove S2/ }),
+    ).not.toBeInTheDocument();
+    expect(mockCapture).toHaveBeenCalledWith(
+      "ballot_started",
+      expect.anything(),
+    );
+  });
+
+  it("clears a pick from the picker", () => {
+    renderBallot(3);
+    fireEvent.change(rankInput(1), { target: { value: "" } });
+    expect(ranks(3)).toEqual(["", "school-2", "school-3"]);
+  });
+
+  it("moves a team with its up and down buttons", async () => {
+    const user = userEvent.setup();
+    renderBallot(3);
+    await user.click(screen.getByRole("button", { name: "Move S3 up" }));
+    expect(ranks(3)).toEqual(["school-1", "school-3", "school-2"]);
+    await user.click(screen.getByRole("button", { name: "Move S1 down" }));
+    expect(ranks(3)).toEqual(["school-3", "school-1", "school-2"]);
+  });
+
+  it("moves a team with Alt and the arrows, past empty slots", async () => {
+    const user = userEvent.setup();
+    renderBallot(2);
+    await user.click(rankInput(2));
+    await user.keyboard("{Alt>}{ArrowDown}{/Alt}");
+    expect(ranks(3)).toEqual(["school-1", "", "school-2"]);
+    expect(rankInput(3)).toHaveFocus();
+  });
+
+  it("picks a team up by its reorder handle and drops it with Space", async () => {
+    const user = userEvent.setup();
+    renderBallot(3);
+    screen.getByRole("button", { name: "Reorder S1" }).focus();
+    await user.keyboard(" {ArrowDown}{ArrowDown} ");
+    expect(ranks(3)).toEqual(["school-2", "school-3", "school-1"]);
+  });
+
+  it("names a school without a short name by its full name", () => {
+    render(
+      <EditTop25
+        schools={[{ _id: "x", name: "Full Name U", shortName: null }] as never}
+        currentBallot={[{ teamId: "x", rank: 1 }]}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Remove Full Name U from rank 1" }),
+    ).toBeVisible();
   });
 });
