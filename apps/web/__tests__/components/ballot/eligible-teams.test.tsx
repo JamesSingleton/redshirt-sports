@@ -137,6 +137,40 @@ describe("EligibleTeams", () => {
     expect(onAdd).not.toHaveBeenCalled();
   });
 
+  it("shows the biggest conferences, and the rest behind More", async () => {
+    const user = userEvent.setup();
+    const many = ["A", "B", "B", "C", "D", "E", "F"].map((conf, index) => ({
+      _id: `s${index}`,
+      name: `School ${index}`,
+      shortName: null,
+      abbreviation: null,
+      image: null,
+      conferenceInfo: { conference: { name: conf, shortName: null } },
+    })) as never;
+    render(
+      <EligibleTeams
+        schools={many}
+        ballot={[""]}
+        lastWeek={new Map()}
+        onAdd={vi.fn()}
+      />,
+    );
+    const group = screen.getByRole("group", { name: "Conference" });
+    const chips = () =>
+      within(group)
+        .getAllByRole("button")
+        .map((chip) => chip.textContent);
+    expect(chips()).toEqual(["All", "B", "A", "C", "D", "More"]);
+
+    await user.click(within(group).getByRole("button", { name: "More" }));
+    expect(chips()).toEqual(["All", "B", "A", "C", "D", "E", "F", "Fewer"]);
+
+    await user.click(within(group).getByRole("button", { name: "F" }));
+    await user.click(within(group).getByRole("button", { name: "Fewer" }));
+    expect(chips()).toEqual(["All", "B", "A", "C", "D", "F", "More"]);
+    expect(teamNames()).toEqual(["School 6"]);
+  });
+
   it("hides the conference chips when there's only one conference", () => {
     render(
       <EligibleTeams

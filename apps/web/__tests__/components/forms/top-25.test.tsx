@@ -854,4 +854,39 @@ describe("Top25 form ordering", () => {
     );
     expect(mockFetch).not.toHaveBeenCalled();
   });
+
+  it("doesn't flag empty ranks until the voter tries to submit", async () => {
+    const user = userEvent.setup();
+    renderBallot(24);
+    await user.click(screen.getByRole("button", { name: "Clear" }));
+    expect(screen.queryByText(/Please select a team/)).not.toBeInTheDocument();
+    expect(screen.getByText("25 spots left")).toBeVisible();
+
+    fireEvent.change(rankInput(1), { target: { value: "school-1" } });
+    expect(screen.getByText("24 spots left")).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    expect(
+      await screen.findByText("Please select a team for rank 2."),
+    ).toBeVisible();
+    expect(rankInput(2)).toHaveFocus();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("24 spots left").closest("[data-attempted]"),
+    ).not.toBeNull();
+
+    fireEvent.change(rankInput(2), { target: { value: "school-2" } });
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Please select a team for rank 2."),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it("counts down the spots left", () => {
+    renderBallot(24);
+    expect(screen.getByText("1 spot left")).toBeVisible();
+    fireEvent.change(rankInput(25), { target: { value: "school-25" } });
+    expect(screen.getByText("All 25 ranked")).toBeVisible();
+  });
 });

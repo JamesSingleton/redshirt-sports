@@ -17,6 +17,9 @@ export function conferenceOf(school: School) {
   return conference?.shortName ?? conference?.name ?? undefined;
 }
 
+/** Conference chips shown before "More". */
+const FEW_CONFERENCES = 4;
+
 type EligibleTeamsProps = {
   schools: SchoolsBySportAndSubgroupingStringQueryResult;
   /** The ballot, one school id per rank with `""` for an empty one. */
@@ -40,17 +43,28 @@ export function EligibleTeams({
 }: EligibleTeamsProps) {
   const [query, setQuery] = useState("");
   const [conference, setConference] = useState<string | null>(null);
+  const [allConferences, setAllConferences] = useState(false);
   const full = !ballot.includes("");
 
-  const conferences = useMemo(
-    () =>
-      [
-        ...new Set(
-          schools.map(conferenceOf).filter((name): name is string => !!name),
-        ),
-      ].sort((a, b) => a.localeCompare(b)),
-    [schools],
-  );
+  // Biggest conferences first, so the few shown before "More" cover the most teams.
+  const conferences = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const school of schools) {
+      const name = conferenceOf(school);
+      if (name) counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    return [...counts.keys()].sort(
+      (a, b) =>
+        (counts.get(b) as number) - (counts.get(a) as number) ||
+        a.localeCompare(b),
+    );
+  }, [schools]);
+  const hasMore = conferences.length > FEW_CONFERENCES;
+  const chips = allConferences
+    ? conferences
+    : conferences.filter(
+        (name, index) => index < FEW_CONFERENCES || name === conference,
+      );
 
   const shown = schools.filter(
     (school) =>
@@ -70,7 +84,7 @@ export function EligibleTeams({
       aria-labelledby="eligible-teams-title"
       className={cn("flex min-h-0 flex-col gap-3", className)}
     >
-      <div>
+      <div className="shrink-0">
         <h2
           id="eligible-teams-title"
           className="font-display text-xl font-bold uppercase"
@@ -81,7 +95,7 @@ export function EligibleTeams({
           {schools.length} teams · search or filter
         </p>
       </div>
-      <div className="relative">
+      <div className="relative shrink-0">
         <SearchIcon
           aria-hidden
           className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -99,23 +113,35 @@ export function EligibleTeams({
         <div
           role="group"
           aria-label="Conference"
-          className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]"
+          id="conference-chips"
+          className="flex shrink-0 flex-wrap gap-1.5"
         >
-          {[null, ...conferences].map((name) => (
+          {[null, ...chips].map((name) => (
             <button
               key={name ?? "all"}
               type="button"
               aria-pressed={conference === name}
               onClick={() => setConference(name)}
-              className="shrink-0 rounded-md border px-2.5 py-1 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
+              className="rounded-md border px-2.5 py-1 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
             >
               {name ?? "All"}
             </button>
           ))}
+          {hasMore ? (
+            <button
+              type="button"
+              aria-expanded={allConferences}
+              aria-controls="conference-chips"
+              onClick={() => setAllConferences(!allConferences)}
+              className="rounded-md px-2.5 py-1 text-sm font-medium text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {allConferences ? "Fewer" : "More"}
+            </button>
+          ) : null}
         </div>
       ) : null}
       {full ? (
-        <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+        <p className="shrink-0 rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
           Your ballot is full. Remove a team to add another, or pick a team for
           a rank to insert it there.
         </p>
@@ -123,7 +149,7 @@ export function EligibleTeams({
       {shown.length ? (
         <ul
           aria-label="Eligible teams"
-          className="min-h-0 divide-y overflow-y-auto overscroll-contain"
+          className="-mx-1 min-h-0 flex-1 divide-y overflow-x-hidden overflow-y-auto overscroll-contain px-1 [scrollbar-width:thin]"
         >
           {shown.map((school) => {
             const name = school.shortName ?? school.name;

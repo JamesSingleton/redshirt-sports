@@ -40,7 +40,15 @@ import {
 } from "@redshirt-sports/ui/components/sortable-list";
 import { toast } from "@redshirt-sports/ui/components/toast";
 import { cn } from "@redshirt-sports/ui/lib/utils";
-import { ArrowDown, ArrowUp, GripVertical, Loader2, XIcon } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  CircleCheck,
+  GripVertical,
+  Info,
+  Loader2,
+  XIcon,
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -182,6 +190,10 @@ function Top25Form({
 
   const [view, setView] = useState<"ballot" | "teams">("ballot");
   const [confirming, setConfirming] = useState(false);
+  // Missing-team errors wait for a submit attempt, so clearing or building
+  // a ballot doesn't light up every empty rank.
+  const [attempted, setAttempted] = useState(false);
+  const spotsLeft = 25 - rankedCount;
 
   const params = useParams();
   const { sport, division } = params as {
@@ -214,7 +226,7 @@ function Top25Form({
       const name = `rank_${index + 1}` as RankField;
       if ((form.getValues(name) ?? "") === team) return;
       form.setValue(name, team, {
-        shouldValidate: true,
+        shouldValidate: attempted,
         shouldDirty: true,
         shouldTouch: true,
       });
@@ -284,6 +296,16 @@ function Top25Form({
     }
   }
 
+  /** Asks to confirm a complete ballot, else shows what's missing. */
+  async function review() {
+    setAttempted(true);
+    if (await form.trigger()) {
+      setConfirming(true);
+      return;
+    }
+    document.getElementById(pickerId(ballot.indexOf("") + 1))?.focus();
+  }
+
   async function onSubmit(values: Top25Values) {
     values = { ...values, division, sport };
 
@@ -329,6 +351,32 @@ function Top25Form({
         onSubmit={form.handleSubmit(onSubmit)}
         className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_24rem]"
       >
+        <div
+          data-attempted={(attempted && spotsLeft > 0) || undefined}
+          className="flex gap-3 rounded-lg border p-4 data-attempted:border-destructive/50 data-attempted:bg-destructive/5 lg:col-span-2"
+        >
+          {spotsLeft ? (
+            <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
+          ) : (
+            <CircleCheck
+              aria-hidden
+              className="mt-0.5 size-4 shrink-0 text-up"
+            />
+          )}
+          <div className="grid gap-1 text-sm">
+            <p className="font-medium">
+              {spotsLeft
+                ? `${spotsLeft} ${spotsLeft === 1 ? "spot" : "spots"} left`
+                : "All 25 ranked"}
+            </p>
+            <p className="text-muted-foreground">
+              {spotsLeft
+                ? "Rank 25 teams to submit. You can edit until voting closes."
+                : "Review your order, then submit. You can edit until voting closes."}
+            </p>
+          </div>
+        </div>
+
         <SegmentedControl
           aria-label="Show"
           value={view}
@@ -509,7 +557,7 @@ function Top25Form({
           lastWeek={lastWeek}
           onAdd={add}
           className={cn(
-            "rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-10rem)]",
+            "rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:max-h-[min(36rem,calc(100dvh-11rem))]",
             view === "ballot" && "max-lg:hidden",
           )}
         />
@@ -529,8 +577,8 @@ function Top25Form({
           </Meter>
           <Button
             type="button"
-            onClick={() => setConfirming(true)}
-            disabled={form.formState.isSubmitting || !form.formState.isValid}
+            onClick={review}
+            disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
               <>
