@@ -2,8 +2,7 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -20,6 +19,13 @@ import {
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
 import { Checkbox } from "@redshirt-sports/ui/components/checkbox";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@redshirt-sports/ui/components/drawer";
 import { Input } from "@redshirt-sports/ui/components/input";
 import { Label } from "@redshirt-sports/ui/components/label";
 import {
@@ -29,13 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@redshirt-sports/ui/components/sheet";
 import { Switch } from "@redshirt-sports/ui/components/switch";
 import {
   Table,
@@ -47,14 +46,15 @@ import {
 } from "@redshirt-sports/ui/components/table";
 import {
   Tabs,
-  TabsContent,
   TabsList,
-  TabsTrigger,
+  TabsPanel,
+  TabsTab,
 } from "@redshirt-sports/ui/components/tabs";
+import { toast } from "@redshirt-sports/ui/components/toast";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { IconPlayerPlay, IconRefresh, IconRocket } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import {
   computeRatings,
@@ -286,7 +286,10 @@ function PoolPanel({ pool }: { pool: RatingsPoolState }) {
             </div>
             <div className="grid gap-1">
               <Label>Week</Label>
-              <Select value={weekChoice} onValueChange={setWeekId}>
+              <Select
+                value={weekChoice}
+                onValueChange={whenSelected(setWeekId)}
+              >
                 <SelectTrigger className="w-44">
                   <SelectValue />
                 </SelectTrigger>
@@ -614,8 +617,9 @@ function PoolPanel({ pool }: { pool: RatingsPoolState }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose>Cancel</AlertDialogClose>
+            <AlertDialogClose
+              variant="default"
               onClick={() => {
                 const target = confirmRun;
                 setConfirmRun(null);
@@ -633,26 +637,30 @@ function PoolPanel({ pool }: { pool: RatingsPoolState }) {
               {confirmRun && confirmRun.blockers > 0
                 ? "Publish anyway"
                 : "Publish"}
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <Sheet
+      <Drawer
+        side="right"
         open={diff != null}
         onOpenChange={(open) => !open && setDiff(null)}
       >
-        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
-          <SheetHeader>
-            <SheetTitle>Run preview</SheetTitle>
-            <SheetDescription>
+        <DrawerContent
+          showCloseButton
+          className="w-full overflow-y-auto sm:max-w-xl"
+        >
+          <DrawerHeader>
+            <DrawerTitle>Run preview</DrawerTitle>
+            <DrawerDescription>
               All {diff?.data.rows.length ?? 0} teams by strength of record
               {diff?.data.against
                 ? ", with movement against the published run"
                 : ""}
               . Unranked teams (too few games) are last.
-            </SheetDescription>
-          </SheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           <div className="px-4 pb-4">
             <Table>
               <TableHeader>
@@ -684,8 +692,8 @@ function PoolPanel({ pool }: { pool: RatingsPoolState }) {
               </TableBody>
             </Table>
           </div>
-        </SheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
@@ -702,18 +710,18 @@ export function RatingsDesk({ pools }: { pools: RatingsBootstrap }) {
     <Tabs defaultValue={pools[0]?.id}>
       <TabsList>
         {pools.map((pool) => (
-          <TabsTrigger key={pool.id} value={pool.id}>
+          <TabsTab key={pool.id} value={pool.id}>
             {pool.name}{" "}
             {pool.sportSlug === "football"
               ? "football"
               : pool.sportSlug.replace("-", " ")}
-          </TabsTrigger>
+          </TabsTab>
         ))}
       </TabsList>
       {pools.map((pool) => (
-        <TabsContent key={pool.id} value={pool.id} className="mt-4">
+        <TabsPanel key={pool.id} value={pool.id} className="mt-4">
           <PoolPanel pool={pool} />
-        </TabsContent>
+        </TabsPanel>
       ))}
     </Tabs>
   );

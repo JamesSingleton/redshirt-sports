@@ -13,10 +13,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@redshirt-sports/ui/components/card";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import {
   type DuplicateQueue,
@@ -137,12 +137,15 @@ export function DuplicateQueueList({ queue }: { queue: DuplicateQueue }) {
             <QueueSide player={pair.b} />
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <Link
-                href={`/portal/duplicates/compare?a=${pair.playerAId}&b=${pair.playerBId}`}
-              >
-                Compare and merge
-              </Link>
+            <Button
+              size="sm"
+              render={
+                <Link
+                  href={`/portal/duplicates/compare?a=${pair.playerAId}&b=${pair.playerBId}`}
+                />
+              }
+            >
+              Compare and merge
             </Button>
             <Button
               size="sm"

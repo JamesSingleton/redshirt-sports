@@ -125,16 +125,6 @@ function CoverageRail({
   );
 }
 
-function authorInitials(name?: string | null): string {
-  if (!name) return "?";
-  return name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 export function HomePageContent({
   posts,
   rankings,
@@ -259,12 +249,7 @@ export function HomePageContent({
 
       {leaderboardAd}
 
-      <section
-        className={cn(
-          "grid gap-8 pb-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
-          leaderboardAd ? undefined : "mt-10",
-        )}
-      >
+      <section className="mt-10 grid gap-8 pb-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="min-w-0">
           <div className="flex items-center justify-between border-b pb-3">
             <h2 className="font-display text-2xl font-extrabold uppercase">

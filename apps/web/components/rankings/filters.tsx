@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 
 import { rankingsWeekNavTransitionTypes } from "@/lib/rankings-week-nav-transition";
@@ -98,7 +99,7 @@ export const RankingsFilters = ({
 
   return (
     <>
-      <Select onValueChange={handleYearChange} value={yearSlug}>
+      <Select onValueChange={whenSelected(handleYearChange)} value={yearSlug}>
         <SelectTrigger id="year" aria-label="Year">
           <SelectValue placeholder={yearSlug} />
         </SelectTrigger>
@@ -112,7 +113,7 @@ export const RankingsFilters = ({
       </Select>
       <Select
         key={`${yearSlug}-${weekSlug}`}
-        onValueChange={handleWeekChange}
+        onValueChange={whenSelected(handleWeekChange)}
         value={weekSlug}
       >
         <SelectTrigger id="ranking" aria-label="Ranking">

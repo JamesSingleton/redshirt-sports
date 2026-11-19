@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@redshirt-sports/ui/components/button";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { toast } from "sonner";
 
 import { type PortalDesk, pushPortalToSite } from "@/actions/portal";
 

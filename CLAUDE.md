@@ -87,7 +87,7 @@ This is a Turborepo monorepo with four applications and shared packages:
 
 **Packages** (`packages/`):
 
-- `ui` - Shared UI components (ShadCN components, Tailwind config)
+- `ui` - Shared UI components (ui-sdk behaviors styled with Tailwind) and the global stylesheet
 - `db` - Drizzle ORM schema, client, and queries for Postgres
 - `sanity` - Sanity client, queries, and TypeScript types
 - `clients` - External API clients (ESPN, etc.)
@@ -154,9 +154,8 @@ Internal dashboard for managing ballots and development tools. Shares UI compone
 ### Styling
 
 - **Tailwind CSS v4** - All apps use Tailwind for styling
-- **ShadCN UI** - Component library in `packages/ui`
-- Shared Tailwind config in `packages/ui/tailwind.config.ts`
-- Global styles in `packages/ui/src/styles/globals.css`
+- **ui-sdk** (`@ui-sdk/react`) - Unstyled behaviors (focus, keyboard, ARIA, popups) under the components in `packages/ui`. Before changing a component, read `node_modules/@ui-sdk/react/docs/llms.txt` (resolve it from `packages/ui`) and the page for that component
+- Design tokens live once, in `packages/ui/src/styles/globals.css`, written with `light-dark()`. It opens with `@layer ui-sdk;` so app styles win over ui-sdk's behavior CSS. `apps/web/app/styles/redshirt.css` and `apps/admin/app/admin.css` import it and add only app-specific fonts, type scale and utilities
 
 ### Testing
 
@@ -203,7 +202,9 @@ ESPN and other external API clients are defined in `packages/clients/` with:
 
 - Add reusable UI components to `packages/ui/src/components/`
 - Export components in package.json exports map
-- Components use ShadCN patterns with Radix UI primitives
+- Wrap a ui-sdk part to give it classes; re-export parts that need none (see `packages/ui/src/components/select.tsx`). Style state with ui-sdk's attributes (`data-open`, `data-selected`, `data-starting-style`, `data-ending-style`), never Radix's `data-[state=...]`
+- Swap a part's element with `render` (`<Button render={<Link href="/" />}>`); there is no `asChild`
+- Select and Tabs report `null` when nothing is selected; wrap a handler that expects a string in `whenSelected` from `@redshirt-sports/ui/lib/utils`
 
 ### Package Dependencies
 

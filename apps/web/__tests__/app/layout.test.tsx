@@ -54,7 +54,7 @@ vi.mock("@redshirt-sports/sanity/live", () => ({
   ),
 }));
 
-vi.mock("@redshirt-sports/ui/components/sonner", () => ({
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
   Toaster: () => null,
 }));
 

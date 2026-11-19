@@ -15,7 +15,7 @@ vi.mock("@/actions/portal", () => ({
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: mockRefresh }),
 }));
-vi.mock("sonner", () => ({ toast: mockToast }));
+vi.mock("@redshirt-sports/ui/components/toast", () => ({ toast: mockToast }));
 
 import {
   defaultCycleYear,

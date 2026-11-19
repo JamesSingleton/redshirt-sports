@@ -4,8 +4,7 @@ import { analytics } from "@redshirt-sports/analytics";
 import type { BracketSide } from "@redshirt-sports/db/playoff-bracket";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -15,6 +14,7 @@ import {
 import { Button } from "@redshirt-sports/ui/components/button";
 import { Input } from "@redshirt-sports/ui/components/input";
 import { Label } from "@redshirt-sports/ui/components/label";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import {
   Download,
   Eraser,
@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { toast } from "sonner";
 
 import { BracketExportFrame } from "@/components/bracket/builder/bracket-export-frame";
 import { SchoolPicker } from "@/components/bracket/builder/school-picker";
@@ -392,15 +391,18 @@ export function BracketBuilder({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep my bracket</AlertDialogCancel>
+            <AlertDialogClose>Keep my bracket</AlertDialogClose>
             {projection ? (
-              <AlertDialogAction onClick={() => start("projection")}>
+              <AlertDialogClose
+                variant="default"
+                onClick={() => start("projection")}
+              >
                 Our {projectionLabel}
-              </AlertDialogAction>
+              </AlertDialogClose>
             ) : null}
-            <AlertDialogAction variant="outline" onClick={() => start("blank")}>
+            <AlertDialogClose variant="outline" onClick={() => start("blank")}>
               Blank bracket
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

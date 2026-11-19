@@ -2,16 +2,22 @@
 
 import {
   Pagination,
-  PaginationContent,
   PaginationEllipsis,
   PaginationItem,
   PaginationLink,
+  PaginationList,
   PaginationNext,
   PaginationPrevious,
 } from "@redshirt-sports/ui/components/pagination";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { type ComponentProps, useState } from "react";
 
 import { perPage } from "@/lib/constants";
+
+function PageLink({ href, ...props }: ComponentProps<"a">) {
+  return href ? <Link href={href} {...props} /> : <a {...props} />;
+}
 
 export default function PaginationControls({
   totalPosts,
@@ -20,77 +26,61 @@ export default function PaginationControls({
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const currentPage = parseInt(searchParams.get("page") || "1", 10);
-  const totalPages = Math.ceil(totalPosts / perPage);
+  const currentPage = Number.parseInt(searchParams.get("page") || "1", 10);
+  const pageCount = Math.max(1, Math.ceil(totalPosts / perPage));
+  // The URL updates only after navigation, so show the chosen page right away
+  // and take the URL's page back whenever it changes.
+  const [page, setPage] = useState(currentPage);
+  const [urlPage, setUrlPage] = useState(currentPage);
+  if (urlPage !== currentPage) {
+    setUrlPage(currentPage);
+    setPage(currentPage);
+  }
 
-  const createPageUrl = (pageNumber: number | string) => {
+  const createPageUrl = (page: number) => {
     const params = new URLSearchParams(searchParams);
-    params.set("page", pageNumber.toString());
-    if (pageNumber === 1 || pageNumber === 0) {
+    if (page <= 1) {
       params.delete("page");
+    } else {
+      params.set("page", page.toString());
     }
-
-    const pageUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ""}`;
-
-    return pageUrl;
+    const query = params.toString();
+    return query ? `${pathname}?${query}` : pathname;
   };
-
-  const showPages = () => {
-    const pages: React.ReactElement[] = [];
-    for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-      if (i > 0 && i <= totalPages) {
-        pages.push(
-          <PaginationLink
-            key={`${currentPage}${i}`}
-            isActive={i === currentPage}
-            href={createPageUrl(i)}
-          >
-            {i}
-          </PaginationLink>,
-        );
-      }
-    }
-    return pages;
-  };
-
-  const isPreviousDisabled = currentPage <= 1;
-  const isNextDisabled = currentPage >= totalPages;
-
-  const showEllipsis =
-    totalPages > 3 && (currentPage < totalPages - 1 || currentPage > 2);
 
   return (
-    <Pagination className="mt-12">
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            href={
-              isPreviousDisabled ? undefined : createPageUrl(currentPage - 1)
-            }
-            aria-disabled={isPreviousDisabled}
-            tabIndex={isPreviousDisabled ? -1 : undefined}
-            className={
-              isPreviousDisabled ? "pointer-events-none opacity-50" : undefined
-            }
-          />
-        </PaginationItem>
-        <PaginationItem>{showPages()}</PaginationItem>
-        {showEllipsis && (
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
+    <Pagination
+      aria-label="Pagination"
+      className="mt-12"
+      page={page}
+      onPageChange={setPage}
+      pageCount={pageCount}
+      siblings={1}
+      getHref={createPageUrl}
+    >
+      <PaginationList>
+        {({ items }) => (
+          <>
+            <PaginationItem>
+              <PaginationPrevious render={PageLink} />
+            </PaginationItem>
+            {items.map((item, index) => (
+              <PaginationItem
+                key={typeof item === "number" ? item : `ellipsis-${index}`}
+              >
+                {typeof item === "number" ? (
+                  <PaginationLink page={item} render={PageLink} />
+                ) : (
+                  <PaginationEllipsis />
+                )}
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext render={PageLink} />
+            </PaginationItem>
+          </>
         )}
-        <PaginationItem>
-          <PaginationNext
-            href={isNextDisabled ? undefined : createPageUrl(currentPage + 1)}
-            aria-disabled={isNextDisabled}
-            tabIndex={isNextDisabled ? -1 : undefined}
-            className={
-              isNextDisabled ? "pointer-events-none opacity-50" : undefined
-            }
-          />
-        </PaginationItem>
-      </PaginationContent>
+      </PaginationList>
     </Pagination>
   );
 }

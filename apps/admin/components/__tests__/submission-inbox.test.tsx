@@ -12,7 +12,7 @@ vi.mock("@/actions/portal", () => ({ reviewSubmission: mocks.review }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: mocks.refresh }),
 }));
-vi.mock("sonner", () => ({
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
   toast: { success: mocks.success, error: mocks.error },
 }));
 

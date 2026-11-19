@@ -7,14 +7,14 @@ import {
   AvatarImage,
 } from "@redshirt-sports/ui/components/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@redshirt-sports/ui/components/dropdown-menu";
+  Menu,
+  MenuContent,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "@redshirt-sports/ui/components/menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -42,39 +42,39 @@ export function NavUser() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  src={clerkUser?.imageUrl}
-                  alt={clerkUser?.fullName || "User"}
-                />
-                <AvatarFallback className="rounded-lg">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {clerkUser?.fullName}
-                </span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {clerkUser?.primaryEmailAddress?.emailAddress}
-                </span>
-              </div>
-              <IconDotsVertical className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+        <Menu>
+          <MenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
+              />
+            }
+          >
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage
+                src={clerkUser?.imageUrl}
+                alt={clerkUser?.fullName || "User"}
+              />
+              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">
+                {clerkUser?.fullName}
+              </span>
+              <span className="text-muted-foreground truncate text-xs">
+                {clerkUser?.primaryEmailAddress?.emailAddress}
+              </span>
+            </div>
+            <IconDotsVertical className="ml-auto size-4" />
+          </MenuTrigger>
+          <MenuContent
+            className="w-(--anchor-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
+            <MenuGroupLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
@@ -94,29 +94,29 @@ export function NavUser() {
                   </span>
                 </div>
               </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
+            </MenuGroupLabel>
+            <MenuSeparator />
+            <MenuGroup>
+              <MenuItem>
                 <IconUserCircle />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              </MenuItem>
+              <MenuItem>
                 <IconCreditCard />
                 Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              </MenuItem>
+              <MenuItem>
                 <IconNotification />
                 Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+              </MenuItem>
+            </MenuGroup>
+            <MenuSeparator />
+            <MenuItem>
               <IconLogout />
               Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </MenuItem>
+          </MenuContent>
+        </Menu>
       </SidebarMenuItem>
     </SidebarMenu>
   );

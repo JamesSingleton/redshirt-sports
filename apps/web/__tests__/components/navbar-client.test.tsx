@@ -162,8 +162,9 @@ describe("NavbarClient", () => {
 
   async function openMenu(name: string) {
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name }));
-    return screen.getByRole("button", { name }).closest("li")!;
+    const trigger = screen.getByRole("button", { name });
+    await user.click(trigger);
+    return document.getElementById(trigger.getAttribute("aria-controls")!)!;
   }
 
   it("opens a sport menu with the hub card, polls, and division pills", async () => {
@@ -418,7 +419,7 @@ describe("NavbarClient", () => {
     const { rerender } = renderNav();
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
-    expect(screen.getByRole("dialog")).toHaveAttribute("data-state", "open");
+    expect(screen.getByRole("dialog")).toHaveAttribute("data-open");
 
     mockUsePathname.mockReturnValue("/college/football/news");
     rerender(

@@ -51,20 +51,22 @@ export function DivisionConferencePicker({
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2">
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 gap-2 px-3 font-medium"
-            aria-haspopup="listbox"
-            aria-expanded={open}
-          >
-            <ListFilter className="size-4" aria-hidden />
-            {triggerLabel}
-            <span className="text-sm text-muted-foreground">
-              ({divisionConferences.length})
-            </span>
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              className="h-9 gap-2 px-3 font-medium"
+              aria-haspopup="listbox"
+              aria-expanded={open}
+            />
+          }
+        >
+          <ListFilter className="size-4" aria-hidden />
+          {triggerLabel}
+          <span className="text-sm text-muted-foreground">
+            ({divisionConferences.length})
+          </span>
         </PopoverTrigger>
         <PopoverContent
           className="w-80 max-w-[calc(100vw-2rem)] p-0"

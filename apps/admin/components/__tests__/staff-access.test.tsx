@@ -20,7 +20,7 @@ vi.mock("@/actions/ballots", () => ({
   getBallotWeeks: mocks.getBallotWeeks,
   getBallotWeek: mocks.getBallotWeek,
 }));
-vi.mock("sonner", () => ({
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
   toast: { success: mocks.success, error: mocks.error },
 }));
 

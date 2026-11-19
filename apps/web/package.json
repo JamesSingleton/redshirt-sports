@@ -37,7 +37,6 @@
     "@sanity/image-url": "^2.2.0",
     "@sentry/nextjs": "catalog:",
     "@t3-oss/env-nextjs": "^0.13.11",
-    "@tanstack/react-virtual": "^3.14.26",
     "@upstash/ratelimit": "^2.2.1",
     "@upstash/redis": "^1.41.0",
     "botid": "^1.5.13",
@@ -61,7 +60,6 @@
     "schema-dts": "^2.1.0",
     "server-only": "^0.0.1",
     "slugify": "^1.6.9",
-    "sonner": "^2.0.8",
     "svix": "^2.10.0",
     "zod": "catalog:"
   },

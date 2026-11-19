@@ -135,7 +135,7 @@ export function RankingsBeyondTop25({
     orvCount > 0 ? (
       <Card
         className={cn(
-          "gap-0 shadow-xs",
+          "gap-0 py-0 shadow-xs",
           orvFullWidth && !useStackedSection && "md:col-span-3",
           useStackedSection && "w-full",
         )}
@@ -146,7 +146,7 @@ export function RankingsBeyondTop25({
           </CardTitle>
           <CardDescription>Points &gt; 0, outside the Top 25</CardDescription>
         </CardHeader>
-        <CardContent className="px-5 pt-2 pb-4">
+        <CardContent className="px-5 pt-2 pb-5">
           <ul className={cn(orvGridClass)}>{orvList}</ul>
         </CardContent>
       </Card>
@@ -198,7 +198,7 @@ function DroppedOutCard({
   currentRankingsById: Map<string, RankingTeamRef>;
 }) {
   return (
-    <Card className="gap-0 shadow-xs">
+    <Card className="gap-0 py-0 shadow-xs">
       <CardHeader className="px-5 pt-5">
         <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
           Dropped out of the Top 25
@@ -207,7 +207,7 @@ function DroppedOutCard({
           Ranked last week, not in the Top 25 this week
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-5 pt-2 pb-4">
+      <CardContent className="px-5 pt-2 pb-5">
         <ul>
           {droppedOut.map((team) => {
             const current = currentRankingsById.get(team._id);
@@ -257,14 +257,14 @@ function DroppedOutCard({
 
 function NoLongerCard({ teams }: { teams: RankingTeamRef[] }) {
   return (
-    <Card className="gap-0 shadow-xs">
+    <Card className="gap-0 py-0 shadow-xs">
       <CardHeader className="px-5 pt-5">
         <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
           No longer receiving votes
         </CardTitle>
         <CardDescription>Had points last week, none this week</CardDescription>
       </CardHeader>
-      <CardContent className="px-5 pt-2 pb-4">
+      <CardContent className="px-5 pt-2 pb-5">
         <ul>
           {teams.map((team) => (
             <li

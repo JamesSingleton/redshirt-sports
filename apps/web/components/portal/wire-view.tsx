@@ -9,6 +9,14 @@ import {
 } from "@redshirt-sports/db/portal";
 import { Button } from "@redshirt-sports/ui/components/button";
 import { Checkbox } from "@redshirt-sports/ui/components/checkbox";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@redshirt-sports/ui/components/drawer";
 import { Input } from "@redshirt-sports/ui/components/input";
 import {
   Select,
@@ -17,15 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@redshirt-sports/ui/components/sheet";
-import { cn } from "@redshirt-sports/ui/lib/utils";
+import { cn, whenSelected } from "@redshirt-sports/ui/lib/utils";
 import {
   ChevronLeft,
   ChevronRight,
@@ -286,7 +286,9 @@ function FilterSelect({
   return (
     <Select
       value={value || ANY}
-      onValueChange={(next) => onChange(next === ANY ? "" : next)}
+      onValueChange={whenSelected((next: string) =>
+        onChange(next === ANY ? "" : next),
+      )}
       onOpenChange={(open) => open && onOpen()}
     >
       <SelectTrigger
@@ -687,34 +689,36 @@ export function WireView({
         </div>
 
         <div className="grid grid-cols-2 gap-2 md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-9 w-full"
-                onClick={loadAll}
-              >
-                <ListFilter className="size-4" aria-hidden />
-                Filters{narrowing ? ` · ${narrowing}` : ""}
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="bottom"
+          <Drawer>
+            <DrawerTrigger
+              render={
+                <Button
+                  variant="outline"
+                  className="h-9 w-full"
+                  onClick={loadAll}
+                />
+              }
+            >
+              <ListFilter className="size-4" aria-hidden />
+              Filters{narrowing ? ` · ${narrowing}` : ""}
+            </DrawerTrigger>
+            <DrawerContent
+              showCloseButton
               className="max-h-[85dvh] overflow-y-auto"
             >
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-                <SheetDescription>
+              <DrawerHeader>
+                <DrawerTitle>Filters</DrawerTitle>
+                <DrawerDescription>
                   {total.toLocaleString("en-US")}{" "}
                   {total === 1 ? "player" : "players"} match
-                </SheetDescription>
-              </SheetHeader>
+                </DrawerDescription>
+              </DrawerHeader>
               <div className="grid gap-2 px-4 pb-6">
                 {controls("w-full max-w-none")}
                 {gradToggle("sheet")}
               </div>
-            </SheetContent>
-          </Sheet>
+            </DrawerContent>
+          </Drawer>
           {sortSelect("w-full min-w-0")}
         </div>
 

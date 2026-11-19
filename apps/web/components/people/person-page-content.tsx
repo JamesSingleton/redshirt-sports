@@ -90,12 +90,10 @@ export function PersonPageContent({
                 <Button
                   size="sm"
                   className="h-7 gap-1.5 px-2.5 text-sm"
-                  asChild
+                  render={<Link href={voterBallotHref} prefetch={false} />}
                 >
-                  <Link href={voterBallotHref} prefetch={false}>
-                    <ListOrdered className="size-3.5" aria-hidden />
-                    {voterBallotLabel}
-                  </Link>
+                  <ListOrdered className="size-3.5" aria-hidden />
+                  {voterBallotLabel}
                 </Button>
               ) : null}
               {hasArticles ? (

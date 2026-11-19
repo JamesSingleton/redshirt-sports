@@ -2,6 +2,11 @@
 
 import type { QueryGlobalSeoSettingsResult } from "@redshirt-sports/sanity/types";
 import { Button } from "@redshirt-sports/ui/components/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+} from "@redshirt-sports/ui/components/drawer";
 import { Input } from "@redshirt-sports/ui/components/input";
 import {
   NavigationMenu,
@@ -12,11 +17,6 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@redshirt-sports/ui/components/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from "@redshirt-sports/ui/components/sheet";
 import { cn } from "@redshirt-sports/ui/lib/utils";
 import { ChevronDown, Menu, Search } from "lucide-react";
 import Link from "next/link";
@@ -104,7 +104,7 @@ export function NavMenuContent({ item }: { item: NavbarItem }) {
 }
 
 const topLevelClass =
-  "bg-transparent px-2.5 font-semibold text-muted-foreground hover:text-foreground data-[state=open]:text-foreground";
+  "bg-transparent px-2.5 font-semibold text-muted-foreground hover:text-foreground data-open:text-foreground";
 
 const mobileLinkClass = "rounded-md px-2 py-2 text-sm hover:bg-accent";
 
@@ -279,13 +279,12 @@ const MobileNavbar = memo(function MobileNavbar({
       >
         <Menu className="size-5" />
       </Button>
-      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent
-          side="left"
+      <Drawer side="left" open={menuOpen} onOpenChange={setMenuOpen}>
+        <DrawerContent
           className="flex w-[85%] max-w-sm flex-col gap-2 overflow-y-auto p-5"
           aria-label="Site menu"
         >
-          <SheetTitle className="sr-only">Site menu</SheetTitle>
+          <DrawerTitle className="sr-only">Site menu</DrawerTitle>
           <div className="flex items-center justify-between">
             <Logo
               alt={brand}
@@ -315,8 +314,8 @@ const MobileNavbar = memo(function MobileNavbar({
               <MobileNavItem key={item._key} item={item} onNavigate={close} />
             ))}
           </nav>
-        </SheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 });
@@ -332,25 +331,25 @@ const DesktopNavbar = memo(function DesktopNavbar({
 }) {
   return (
     <div className="hidden min-w-0 flex-1 items-center lg:flex">
-      <NavigationMenu className="ml-4" aria-label="Site" viewport={false}>
+      <NavigationMenu className="ml-4" aria-label="Site">
         <NavigationMenuList className="gap-0.5">
           {items.map((item) => {
             if (item._type === "navbarLink") {
               return item.href ? (
                 <NavigationMenuItem key={item._key}>
                   <NavigationMenuLink
-                    asChild
                     className={cn(navigationMenuTriggerStyle(), topLevelClass)}
+                    render={
+                      <Link
+                        href={item.href}
+                        prefetch={false}
+                        {...(item.openInNewTab
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                      />
+                    }
                   >
-                    <Link
-                      href={item.href}
-                      prefetch={false}
-                      {...(item.openInNewTab
-                        ? { target: "_blank", rel: "noopener noreferrer" }
-                        : {})}
-                    >
-                      {item.name}
-                    </Link>
+                    {item.name}
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ) : null;

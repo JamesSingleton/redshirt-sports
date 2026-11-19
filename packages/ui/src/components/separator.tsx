@@ -1,22 +1,15 @@
-"use client";
-
-import * as SeparatorPrimitive from "@radix-ui/react-separator";
-import { cn } from "@redshirt-sports/ui/lib/utils";
-import type * as React from "react";
+import { cn, type WithClassName } from "@redshirt-sports/ui/lib/utils";
+import { Separator as SeparatorPrimitive } from "@ui-sdk/react/separator";
+import type { ComponentProps } from "react";
 
 function Separator({
   className,
-  orientation = "horizontal",
-  decorative = true,
   ...props
-}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
+}: WithClassName<ComponentProps<typeof SeparatorPrimitive>>) {
   return (
-    <SeparatorPrimitive.Root
-      data-slot="separator"
-      decorative={decorative}
-      orientation={orientation}
+    <SeparatorPrimitive
       className={cn(
-        "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
+        "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
         className,
       )}
       {...props}

@@ -4,7 +4,7 @@ import {
   PUBLISHED_FETCH_OPTIONS,
   SanityLive,
 } from "@redshirt-sports/sanity/live";
-import { Toaster } from "@redshirt-sports/ui/components/sonner";
+import { Toaster } from "@redshirt-sports/ui/components/toast";
 import type { Metadata, Viewport } from "next";
 import { draftMode } from "next/headers";
 import { connection } from "next/server";

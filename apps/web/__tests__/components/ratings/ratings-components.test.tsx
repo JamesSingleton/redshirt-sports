@@ -1,5 +1,11 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { createContext, type ReactNode, useContext } from "react";
+import {
+  cloneElement,
+  createContext,
+  type ReactElement,
+  type ReactNode,
+  useContext,
+} from "react";
 
 import {
   config,
@@ -36,19 +42,26 @@ vi.mock("@/components/json-ld", () => ({
 vi.mock("@/components/sanity-image", () => ({
   default: ({ alt }: { alt: string }) => <img alt={alt} />,
 }));
-// Radix menus only render their items when open; render everything inline instead.
-vi.mock("@redshirt-sports/ui/components/dropdown-menu", () => {
-  const Pass = ({ children }: { children: ReactNode }) => <div>{children}</div>;
+// Menus only render their items when open; render everything inline instead.
+vi.mock("@redshirt-sports/ui/components/menu", () => {
+  const Pass = ({
+    children,
+    render,
+  }: {
+    children: ReactNode;
+    render?: ReactElement;
+  }) =>
+    render ? cloneElement(render, undefined, children) : <div>{children}</div>;
   return {
-    DropdownMenu: Pass,
-    DropdownMenuTrigger: Pass,
-    DropdownMenuContent: Pass,
-    DropdownMenuItem: Pass,
-    DropdownMenuLabel: Pass,
-    DropdownMenuSeparator: () => <hr />,
+    Menu: Pass,
+    MenuTrigger: Pass,
+    MenuContent: Pass,
+    MenuItem: Pass,
+    MenuGroupLabel: Pass,
+    MenuSeparator: () => <hr />,
   };
 });
-// A stand-in for the Radix select: every option is a button that fires onValueChange.
+// A stand-in for the select: every option is a button that fires onValueChange.
 vi.mock("@redshirt-sports/ui/components/select", async () => {
   const Context = createContext<(value: string) => void>(() => {});
   return {

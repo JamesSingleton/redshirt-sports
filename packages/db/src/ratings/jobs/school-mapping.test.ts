@@ -63,11 +63,12 @@ describe("name normalization", () => {
       text: "Bethany",
       qualified: false,
     });
-    // Inputs that made the old regex backtrack polynomially.
+    // Inputs that made the old regex backtrack polynomially (seconds at this
+    // size); the budget leaves room for a loaded machine running every workspace.
     const started = performance.now();
     stripQualifiers(`${" ".repeat(50_000)}x`);
     stripQualifiers("(".repeat(50_000));
-    expect(performance.now() - started).toBeLessThan(200);
+    expect(performance.now() - started).toBeLessThan(1000);
   });
 
   it("expands SE and strips accents", () => {

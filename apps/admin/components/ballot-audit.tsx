@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -137,7 +138,7 @@ export function BallotAudit({ polls }: { polls: PollOption[] }) {
           <span className={label} id="ballots-poll">
             Poll
           </span>
-          <Select value={pollId} onValueChange={setPollId}>
+          <Select value={pollId} onValueChange={whenSelected(setPollId)}>
             <SelectTrigger className="min-w-56" aria-labelledby="ballots-poll">
               <SelectValue placeholder="Select poll" />
             </SelectTrigger>
@@ -158,7 +159,9 @@ export function BallotAudit({ polls }: { polls: PollOption[] }) {
           </span>
           <Select
             value={year?.toString() ?? ""}
-            onValueChange={(value) => setYear(Number(value))}
+            onValueChange={whenSelected((value: string) =>
+              setYear(Number(value)),
+            )}
             disabled={!years.length}
           >
             <SelectTrigger className="min-w-28" aria-labelledby="ballots-year">

@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@redshirt-sports/ui/components/button";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import {
   type BallotShareInput,

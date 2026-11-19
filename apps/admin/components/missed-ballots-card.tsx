@@ -21,9 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { toast } from "@redshirt-sports/ui/components/toast";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import {
   excuseAhead,
@@ -273,7 +274,7 @@ function ExcuseAheadDialog({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="excuse-ahead-voter">Voter</Label>
-            <Select value={userId} onValueChange={setUserId}>
+            <Select value={userId} onValueChange={whenSelected(setUserId)}>
               <SelectTrigger id="excuse-ahead-voter" className="w-full">
                 <SelectValue placeholder="Choose a voter" />
               </SelectTrigger>
@@ -290,7 +291,7 @@ function ExcuseAheadDialog({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="excuse-ahead-week">Week</Label>
-            <Select value={weekId} onValueChange={setWeekId}>
+            <Select value={weekId} onValueChange={whenSelected(setWeekId)}>
               <SelectTrigger id="excuse-ahead-week" className="w-full">
                 <SelectValue placeholder="Choose a week" />
               </SelectTrigger>

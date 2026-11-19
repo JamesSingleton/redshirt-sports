@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 import PaginationControls from "@/components/pagination-controls";
 
@@ -69,16 +69,16 @@ describe("PaginationControls", () => {
     expect(screen.queryByText("More pages")).not.toBeInTheDocument();
   });
 
-  it("shows ellipsis when there are more than three pages", () => {
+  it("shows ellipsis when pages are skipped after the current one", () => {
     nav.useSearchParams.mockReturnValue(new URLSearchParams({ page: "2" }));
-    render(<PaginationControls totalPosts={60} />);
+    render(<PaginationControls totalPosts={240} />);
 
     expect(screen.getByText("More pages")).toBeInTheDocument();
   });
 
   it("shows ellipsis near the end of large page sets", () => {
-    nav.useSearchParams.mockReturnValue(new URLSearchParams({ page: "4" }));
-    render(<PaginationControls totalPosts={60} />);
+    nav.useSearchParams.mockReturnValue(new URLSearchParams({ page: "18" }));
+    render(<PaginationControls totalPosts={240} />);
 
     expect(screen.getByText("More pages")).toBeInTheDocument();
   });
@@ -116,6 +116,23 @@ describe("PaginationControls", () => {
     expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
       "href",
       "/college/news?tag=news",
+    );
+  });
+
+  it("marks the chosen page current at once, then follows the URL", () => {
+    const { rerender } = render(<PaginationControls totalPosts={36} />);
+
+    fireEvent.click(screen.getByRole("link", { name: "3" }));
+    expect(screen.getByRole("link", { name: "3" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+
+    nav.useSearchParams.mockReturnValue(new URLSearchParams({ page: "1" }));
+    rerender(<PaginationControls totalPosts={36} />);
+    expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
+      "aria-current",
+      "page",
     );
   });
 });

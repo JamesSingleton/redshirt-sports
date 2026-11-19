@@ -80,17 +80,19 @@ export function GradCap({
 } = {}) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <span
-          // Focusable so keyboard users get the tooltip too.
-          // biome-ignore lint/a11y/noNoninteractiveTabindex: it opens a tooltip
-          tabIndex={0}
-          role="img"
-          aria-label={GRAD_TRANSFER_TIP}
-          className="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex shrink-0 cursor-help rounded-sm outline-none focus-visible:ring-2"
-        >
-          <GraduationCap className={iconClassName} aria-hidden />
-        </span>
+      <TooltipTrigger
+        render={
+          <span
+            // Focusable so keyboard users get the tooltip too.
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: it opens a tooltip
+            tabIndex={0}
+            role="img"
+            aria-label={GRAD_TRANSFER_TIP}
+            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex shrink-0 cursor-help rounded-sm outline-none focus-visible:ring-2"
+          />
+        }
+      >
+        <GraduationCap className={iconClassName} aria-hidden />
       </TooltipTrigger>
       <TooltipContent>{GRAD_TRANSFER_TIP}</TooltipContent>
     </Tooltip>

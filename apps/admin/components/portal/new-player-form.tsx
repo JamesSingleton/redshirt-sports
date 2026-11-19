@@ -4,10 +4,10 @@ import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
 import { Checkbox } from "@redshirt-sports/ui/components/checkbox";
 import { Label } from "@redshirt-sports/ui/components/label";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import {
   createPortalPlayerAction,

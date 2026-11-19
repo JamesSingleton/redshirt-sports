@@ -1,6 +1,6 @@
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { toast } from "sonner";
 
 import Onboarding from "@/components/forms/onboarding";
 
@@ -29,7 +29,7 @@ vi.mock("@/actions/complete-onboarding", () => ({
   completeOnboarding: mockCompleteOnboarding,
 }));
 
-vi.mock("sonner", () => ({
+vi.mock("@redshirt-sports/ui/components/toast", () => ({
   toast: {
     error: vi.fn(),
     success: vi.fn(),

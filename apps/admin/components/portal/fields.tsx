@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@redshirt-sports/ui/components/select";
+import { whenSelected } from "@redshirt-sports/ui/lib/utils";
 import { useEffect, useId, useState } from "react";
 
 import { findPortalSchools } from "@/actions/portal";
@@ -66,7 +67,9 @@ export function OptionSelect({
       <Label htmlFor={id}>{label}</Label>
       <Select
         value={value || (allowNone ? NONE : undefined)}
-        onValueChange={(next) => onChange(next === NONE ? "" : next)}
+        onValueChange={whenSelected((next: string) =>
+          onChange(next === NONE ? "" : next),
+        )}
       >
         <SelectTrigger id={id} className={className}>
           <SelectValue placeholder={placeholder} />

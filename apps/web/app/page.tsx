@@ -95,7 +95,7 @@ export async function CachedHomePage({
           <LiveAdSlot
             placement="home-leaderboard"
             fetchOptions={fetchOptions}
-            className="my-8 max-w-full"
+            className="mt-8 max-w-full"
           />
         }
         sidebarAd={

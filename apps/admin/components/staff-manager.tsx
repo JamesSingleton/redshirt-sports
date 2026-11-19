@@ -10,8 +10,8 @@ import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
 import { Checkbox } from "@redshirt-sports/ui/components/checkbox";
 import { Input } from "@redshirt-sports/ui/components/input";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { useEffect, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import { findPeople, type StaffMember, setStaffAccess } from "@/actions/staff";
 

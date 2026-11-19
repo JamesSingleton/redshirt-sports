@@ -85,11 +85,13 @@ async function AdminDashboard() {
               Assigned voters vs ballots in for the current week
             </p>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/voters" prefetch={false}>
-              Manage panels
-              <IconArrowRight data-icon="inline-end" />
-            </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/voters" prefetch={false} />}
+          >
+            Manage panels
+            <IconArrowRight data-icon="inline-end" />
           </Button>
         </div>
 

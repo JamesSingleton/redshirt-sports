@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { SearchBar } from "@/components/search-bar";
@@ -16,296 +16,102 @@ vi.mock("@redshirt-sports/sanity/client", () => ({
   client: { fetch: mockFetch },
 }));
 
+const posts = [
+  { _id: "post-1", title: "Alabama Preview", slug: "alabama-preview" },
+  { _id: "post-2", title: "Alabama Recap", slug: "alabama-recap" },
+];
+
+function field() {
+  return screen.getByRole("combobox", { name: "Search articles" });
+}
+
 describe("SearchBar", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockFetch.mockReset();
-    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("shows searching state and renders results", async () => {
-    mockFetch.mockResolvedValue([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "Alabama Preview",
-        slug: "alabama-preview",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-    ]);
-
+  it("suggests articles as links and offers a full search", async () => {
+    mockFetch.mockResolvedValue(posts);
     const user = userEvent.setup();
     render(<SearchBar placeholder="Find articles" />);
 
-    await user.type(screen.getByPlaceholderText("Find articles"), "alabama");
+    await user.type(field(), "alabama");
 
-    await waitFor(() => {
-      expect(screen.getByText("Alabama Preview")).toBeInTheDocument();
+    const list = await screen.findByRole("listbox");
+    const option = await within(list).findByRole("option", {
+      name: "Alabama Preview",
     });
+    expect(option).toHaveAttribute("href", "/alabama-preview");
+    expect(mockFetch).toHaveBeenCalledWith(expect.anything(), {
+      q: "alabama",
+    });
+    expect(
+      screen.getByRole("link", { name: /Search for “alabama”/ }),
+    ).toHaveAttribute("href", "/search?q=alabama");
   });
 
-  it("navigates when a result is clicked", async () => {
-    mockFetch.mockResolvedValue([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "Alabama Preview",
-        slug: "alabama-preview",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-    ]);
-
-    const user = userEvent.setup();
-    render(<SearchBar />);
-
-    await user.type(screen.getByRole("textbox"), "alabama");
-    await waitFor(() => {
-      expect(screen.getByText("Alabama Preview")).toBeInTheDocument();
-    });
-    await user.click(screen.getByText("Alabama Preview"));
-
-    expect(mockPush).toHaveBeenCalledWith("/alabama-preview");
-  });
-
-  it("submits the full search query on Enter", async () => {
+  it("searches for the text when Enter is pressed with nothing highlighted", async () => {
     mockFetch.mockResolvedValue([]);
     const user = userEvent.setup();
     render(<SearchBar />);
 
-    await user.type(screen.getByRole("textbox"), "recruiting{enter}");
+    await user.type(field(), "  bowl games {Enter}");
 
-    expect(mockPush).toHaveBeenCalledWith("/search?q=recruiting");
+    expect(mockPush).toHaveBeenCalledWith("/search?q=bowl%20games");
   });
 
-  it("shows no results message when search returns empty", async () => {
-    mockFetch.mockResolvedValue([]);
+  it("does nothing for an empty search", async () => {
     const user = userEvent.setup();
     render(<SearchBar />);
 
-    await user.type(screen.getByRole("textbox"), "missing");
-    await waitFor(() => {
-      expect(
-        screen.getByText('No articles found for "missing"'),
-      ).toBeInTheDocument();
-    });
-  });
+    await user.type(field(), "   {Enter}");
 
-  it("clears the query with the clear button", async () => {
-    const user = userEvent.setup();
-    render(<SearchBar />);
-
-    await user.type(screen.getByRole("textbox"), "test");
-    await user.click(screen.getByRole("button", { name: "" }));
-
-    expect(screen.getByRole("textbox")).toHaveValue("");
-  });
-
-  it("handles keyboard navigation and escape", async () => {
-    mockFetch.mockResolvedValue([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "First",
-        slug: "first",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-      {
-        _id: "post-2",
-        _type: "post",
-        title: "Second",
-        slug: "second",
-        publishedAt: "2026-01-02T00:00:00Z",
-      },
-    ]);
-
-    const user = userEvent.setup();
-    render(<SearchBar />);
-
-    const input = screen.getByRole("textbox");
-    await user.type(input, "post");
-    await waitFor(() => {
-      expect(screen.getByText("First")).toBeInTheDocument();
-    });
-
-    await user.keyboard("{ArrowDown}{ArrowDown}{ArrowUp}{Enter}");
-    expect(mockPush).toHaveBeenCalledWith("/first");
-
-    await user.type(input, "post");
-    await waitFor(() => {
-      expect(screen.getByText("First")).toBeInTheDocument();
-    });
-    await user.keyboard("{Escape}");
-    expect(input).not.toHaveFocus();
-  });
-
-  it("returns an empty array when the Sanity search fails", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    mockFetch.mockRejectedValue(new Error("search failed"));
-    const user = userEvent.setup();
-    render(<SearchBar />);
-
-    await user.type(screen.getByRole("textbox"), "error");
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalled();
-    });
-
-    consoleSpy.mockRestore();
-  });
-
-  it("closes results when clicking outside", async () => {
-    mockFetch.mockResolvedValue([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "Outside click",
-        slug: "outside",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-    ]);
-
-    const user = userEvent.setup();
-    render(
-      <div>
-        <SearchBar />
-        <button type="button">Outside</button>
-      </div>,
-    );
-
-    await user.type(screen.getByRole("textbox"), "outside");
-    await waitFor(() => {
-      expect(screen.getByText("Outside click")).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole("button", { name: "Outside" }));
-    expect(screen.queryByText("Outside click")).not.toBeInTheDocument();
-  });
-
-  it("submits the full query when Enter is pressed with visible results but no selection", async () => {
-    mockFetch.mockResolvedValue([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "Result",
-        slug: "result",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-    ]);
-    const user = userEvent.setup();
-    render(<SearchBar />);
-
-    const input = screen.getByRole("textbox");
-    await user.type(input, "result");
-    await waitFor(() => {
-      expect(screen.getByText("Result")).toBeInTheDocument();
-    });
-
-    await user.keyboard("{ArrowUp}");
-    await user.keyboard("{Enter}");
-
-    expect(mockPush).toHaveBeenCalledWith("/search?q=result");
-  });
-
-  it("does not search when the query is only whitespace", async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<SearchBar />);
-
-    await user.type(screen.getByRole("textbox"), "   ");
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(350);
-    });
-
+    expect(mockPush).not.toHaveBeenCalled();
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it("does not submit an empty query", async () => {
+  it("says when nothing matches, including when the search fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockFetch
+      .mockResolvedValueOnce(null)
+      .mockRejectedValueOnce(new Error("down"));
     const user = userEvent.setup();
     render(<SearchBar />);
 
-    await user.click(screen.getByRole("textbox"));
-    await user.keyboard("{Enter}");
+    await user.type(field(), "zzz");
+    expect(
+      await screen.findByText("No articles found for “zzz”"),
+    ).toBeVisible();
 
-    expect(mockPush).not.toHaveBeenCalled();
+    await user.type(field(), "q");
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(2));
+    expect(
+      await screen.findByText("No articles found for “zzzq”"),
+    ).toBeVisible();
   });
 
-  it("keeps the selected index when ArrowDown is pressed on the last result", async () => {
-    mockFetch.mockResolvedValue([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "Only Result",
-        slug: "only",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-    ]);
+  it("starts over after a suggestion is chosen", async () => {
+    mockFetch.mockResolvedValue(posts);
     const user = userEvent.setup();
     render(<SearchBar />);
 
-    const input = screen.getByRole("textbox");
-    await user.type(input, "only");
-    await waitFor(() => {
-      expect(screen.getByText("Only Result")).toBeInTheDocument();
-    });
+    await user.type(field(), "alabama");
+    await screen.findByRole("option", { name: "Alabama Recap" });
+    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
 
-    await user.keyboard("{ArrowDown}{ArrowDown}");
-    const selected = screen.getByText("Only Result").closest("button");
-    expect(selected).toHaveClass("bg-muted");
+    expect(field()).toHaveValue("");
   });
 
-  it("keeps showing prior results after the query is cleared while focused", async () => {
-    mockFetch.mockResolvedValue([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "Sticky Result",
-        slug: "sticky",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-    ]);
+  it("clears the field", async () => {
+    mockFetch.mockResolvedValue(posts);
     const user = userEvent.setup();
     render(<SearchBar />);
 
-    const input = screen.getByRole("textbox");
-    await user.type(input, "sticky");
-    await waitFor(() => {
-      expect(screen.getByText("Sticky Result")).toBeInTheDocument();
-    });
+    await user.type(field(), "alabama");
+    await user.click(screen.getByRole("button", { name: "Clear" }));
 
-    await user.clear(input);
-    expect(screen.getByText("Sticky Result")).toBeInTheDocument();
-  });
-
-  it("shows a loading state while search results are pending", async () => {
-    let resolveSearch: (value: unknown) => void = () => {};
-    mockFetch.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveSearch = resolve;
-        }),
-    );
-    const user = userEvent.setup();
-    render(<SearchBar />);
-
-    await user.type(screen.getByRole("textbox"), "pending");
-    await waitFor(() => {
-      expect(screen.getByText("Searching...")).toBeInTheDocument();
-    });
-
-    resolveSearch([
-      {
-        _id: "post-1",
-        _type: "post",
-        title: "Pending Result",
-        slug: "pending",
-        publishedAt: "2026-01-01T00:00:00Z",
-      },
-    ]);
-
-    await waitFor(() => {
-      expect(screen.getByText("Pending Result")).toBeInTheDocument();
-    });
+    expect(field()).toHaveValue("");
+    expect(field()).toHaveFocus();
   });
 });

@@ -1,265 +1,186 @@
 "use client";
+
 import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
-import { Button } from "@redshirt-sports/ui/components/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@redshirt-sports/ui/components/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@redshirt-sports/ui/components/popover";
-import { cn } from "@redshirt-sports/ui/lib/utils";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { Check, ChevronsUpDown } from "lucide-react";
-import * as React from "react";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxSearch,
+  ComboboxTrigger,
+} from "@redshirt-sports/ui/components/combobox";
+import { ChevronsUpDown } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import CustomImage from "@/components/sanity-image";
 
 type SchoolOption = SchoolsBySportAndSubgroupingStringQueryResult[number];
 
-function normalizeSchoolText(value: string | null | undefined) {
-  return value?.trim().toLowerCase() ?? "";
-}
-
-function schoolMatchesQuery(option: SchoolOption, query: string) {
-  const normalizedQuery = normalizeSchoolText(query);
-  return [option.name, option.shortName, option.abbreviation].some((value) =>
-    normalizeSchoolText(value).includes(normalizedQuery),
-  );
-}
-
-function compareSchoolMatches(a: SchoolOption, b: SchoolOption, query: string) {
-  const normalizedQuery = normalizeSchoolText(query);
-  const aHasPrefix = [a.name, a.shortName, a.abbreviation].some((value) =>
-    normalizeSchoolText(value).startsWith(normalizedQuery),
-  );
-  const bHasPrefix = [b.name, b.shortName, b.abbreviation].some((value) =>
-    normalizeSchoolText(value).startsWith(normalizedQuery),
-  );
-
-  if (aHasPrefix !== bHasPrefix) {
-    return aHasPrefix ? -1 : 1;
-  }
-
-  return (a.shortName ?? a.name).localeCompare(b.shortName ?? b.name);
-}
-
-interface VirtualizedCommandProps {
-  height: string;
-  options: SchoolsBySportAndSubgroupingStringQueryResult;
-  placeholder: string;
-  selectedOption: string;
-  selectedOptions: string[];
-  onSelectOption?: (option: string) => void;
-}
-
-const VirtualizedCommand = ({
-  height,
-  options,
-  placeholder,
-  selectedOption,
-  selectedOptions,
-  onSelectOption,
-}: VirtualizedCommandProps) => {
-  const availableOptions = React.useMemo(
-    () => options.filter((option) => !selectedOptions.includes(option._id)),
-    [options, selectedOptions],
-  );
-
-  const [searchValue, setSearchValue] = React.useState("");
-  const parentRef = React.useRef(null);
-
-  const filteredOptions = React.useMemo(() => {
-    if (!searchValue.trim()) {
-      return availableOptions;
-    }
-
-    return availableOptions
-      .filter((option) => schoolMatchesQuery(option, searchValue))
-      .sort((a, b) => compareSchoolMatches(a, b, searchValue));
-  }, [availableOptions, searchValue]);
-
-  const virtualizer = useVirtualizer({
-    count: filteredOptions.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 35,
-    overscan: 5,
-  });
-
-  const virtualOptions = virtualizer.getVirtualItems();
-
-  return (
-    <Command shouldFilter={false}>
-      <CommandInput onValueChange={setSearchValue} placeholder={placeholder} />
-      <CommandList className="max-h-fit">
-        <CommandEmpty>No school found.</CommandEmpty>
-        <CommandGroup
-          ref={parentRef}
-          style={{
-            height: height,
-            width: "100%",
-            overflow: "auto",
-          }}
-        >
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: "100%",
-              position: "relative",
-            }}
-          >
-            {virtualOptions.map((virtualOption) => {
-              const option = filteredOptions[virtualOption.index];
-              if (!option) {
-                return null;
-              }
-
-              return (
-                <CommandItem
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: `${virtualOption.size}px`,
-                    transform: `translateY(${virtualOption.start}px)`,
-                  }}
-                  key={option._id}
-                  value={option._id}
-                  onSelect={onSelectOption}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 size-4",
-                      selectedOption === option._id
-                        ? "opacity-100"
-                        : "opacity-0",
-                    )}
-                  />
-                  <div className="flex items-center">
-                    <CustomImage
-                      image={option.image}
-                      width={32}
-                      height={32}
-                      className="mr-2 size-8"
-                    />
-                    {option.shortName}
-                  </div>
-                </CommandItem>
-              );
-            })}
-          </div>
-        </CommandGroup>
-      </CommandList>
-    </Command>
-  );
+type SchoolItem = {
+  value: string;
+  label: string;
+  keywords: string[];
+  school: SchoolOption | null;
 };
+
+const CLEAR = "__clear";
+
+function normalize(value: string) {
+  return value.trim().toLowerCase();
+}
+
+/** Prefix matches on any name rank above matches inside one. */
+export function schoolMatchScore(
+  item: { value: string; label: string; keywords?: string[] },
+  query: string,
+) {
+  const needle = normalize(query);
+  if (!needle) return true;
+  if (item.value === CLEAR) return false;
+  const names = [item.label, ...(item.keywords ?? [])].map(normalize);
+  if (names.some((name) => name.startsWith(needle))) return 2;
+  if (names.some((name) => name.includes(needle))) return 1;
+  return false;
+}
+
+function toItem(school: SchoolOption): SchoolItem {
+  return {
+    value: school._id,
+    label: school.shortName ?? school.name,
+    keywords: [school.name, school.abbreviation].filter(
+      (name): name is string => Boolean(name),
+    ),
+    school,
+  };
+}
+
+function SchoolLabel({ school }: { school: SchoolOption }) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2">
+      {school.image ? (
+        <CustomImage
+          image={school.image}
+          width={32}
+          height={32}
+          className="size-6 shrink-0 object-contain"
+        />
+      ) : null}
+      <span className="truncate">{school.shortName ?? school.name}</span>
+    </span>
+  );
+}
 
 interface VirtualizedComboboxProps {
   options: SchoolsBySportAndSubgroupingStringQueryResult;
   searchPlaceholder?: string;
-  width?: string;
-  height?: string;
   value?: string;
   onChange?: (value: string) => void;
+  /** Schools picked elsewhere on the ballot, left out of this list. */
   selectedOptions: string[];
+  "aria-label"?: string;
 }
 
+/** Pick one school for a ballot slot, searching by name, short name or abbreviation. */
 export function VirtualizedCombobox({
   options,
   searchPlaceholder = "Select a school...",
-  // width = '350px',
-  height = "400px",
-  value,
+  value = "",
   onChange,
   selectedOptions,
+  "aria-label": ariaLabel,
 }: VirtualizedComboboxProps) {
-  const [open, setOpen] = React.useState<boolean>(false);
-  const [selectedOption, setSelectedOption] = React.useState<string>(
-    value || "",
-  );
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
-  const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>(
-    undefined,
-  );
+  const [button, setButton] = useState<HTMLButtonElement | null>(null);
+  const [query, setQuery] = useState("");
 
-  const availableOptions = React.useMemo(
-    () => options.filter((option) => !selectedOptions.includes(option._id)),
-    [options, selectedOptions],
+  const items = useMemo(
+    () =>
+      options
+        .filter(
+          (option) =>
+            option._id === value || !selectedOptions.includes(option._id),
+        )
+        .map(toItem),
+    [options, selectedOptions, value],
   );
-
-  const selectedSchool = React.useMemo(
-    () => options.find((option) => option._id === selectedOption),
-    [options, selectedOption],
+  const listItems = useMemo(
+    () =>
+      value
+        ? [
+            {
+              value: CLEAR,
+              label: "Clear this pick",
+              keywords: [],
+              school: null,
+            },
+            ...items,
+          ]
+        : items,
+    [items, value],
   );
-
-  // Sync internal state with external value
-  React.useEffect(() => {
-    setSelectedOption(value || "");
-  }, [value]);
-
-  // Update trigger width when popover opens
-  React.useEffect(() => {
-    if (open && triggerRef.current) {
-      setTriggerWidth(triggerRef.current.offsetWidth);
-    }
-  }, [open]);
-
-  const handleSelectOption = React.useCallback(
-    (currentValue: string) => {
-      const newValue = currentValue === selectedOption ? "" : currentValue;
-      setSelectedOption(newValue);
-      onChange?.(newValue);
-      setOpen(false);
-    },
-    [selectedOption, onChange],
-  );
+  const selected = options.find((option) => option._id === value);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          ref={triggerRef}
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {selectedSchool?.image ? (
-            <span className="inline-flex items-center">
-              <CustomImage
-                image={selectedSchool.image}
-                width={32}
-                height={32}
-                className="mr-2 size-8"
-              />
-              {selectedSchool.shortName}
-            </span>
-          ) : (
-            searchPlaceholder
-          )}
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="p-0"
-        style={{ width: triggerWidth ? `${triggerWidth}px` : "100%" }}
+    <Combobox
+      items={listItems}
+      filter={schoolMatchScore}
+      value={value || null}
+      onValueChange={(next) => onChange?.(next === CLEAR || !next ? "" : next)}
+      query={query}
+      onQueryChange={setQuery}
+      onOpenChange={(open) => open && setQuery("")}
+      onOpenChangeComplete={(open) => !open && button?.focus()}
+      autoHighlight
+      presentation="auto"
+    >
+      <ComboboxTrigger
+        ref={setButton}
+        aria-label={ariaLabel}
+        className="h-11 font-normal"
       >
-        <VirtualizedCommand
-          height={height}
-          options={availableOptions}
-          placeholder={searchPlaceholder}
-          selectedOption={selectedOption}
-          selectedOptions={selectedOptions}
-          onSelectOption={handleSelectOption}
+        {selected ? (
+          <SchoolLabel school={selected} />
+        ) : (
+          <span className="text-muted-foreground">{searchPlaceholder}</span>
+        )}
+        <ChevronsUpDown className="opacity-50" aria-hidden />
+      </ComboboxTrigger>
+      <ComboboxContent
+        anchor={button}
+        className="max-h-[min(22rem,var(--available-height))]"
+      >
+        <ComboboxSearch
+          autoFocus
+          aria-label="Search schools"
+          placeholder="Search by name or abbreviation"
         />
-      </PopoverContent>
-    </Popover>
+        <ComboboxEmpty>No school found.</ComboboxEmpty>
+        <ComboboxList>
+          {(state) =>
+            (state.items as SchoolItem[]).map((item) =>
+              item.school ? (
+                <ComboboxItem
+                  key={item.value}
+                  value={item.value}
+                  label={item.label}
+                >
+                  <SchoolLabel school={item.school} />
+                </ComboboxItem>
+              ) : (
+                <ComboboxItem
+                  key={item.value}
+                  value={item.value}
+                  label={item.label}
+                  indicator={false}
+                  className="text-muted-foreground"
+                >
+                  {item.label}
+                </ComboboxItem>
+              ),
+            )
+          }
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 }

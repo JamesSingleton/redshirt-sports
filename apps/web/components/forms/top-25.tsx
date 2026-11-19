@@ -6,17 +6,22 @@ import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sp
 import { Button } from "@redshirt-sports/ui/components/button";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@redshirt-sports/ui/components/form";
+import {
+  Meter,
+  MeterLabel,
+  MeterTrack,
+  MeterValue,
+} from "@redshirt-sports/ui/components/meter";
+import { toast } from "@redshirt-sports/ui/components/toast";
 import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import type { VoterBallotWithSchool } from "@/types/votes";
@@ -204,7 +209,7 @@ function Top25Form({
         loading: submit.loading,
         success: (data: { message?: string }) =>
           data?.message || submit.success,
-        error: (err: Error) => err.message || submit.error,
+        error: (err) => (err instanceof Error && err.message) || submit.error,
       },
     );
   }
@@ -215,6 +220,18 @@ function Top25Form({
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto space-y-6"
       >
+        <Meter
+          value={selectedValues.length}
+          max={25}
+          format={(value) => `${value} of 25`}
+          className="sticky top-14 z-10 grid gap-2 border-b bg-background/95 py-3 backdrop-blur lg:top-16"
+        >
+          <div className="flex items-center justify-between text-sm">
+            <MeterLabel className="font-medium">Teams ranked</MeterLabel>
+            <MeterValue className="tabular text-muted-foreground" />
+          </div>
+          <MeterTrack />
+        </Meter>
         {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => (
           <FormField
             key={`rank-${rank}`}
@@ -224,14 +241,13 @@ function Top25Form({
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Rank {rank}</FormLabel>
-                <FormControl>
-                  <VirtualizedCombobox
-                    options={schools}
-                    value={field.value}
-                    onChange={field.onChange}
-                    selectedOptions={selectedValues}
-                  />
-                </FormControl>
+                <VirtualizedCombobox
+                  aria-label={`Rank ${rank}`}
+                  options={schools}
+                  value={field.value}
+                  onChange={field.onChange}
+                  selectedOptions={selectedValues}
+                />
                 <FormMessage />
               </FormItem>
             )}
