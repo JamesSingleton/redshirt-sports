@@ -24,7 +24,6 @@ import {
   validateDivision,
   validateSport,
 } from "@/lib/vote-ballot";
-import { ratelimit } from "@/server/ratelimit";
 
 const RANKINGS_PUBLISHED_MESSAGE =
   "Voting is closed for this week because rankings have been published";
@@ -117,16 +116,6 @@ async function resolveVoteWrite(
   const user = await auth();
   if (!user.userId) {
     return new Response("Unauthorized", { status: 401 });
-  }
-
-  const { success: withinRateLimit } = await ratelimit.limit(
-    `vote:${user.userId}`,
-  );
-  if (!withinRateLimit) {
-    return jsonError(
-      "Too many vote submissions. Please try again shortly.",
-      429,
-    );
   }
 
   const body = await req.json();

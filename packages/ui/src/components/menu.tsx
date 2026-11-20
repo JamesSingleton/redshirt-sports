@@ -4,10 +4,13 @@ import { cn, type WithClassName } from "@redshirt-sports/ui/lib/utils";
 import {
   MenuContent as MenuContentPrimitive,
   MenuGroupLabel as MenuGroupLabelPrimitive,
+  MenuItemIndicator,
   MenuItem as MenuItemPrimitive,
+  MenuRadioItem as MenuRadioItemPrimitive,
   MenuSeparator as MenuSeparatorPrimitive,
 } from "@ui-sdk/react/menu";
-import type { ComponentProps } from "react";
+import { CheckIcon } from "lucide-react";
+import type { ComponentProps, ReactNode } from "react";
 
 function MenuContent({
   className,
@@ -79,6 +82,37 @@ function MenuSeparator({
   );
 }
 
-export { Menu, MenuGroup, MenuTrigger } from "@ui-sdk/react/menu";
+/** One choice in a `MenuRadioGroup`, with a check when it's the group's value. */
+function MenuRadioItem({
+  className,
+  children,
+  ...props
+}: WithClassName<
+  Omit<ComponentProps<typeof MenuRadioItemPrimitive>, "children">
+> & { children?: ReactNode }) {
+  return (
+    <MenuRadioItemPrimitive
+      className={cn(
+        "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 ps-8 pe-2 text-sm outline-none select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    >
+      <span className="pointer-events-none absolute start-2 flex size-3.5 items-center justify-center">
+        <MenuItemIndicator>
+          <CheckIcon className="size-4" />
+        </MenuItemIndicator>
+      </span>
+      {children}
+    </MenuRadioItemPrimitive>
+  );
+}
 
-export { MenuContent, MenuGroupLabel, MenuItem, MenuSeparator };
+export {
+  Menu,
+  MenuGroup,
+  MenuRadioGroup,
+  MenuTrigger,
+} from "@ui-sdk/react/menu";
+
+export { MenuContent, MenuGroupLabel, MenuItem, MenuRadioItem, MenuSeparator };

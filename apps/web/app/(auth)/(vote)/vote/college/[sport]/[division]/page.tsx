@@ -1,3 +1,4 @@
+import { FLAGS, isFlagEnabled } from "@redshirt-sports/analytics/flags";
 import { auth } from "@redshirt-sports/auth/server";
 import { type SportParam, SportSchema } from "@redshirt-sports/clients/espn";
 import {
@@ -20,9 +21,14 @@ import { buttonVariants } from "@redshirt-sports/ui/components/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import z from "zod";
 
+import {
+  CreateVoteFormWrapper as LegacyCreateVoteFormWrapper,
+  EditVoteFormWrapper as LegacyEditVoteFormWrapper,
+} from "@/components/legacy-ballot/vote-form-wrapper";
 import {
   CreateVoteFormWrapper,
   EditVoteFormWrapper,
@@ -179,6 +185,9 @@ export async function VotePageAuth({
   options: DynamicFetchOptions;
   searchParams?: Promise<{ edit?: string }>;
 }) {
+  // A voter's own ballot: never part of a prerendered shell. Without this,
+  // prerendering reaches the season lookup, whose `new Date()` Next rejects.
+  await connection();
   const { userId } = await auth.protect();
 
   const sportId = await getSportIdBySlug(sport);
@@ -274,20 +283,51 @@ export async function VotePageAuth({
         week: votingWeek,
       })
     : [];
-  const latestBallot = hasVoted
-    ? []
-    : await getLatestVoterBallotWithSchools(userId, division, sport, year);
+  const [latestBallot, ballotEditor] = await Promise.all([
+    hasVoted
+      ? []
+      : getLatestVoterBallotWithSchools(userId, division, sport, year),
+    // Off, or PostHog unreachable: the ballot as it was before the editor.
+    isFlagEnabled(FLAGS.top25BallotEditor, userId, false),
+  ]);
+
+  if (!ballotEditor) {
+    return (
+      <div className="container">
+        {title && subtitle && (
+          <div className="flex flex-col gap-4 pt-12 text-center">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              {title}
+            </h1>
+            <p className="text-muted-foreground text-lg">{subtitle}</p>
+          </div>
+        )}
+        {hasVoted ? (
+          <LegacyEditVoteFormWrapper
+            schools={schools}
+            currentBallot={currentBallot}
+          />
+        ) : (
+          <LegacyCreateVoteFormWrapper
+            schools={schools}
+            previousBallot={latestBallot}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className="container">
+    <div>
       {title && subtitle && (
-        <div className="flex flex-col gap-4 pt-12 text-center">
+        <div className="container flex flex-col gap-4 pt-12 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             {title}
           </h1>
           <p className="text-muted-foreground text-lg">{subtitle}</p>
         </div>
       )}
+      {/* The form lays out its own container, so its submit bar can span the screen. */}
       {hasVoted ? (
         <EditVoteFormWrapper schools={schools} currentBallot={currentBallot} />
       ) : (

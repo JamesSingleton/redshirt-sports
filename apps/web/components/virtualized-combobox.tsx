@@ -10,8 +10,9 @@ import {
   ComboboxSearch,
   ComboboxTrigger,
 } from "@redshirt-sports/ui/components/combobox";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import { ChevronsUpDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import CustomImage from "@/components/sanity-image";
 
@@ -22,6 +23,8 @@ type SchoolItem = {
   label: string;
   keywords: string[];
   school: SchoolOption | null;
+  /** Its rank elsewhere on the ballot, when it's already on it. */
+  rank?: number;
 };
 
 const CLEAR = "__clear";
@@ -44,8 +47,24 @@ export function schoolMatchScore(
   return false;
 }
 
-function toItem(school: SchoolOption): SchoolItem {
+const ordinalRules = new Intl.PluralRules("en-US", { type: "ordinal" });
+const suffixes: Record<Intl.LDMLPluralRule, string> = {
+  zero: "th",
+  one: "st",
+  two: "nd",
+  few: "rd",
+  many: "th",
+  other: "th",
+};
+
+/** 1 → "1st", 22 → "22nd". */
+export function ordinal(rank: number) {
+  return `${rank}${suffixes[ordinalRules.select(rank)]}`;
+}
+
+function toItem(school: SchoolOption, rank?: number): SchoolItem {
   return {
+    rank,
     value: school._id,
     label: school.shortName ?? school.name,
     keywords: [school.name, school.abbreviation].filter(
@@ -76,9 +95,17 @@ interface VirtualizedComboboxProps {
   searchPlaceholder?: string;
   value?: string;
   onChange?: (value: string) => void;
-  /** Schools picked elsewhere on the ballot, left out of this list. */
-  selectedOptions: string[];
+  /**
+   * The whole ballot, one school id per rank with `""` for an empty one, so
+   * schools already on it show where they are. Picking one moves it.
+   */
+  ballot: readonly string[];
   "aria-label"?: string;
+  /** The trigger's id, so a form can focus it. */
+  id?: string;
+  /** What the trigger shows for a picked school, in place of its logo and name. */
+  children?: ReactNode;
+  triggerClassName?: string;
 }
 
 /** Pick one school for a ballot slot, searching by name, short name or abbreviation. */
@@ -87,21 +114,23 @@ export function VirtualizedCombobox({
   searchPlaceholder = "Select a school...",
   value = "",
   onChange,
-  selectedOptions,
+  ballot,
   "aria-label": ariaLabel,
+  id,
+  children,
+  triggerClassName,
 }: VirtualizedComboboxProps) {
   const [button, setButton] = useState<HTMLButtonElement | null>(null);
+  const [content, setContent] = useState<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
 
   const items = useMemo(
     () =>
-      options
-        .filter(
-          (option) =>
-            option._id === value || !selectedOptions.includes(option._id),
-        )
-        .map(toItem),
-    [options, selectedOptions, value],
+      options.map((option) => {
+        const index = option._id === value ? -1 : ballot.indexOf(option._id);
+        return toItem(option, index === -1 ? undefined : index + 1);
+      }),
+    [options, ballot, value],
   );
   const listItems = useMemo(
     () =>
@@ -125,27 +154,42 @@ export function VirtualizedCombobox({
       items={listItems}
       filter={schoolMatchScore}
       value={value || null}
-      onValueChange={(next) => onChange?.(next === CLEAR || !next ? "" : next)}
+      onValueChange={(next, details) => {
+        onChange?.(next === CLEAR || !next ? "" : next);
+        // The owner decides what this slot holds, and a pick can move the
+        // school elsewhere on the ballot, so never keep the choice here.
+        details.cancel();
+      }}
       query={query}
       onQueryChange={setQuery}
       onOpenChange={(open) => open && setQuery("")}
-      onOpenChangeComplete={(open) => !open && button?.focus()}
+      onOpenChangeComplete={(open) => {
+        if (open) return;
+        // Return focus here unless the pick already moved it, like the
+        // ballot focusing the rank a school went to.
+        const active = document.activeElement;
+        const moved =
+          active && active !== document.body && !content?.contains(active);
+        if (!moved) button?.focus();
+      }}
       autoHighlight
       presentation="auto"
     >
       <ComboboxTrigger
         ref={setButton}
+        id={id}
         aria-label={ariaLabel}
-        className="h-11 font-normal"
+        className={cn("h-11 font-normal", triggerClassName)}
       >
         {selected ? (
-          <SchoolLabel school={selected} />
+          (children ?? <SchoolLabel school={selected} />)
         ) : (
           <span className="text-muted-foreground">{searchPlaceholder}</span>
         )}
         <ChevronsUpDown className="opacity-50" aria-hidden />
       </ComboboxTrigger>
       <ComboboxContent
+        ref={setContent}
         anchor={button}
         className="max-h-[min(22rem,var(--available-height))]"
       >
@@ -165,6 +209,11 @@ export function VirtualizedCombobox({
                   label={item.label}
                 >
                   <SchoolLabel school={item.school} />
+                  {item.rank ? (
+                    <span className="shrink-0 text-muted-foreground">
+                      · currently {ordinal(item.rank)}
+                    </span>
+                  ) : null}
                 </ComboboxItem>
               ) : (
                 <ComboboxItem

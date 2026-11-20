@@ -15,7 +15,9 @@ const {
   mockClientFetch,
   mockRedirect,
   mockNotFound,
+  mockIsFlagEnabled,
 } = vi.hoisted(() => ({
+  mockIsFlagEnabled: vi.fn(),
   mockAuthProtect: vi.fn(),
   mockGetSportIdBySlug: vi.fn(),
   mockUserCanVoteOnPoll: vi.fn(),
@@ -96,6 +98,20 @@ vi.mock("next/navigation", () => ({
   notFound: mockNotFound,
 }));
 
+vi.mock("next/server", () => ({
+  connection: vi.fn(),
+}));
+
+vi.mock("@redshirt-sports/analytics/flags", () => ({
+  FLAGS: { top25BallotEditor: "top25-ballot-editor" },
+  isFlagEnabled: mockIsFlagEnabled,
+}));
+
+vi.mock("@/components/legacy-ballot/vote-form-wrapper", () => ({
+  CreateVoteFormWrapper: () => <div data-testid="legacy-create-ballot" />,
+  EditVoteFormWrapper: () => <div data-testid="legacy-edit-ballot" />,
+}));
+
 vi.mock("@/components/vote-form-wrapper", () => ({
   __esModule: true,
   default: () => <div data-testid="vote-form-wrapper" />,
@@ -148,6 +164,49 @@ describe("VotePageAuth", () => {
     mockClientFetch.mockReset().mockResolvedValue([]);
     mockRedirect.mockClear();
     mockNotFound.mockClear();
+    mockIsFlagEnabled.mockReset().mockResolvedValue(true);
+  });
+
+  it("asks PostHog about the ballot editor for this voter, defaulting to off", async () => {
+    await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+    });
+    expect(mockIsFlagEnabled).toHaveBeenCalledWith(
+      "top25-ballot-editor",
+      "user-1",
+      false,
+    );
+  });
+
+  it("renders the legacy ballot when the editor flag is off", async () => {
+    mockIsFlagEnabled.mockResolvedValue(false);
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+    });
+    render(ui as ReactNode);
+    expect(screen.getByTestId("legacy-create-ballot")).toBeInTheDocument();
+    expect(screen.queryByTestId("vote-form-wrapper")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Football Bowl Subdivision/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the legacy edit ballot when the editor flag is off", async () => {
+    mockIsFlagEnabled.mockResolvedValue(false);
+    mockHasVoterVoted.mockResolvedValue(true);
+    mockGetVoterBallots.mockResolvedValue([{ teamId: "school-1", rank: 1 }]);
+    const ui = await VotePageAuth({
+      sport: "football",
+      division: "fbs",
+      options: publishedOptions,
+      searchParams: Promise.resolve({ edit: "1" }),
+    });
+    render(ui as ReactNode);
+    expect(screen.getByTestId("legacy-edit-ballot")).toBeInTheDocument();
   });
 
   it("calls notFound when sport id is missing", async () => {

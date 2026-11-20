@@ -82,47 +82,45 @@ function VoterBallotCard({
         aria-label={`${card.name} full ballot`}
       >
         {card.picks.map((pick) => (
-          <Tooltip key={pick.teamId} delay={300}>
-            <TooltipTrigger
-              render={
-                <li
-                  className={cn(
-                    "flex min-w-0 cursor-default items-center gap-2 rounded-md px-2 py-1 text-sm sm:py-1.5 sm:text-[15px]",
-                    pick.isOutlier && "bg-gold/15 ring-1 ring-inset ring-gold",
-                  )}
-                />
-              }
-            >
-              <span className="w-6 text-right font-display text-base font-bold tabular sm:w-7 sm:text-lg">
-                {pick.voterRank}
-              </span>
-              <span className="inline-flex sm:hidden">
-                <TeamMark
-                  image={pick.image}
-                  shortName={pick.shortName}
-                  abbreviation={pick.abbreviation}
-                  name={pick.name}
-                  size="sm"
-                />
-              </span>
-              <span className="hidden sm:inline-flex">
-                <TeamMark
-                  image={pick.image}
-                  shortName={pick.shortName}
-                  abbreviation={pick.abbreviation}
-                  name={pick.name}
-                  size="md"
-                />
-              </span>
-              <span className="min-w-0 flex-1 truncate font-medium">
-                {pick.shortName}
-              </span>
-              <BallotDiffChip diff={pick.diff} />
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs text-sm">
-              {describeBallotPickContext(pick)}
-            </TooltipContent>
-          </Tooltip>
+          <li key={pick.teamId} className="flex min-w-0">
+            <Tooltip delay={300}>
+              <TooltipTrigger
+                className={cn(
+                  "flex w-full min-w-0 cursor-default items-center gap-2 rounded-md px-2 py-1 text-left text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring sm:py-1.5 sm:text-[15px]",
+                  pick.isOutlier && "bg-gold/15 ring-1 ring-inset ring-gold",
+                )}
+              >
+                <span className="w-6 text-right font-display text-base font-bold tabular sm:w-7 sm:text-lg">
+                  {pick.voterRank}
+                </span>
+                <span className="inline-flex sm:hidden">
+                  <TeamMark
+                    image={pick.image}
+                    shortName={pick.shortName}
+                    abbreviation={pick.abbreviation}
+                    name={pick.name}
+                    size="sm"
+                  />
+                </span>
+                <span className="hidden sm:inline-flex">
+                  <TeamMark
+                    image={pick.image}
+                    shortName={pick.shortName}
+                    abbreviation={pick.abbreviation}
+                    name={pick.name}
+                    size="md"
+                  />
+                </span>
+                <span className="min-w-0 flex-1 truncate font-medium">
+                  {pick.shortName}
+                </span>
+                <BallotDiffChip diff={pick.diff} />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs text-sm">
+                {describeBallotPickContext(pick)}
+              </TooltipContent>
+            </Tooltip>
+          </li>
         ))}
       </ol>
       <div className="mt-3 grid gap-1 border-t px-4 py-3 text-muted-foreground sm:px-5">

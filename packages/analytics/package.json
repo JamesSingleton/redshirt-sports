@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     ".": "./index.ts",
+    "./flags": "./flags.ts",
     "./instrumentation-client": "./instrumentation-client.ts",
     "./keys": "./keys.ts",
     "./server": "./server.ts"

@@ -1,7 +1,8 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import {
+  ordinal,
   schoolMatchScore,
   VirtualizedCombobox,
 } from "@/components/virtualized-combobox";
@@ -78,7 +79,7 @@ describe("VirtualizedCombobox", () => {
       <VirtualizedCombobox
         aria-label="Rank 1"
         options={options}
-        selectedOptions={[]}
+        ballot={[]}
         onChange={onChange}
         searchPlaceholder="Pick a school"
       />,
@@ -98,7 +99,7 @@ describe("VirtualizedCombobox", () => {
       <VirtualizedCombobox
         aria-label="Rank 1"
         options={options}
-        selectedOptions={[]}
+        ballot={[]}
         value="school-1"
       />,
     );
@@ -108,30 +109,46 @@ describe("VirtualizedCombobox", () => {
     expect(within(trigger).getByRole("img", { name: "Alabama" })).toBeVisible();
   });
 
-  it("leaves out schools picked for other ranks", async () => {
+  it("lists schools on the ballot with where they're ranked", async () => {
     const user = userEvent.setup();
     render(
       <VirtualizedCombobox
         aria-label="Rank 1"
         options={options}
-        selectedOptions={["school-1", "school-2"]}
+        ballot={["school-1", "", "school-2"]}
         value="school-1"
       />,
     );
 
     const list = await open(user);
-    expect(within(list).getByRole("option", { name: /Alabama/ })).toBeVisible();
-    expect(within(list).queryByRole("option", { name: /Georgia/ })).toBeNull();
+    expect(
+      within(list).getByRole("option", { name: /Alabama/ }),
+    ).not.toHaveTextContent("currently");
+    expect(
+      within(list).getByRole("option", { name: "Georgia · currently 3rd" }),
+    ).toBeVisible();
+  });
+
+  it("writes ranks as ordinals", () => {
+    expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 25].map(ordinal)).toEqual([
+      "1st",
+      "2nd",
+      "3rd",
+      "4th",
+      "11th",
+      "12th",
+      "13th",
+      "21st",
+      "22nd",
+      "23rd",
+      "25th",
+    ]);
   });
 
   it("searches names, short names and abbreviations", async () => {
     const user = userEvent.setup();
     render(
-      <VirtualizedCombobox
-        aria-label="Rank 1"
-        options={options}
-        selectedOptions={[]}
-      />,
+      <VirtualizedCombobox aria-label="Rank 1" options={options} ballot={[]} />,
     );
 
     const list = await open(user);
@@ -157,6 +174,36 @@ describe("VirtualizedCombobox", () => {
     expect(screen.getByText("No school found.")).toBeVisible();
   });
 
+  it("returns focus to the trigger after a pick, unless the pick moved it", async () => {
+    let moveFocus = false;
+    const user = userEvent.setup();
+    render(
+      <>
+        <VirtualizedCombobox
+          aria-label="Rank 1"
+          options={options}
+          ballot={[]}
+          onChange={() => {
+            if (moveFocus)
+              screen.getByRole("button", { name: "Elsewhere" }).focus();
+          }}
+        />
+        <button type="button">Elsewhere</button>
+      </>,
+    );
+    const trigger = screen.getByRole("button", { name: "Rank 1" });
+    let list = await open(user);
+    await user.click(within(list).getByRole("option", { name: /Georgia/ }));
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    moveFocus = true;
+    list = await open(user);
+    await user.click(within(list).getByRole("option", { name: /Georgia/ }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Elsewhere" })).toHaveFocus(),
+    );
+  });
+
   it("clears the pick", async () => {
     const onChange = vi.fn();
     const user = userEvent.setup();
@@ -164,7 +211,7 @@ describe("VirtualizedCombobox", () => {
       <VirtualizedCombobox
         aria-label="Rank 1"
         options={options}
-        selectedOptions={[]}
+        ballot={[]}
         value="school-1"
         onChange={onChange}
       />,

@@ -13,5 +13,8 @@ export const analytics =
         // Don't batch events and flush immediately - we're running in a serverless environment
         flushAt: 1,
         flushInterval: 0,
+
+        // Flags gate page renders; fall back fast rather than hold the page.
+        featureFlagsRequestTimeoutMs: 1500,
       })
     : undefined;
