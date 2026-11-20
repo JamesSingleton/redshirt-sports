@@ -55,7 +55,7 @@ function LeadStory({
             Latest · {postArchiveKicker(post)}
           </div>
         </div>
-        <h2 className="mt-1 font-display text-2xl font-extrabold uppercase leading-tight group-hover:underline">
+        <h2 className="mt-1 font-display text-2xl font-extrabold leading-tight group-hover:underline">
           <Link href={`/${post.slug}`} prefetch={false}>
             {post.title}
           </Link>

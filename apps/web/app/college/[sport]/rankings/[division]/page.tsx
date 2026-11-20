@@ -11,6 +11,7 @@ import { LiveAdSlot } from "@/components/live-ad-slot";
 import { RankingsLatestPollContext } from "@/components/rankings/rankings-poll-context";
 import RankingsTabSkeleton from "@/components/rankings/rankings-tab-skeleton";
 import { RankingsWeekChrome } from "@/components/rankings/rankings-week-chrome";
+import { RankingsWeekChromeSkeleton } from "@/components/rankings/rankings-week-chrome-skeleton";
 import { RankingsWeekPageBody } from "@/components/rankings/rankings-week-page-body";
 import { draftAwareParamsPage } from "@/lib/draft-cache";
 import { getPageMetadata } from "@/lib/global-seo-settings";
@@ -71,7 +72,10 @@ export default function LatestPollPage({
 }) {
   return draftAwareParamsPage(
     params,
-    <RankingsTabSkeleton variant="poll" />,
+    <>
+      <RankingsWeekChromeSkeleton />
+      <RankingsTabSkeleton variant="poll" />
+    </>,
     (resolved, options) => renderLatestPollPage(resolved, options),
   );
 }

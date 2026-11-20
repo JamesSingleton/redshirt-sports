@@ -62,9 +62,7 @@ export function RankingsHistoryWeekMatrix({
     <div className="w-full min-w-0 max-w-full overflow-clip rounded-xl border bg-card shadow-xs">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b px-5 py-5">
         <div className="min-w-0">
-          <h2 className="font-display text-xl font-bold uppercase tracking-wide">
-            Week by week
-          </h2>
+          <h2 className="font-display text-xl font-bold">Week by week</h2>
           <p className="text-sm text-muted-foreground">
             Every team ranked at least once in {activeSeason.year}
           </p>

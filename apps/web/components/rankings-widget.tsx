@@ -40,7 +40,7 @@ export function RankingsWidget({ polls }: { polls: RankingsWidgetPoll[] }) {
     <Card data-testid="rankings-widget" className="gap-0 py-0 shadow-xs">
       <CardHeader className="flex items-start justify-between gap-2 px-5 pt-5">
         <div className="grid gap-1">
-          <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
+          <CardTitle className="font-display text-xl font-bold leading-[1.08]">
             {activePoll.label} Top 25
           </CardTitle>
           <CardDescription>

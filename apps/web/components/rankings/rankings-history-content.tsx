@@ -44,9 +44,7 @@ export function RankingsHistoryContent({
         aria-label="No. 1 history"
       >
         <div className="border-b px-5 py-5">
-          <h2 className="font-display text-xl font-bold uppercase tracking-wide">
-            No. 1 history
-          </h2>
+          <h2 className="font-display text-xl font-bold">No. 1 history</h2>
           <p className="text-sm text-muted-foreground">
             Who held the top spot ({activeSeason.year})
           </p>

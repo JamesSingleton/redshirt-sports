@@ -139,7 +139,7 @@ async function renderSportRankingsIndex(
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <div>
               <div className="kicker text-primary">{sportLabel}</div>
-              <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+              <h1 className="font-display text-[2.3rem] font-extrabold leading-[1.08] lg:text-headline-lg">
                 Rankings
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">

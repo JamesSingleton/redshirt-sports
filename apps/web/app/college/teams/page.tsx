@@ -78,7 +78,7 @@ async function renderCollegeTeamsPage({
             <ChevronRight className="size-3 shrink-0" aria-hidden />
             <span className="text-foreground">Teams</span>
           </nav>
-          <h1 className="mt-3 font-display text-[2.4rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+          <h1 className="mt-3 font-display text-[2.4rem] font-extrabold leading-[1.08] lg:text-headline-lg">
             College Teams
           </h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">

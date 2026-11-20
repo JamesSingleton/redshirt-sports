@@ -82,7 +82,7 @@ export function PersonPageContent({
           />
           <div>
             <div className="kicker text-primary">{rolesLabel}</div>
-            <h1 className="mt-1 font-display text-[2.6rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+            <h1 className="mt-1 font-display text-[2.6rem] font-extrabold leading-[1.08] lg:text-headline-lg">
               {author.name}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -129,9 +129,7 @@ export function PersonPageContent({
         <div className="mx-auto max-w-site px-4 pb-12 pt-6 lg:px-6">
           <div className="mx-auto max-w-3xl">
             <section className="border-t pt-6">
-              <h2 className="font-display text-3xl font-extrabold uppercase">
-                About
-              </h2>
+              <h2 className="font-display text-3xl font-extrabold">About</h2>
               <p className="mt-3 text-sm text-muted-foreground">
                 This profile is for Redshirt Sports staff who don&apos;t publish
                 articles on the site. Editorial profiles with story archives use
@@ -151,7 +149,7 @@ export function PersonPageContent({
         <div className="pt-6">
           <div>
             <div className="flex items-center justify-between border-b pb-3">
-              <h2 className="font-display text-2xl font-extrabold uppercase">
+              <h2 className="font-display text-2xl font-extrabold">
                 Latest from {author.name.split(" ")[0]}
               </h2>
               {totalPages > 1 ? (

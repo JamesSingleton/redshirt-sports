@@ -8,7 +8,10 @@ export function ArticleSidebar({
   moreFromAuthor,
   authorName,
 }: {
-  /** Sponsorship placement, above the rankings card. */
+  /**
+   * Sponsorship placement, last in the sidebar: it streams in after the page
+   * paints, and nothing below it may move when it does.
+   */
   adSlot?: ReactNode;
   rankings?: ReactNode;
   moreFromAuthor: Array<{ _id: string; title: string; slug: string }>;
@@ -17,11 +20,11 @@ export function ArticleSidebar({
   return (
     <aside className="hidden content-start gap-6 lg:grid" aria-label="Sidebar">
       <div className="sticky top-24 grid gap-6">
-        {adSlot}
         {rankings}
         {authorName ? (
           <MoreFromAuthorCard authorName={authorName} posts={moreFromAuthor} />
         ) : null}
+        {adSlot}
       </div>
     </aside>
   );

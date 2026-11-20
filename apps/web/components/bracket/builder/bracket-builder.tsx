@@ -15,6 +15,7 @@ import { Button } from "@redshirt-sports/ui/components/button";
 import { Input } from "@redshirt-sports/ui/components/input";
 import { Label } from "@redshirt-sports/ui/components/label";
 import { toast } from "@redshirt-sports/ui/components/toast";
+import { cn } from "@redshirt-sports/ui/lib/utils";
 import {
   Download,
   Eraser,
@@ -84,6 +85,8 @@ export function BracketBuilder({
   const [restored, setRestored] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [printBlank, setPrintBlank] = useState(false);
+  // Asking how to start waits until the saved draft has been looked for.
+  const choosing = restored && !started;
 
   // Read the saved draft after mount, so the server HTML is the blank bracket.
   useEffect(() => {
@@ -269,8 +272,18 @@ export function BracketBuilder({
           </p>
         </header>
 
-        {started ? (
-          <div className="flex flex-col gap-3">
+        {/*
+          Both blocks are always rendered, stacked in one grid cell, and the
+          one that doesn't apply is invisible. The saved draft is only read
+          after mount, so the area has to be its final height from the first
+          paint or the bracket below would move.
+        */}
+        <div className="grid *:[grid-area:1/1]">
+          <div
+            className={cn("flex flex-col gap-3", !started && "invisible")}
+            inert={!started}
+            aria-hidden={!started || undefined}
+          >
             <div className="flex max-w-md flex-col gap-1.5">
               <Label htmlFor={titleId}>Bracket name</Label>
               <Input
@@ -310,23 +323,31 @@ export function BracketBuilder({
               </Button>
             </div>
           </div>
-        ) : restored ? (
-          <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
-            <p className="font-medium">How do you want to start?</p>
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" onClick={() => start("projection")}>
-                Start from our {projectionLabel}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => start("blank")}
-              >
-                Start from scratch
-              </Button>
+          {projection !== null ? (
+            <div
+              className={cn(
+                "flex flex-col gap-3 self-start rounded-lg border border-border bg-card p-4",
+                !choosing && "invisible",
+              )}
+              inert={!choosing}
+              aria-hidden={!choosing || undefined}
+            >
+              <p className="font-medium">How do you want to start?</p>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={() => start("projection")}>
+                  Start from our {projectionLabel}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => start("blank")}
+                >
+                  Start from scratch
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {(
@@ -362,13 +383,18 @@ export function BracketBuilder({
         aria-label="Your bracket"
         className="w-full min-w-0 px-4 print:hidden"
       >
-        {started ? (
-          <p className="mx-auto mb-3 w-full max-w-site text-muted-foreground text-xs">
-            Choose a team for each open spot; the arrows beside a team change
-            it. Once a game has both teams, select the one you think wins to
-            send it on, and select it again to undo.
-          </p>
-        ) : null}
+        {/* Always rendered, so a restored draft doesn't push the bracket down. */}
+        <p
+          className={cn(
+            "mx-auto mb-3 w-full max-w-site text-muted-foreground text-xs",
+            !started && "invisible",
+          )}
+          aria-hidden={!started || undefined}
+        >
+          Choose a team for each open spot; the arrows beside a team change it.
+          Once a game has both teams, select the one you think wins to send it
+          on, and select it again to undo.
+        </p>
         <PlayoffBracket
           view={view}
           plain={!started}

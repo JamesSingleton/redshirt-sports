@@ -12,7 +12,7 @@ import { VisualEditing } from "next-sanity/visual-editing";
 import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
-import { fontBarlow, fontInter, fontSourceSerif } from "@/app/fonts";
+import { fontGeist } from "@/app/fonts";
 import {
   CachedBreakingNewsServer,
   DraftAwareBreakingNews,
@@ -53,7 +53,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontBarlow.variable} ${fontInter.variable} ${fontSourceSerif.variable} flex min-h-screen flex-col font-sans antialiased`}
+        className={`${fontGeist.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
         <Providers>
           {isDraftMode ? (
@@ -70,7 +70,7 @@ export default async function RootLayout({
           ) : (
             <CachedBreakingNewsServer {...PUBLISHED_FETCH_OPTIONS} />
           )}
-          <main id="main" className="min-w-0 flex-1 overflow-x-clip">
+          <main id="main" className="min-h-dvh min-w-0 flex-1 overflow-x-clip">
             {children}
           </main>
           <Suspense fallback={null}>

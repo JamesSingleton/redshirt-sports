@@ -54,7 +54,7 @@ export const AD_PLACEMENTS = [
   },
   {
     id: "rankings-methodology-sidebar",
-    title: "Rankings methodology sidebar",
+    title: "Rankings methodology (end of page)",
     hint: "300×250",
     width: 300,
     height: 250,

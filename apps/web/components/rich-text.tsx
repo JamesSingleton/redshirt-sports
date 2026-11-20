@@ -98,7 +98,7 @@ function RelatedArticleCard({
       <Link
         href={`/${post.slug}`}
         prefetch={false}
-        className="mt-1 block font-display text-xl font-bold uppercase leading-tight hover:text-primary"
+        className="mt-1 block font-display text-xl font-bold leading-tight hover:text-primary"
       >
         {post.title}
       </Link>
@@ -200,7 +200,7 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
       if (!value.quote) return null;
       return (
         <figure className="not-prose my-8 border-l-4 border-primary pl-5">
-          <blockquote className="font-serif text-2xl font-semibold leading-snug">
+          <blockquote className="text-2xl font-semibold leading-snug">
             “{value.quote}”
           </blockquote>
           {value.attribution ? (
@@ -220,11 +220,11 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
             {CALLOUT_LABEL[value.kind ?? "context"]}
           </p>
           {value.title ? (
-            <p className="mt-1 font-display text-xl font-bold uppercase leading-tight">
+            <p className="mt-1 font-display text-xl font-bold leading-tight">
               {value.title}
             </p>
           ) : null}
-          <p className="mt-2 whitespace-pre-line font-serif text-base leading-relaxed">
+          <p className="mt-2 whitespace-pre-line text-base leading-relaxed">
             {value.text}
           </p>
         </aside>
@@ -243,9 +243,7 @@ export const richTextComponents: Partial<PortableTextReactComponents> = {
       const host = socialHost(value.url);
       return (
         <aside className="not-prose my-6 rounded-xl border p-4">
-          {value.caption ? (
-            <p className="font-serif text-base">{value.caption}</p>
-          ) : null}
+          {value.caption ? <p className="text-base">{value.caption}</p> : null}
           <a
             href={value.url}
             rel="noreferrer noopener"

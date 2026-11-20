@@ -1,24 +1,13 @@
-import { Barlow_Condensed, Inter, Source_Serif_4 } from "next/font/google";
+import { Geist } from "next/font/google";
 
-// Module scope: Next downloads, subsets, and self-hosts these once at build time.
-export const fontBarlow = Barlow_Condensed({
+// Module scope: Next downloads, subsets, and self-hosts it once at build time.
+// One face for the whole site, headlines included; the admin app uses the
+// same face under the same variable name.
+// display "optional": a font that arrives after first paint is used from the
+// next page view instead of swapping in and re-laying out the text (a layout
+// shift). Preloaded fonts almost always arrive in time.
+export const fontGeist = Geist({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-  variable: "--font-barlow",
-  display: "swap",
-});
-
-export const fontInter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-// Article body face. Skip the homepage preload.
-export const fontSourceSerif = Source_Serif_4({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-source-serif",
-  display: "swap",
-  preload: false,
+  variable: "--font-geist-sans",
+  display: "optional",
 });

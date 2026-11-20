@@ -40,7 +40,7 @@ export default function SubmitPortalMovePage() {
             Report a move
           </span>
         </nav>
-        <h1 className="font-display mt-3 text-[2.1rem] leading-[0.95] font-extrabold uppercase sm:text-[2.6rem]">
+        <h1 className="font-display mt-3 text-[2.1rem] leading-[1.08] font-extrabold sm:text-[2.6rem]">
           Report a move
         </h1>
         <p className="text-muted-foreground mt-3 mb-8 text-sm">

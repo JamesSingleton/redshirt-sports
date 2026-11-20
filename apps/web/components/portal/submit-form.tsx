@@ -119,7 +119,7 @@ export function SubmitForm() {
       ) : null}
 
       <fieldset className="flex flex-col gap-4">
-        <legend className="font-display mb-3 text-xl font-extrabold uppercase">
+        <legend className="font-display mb-3 text-xl font-extrabold">
           The player
         </legend>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -202,7 +202,7 @@ export function SubmitForm() {
       </fieldset>
 
       <fieldset className="flex flex-col gap-4">
-        <legend className="font-display mb-3 text-xl font-extrabold uppercase">
+        <legend className="font-display mb-3 text-xl font-extrabold">
           What happened
         </legend>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -282,7 +282,7 @@ export function SubmitForm() {
       </fieldset>
 
       <fieldset className="flex flex-col gap-4">
-        <legend className="font-display mb-1 text-xl font-extrabold uppercase">
+        <legend className="font-display mb-1 text-xl font-extrabold">
           About you
         </legend>
         <p className="text-muted-foreground mb-2 text-sm">

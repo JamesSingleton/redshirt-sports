@@ -32,8 +32,7 @@ export const PORTAL_HUB_TITLE =
 export const PORTAL_HUB_DESCRIPTION =
   "Transfer portal news and the latest entries, commitments, and withdrawals across college football and men's and women's basketball.";
 
-const sectionTitle =
-  "font-display text-2xl leading-none font-extrabold uppercase";
+const sectionTitle = "font-display text-2xl leading-[1.08] font-extrabold";
 
 /** One sport's tracker: this cycle's counts and the way in. */
 function TrackerCard({ sport }: { sport: HubSport }) {
@@ -51,7 +50,7 @@ function TrackerCard({ sport }: { sport: HubSport }) {
         className="bg-card hover:bg-accent/30 group flex h-full flex-col rounded-xl border p-4"
       >
         <span className="kicker text-primary">{sport.cycleYear} portal</span>
-        <span className="font-display mt-1 text-xl leading-tight font-extrabold uppercase group-hover:underline">
+        <span className="font-display mt-1 text-xl leading-tight font-extrabold group-hover:underline">
           {label}
         </span>
         <dl className="mt-3 grid grid-cols-3 gap-2">
@@ -172,7 +171,7 @@ export async function PortalHub({
       <div className="from-muted/60 to-background border-b bg-gradient-to-b">
         <div className="max-w-site mx-auto px-4 pt-6 pb-6 lg:px-6">
           <div className="kicker text-primary">College sports</div>
-          <h1 className="font-display sm:text-headline lg:text-headline-lg mt-1 text-[2.1rem] leading-[0.95] font-extrabold uppercase">
+          <h1 className="font-display sm:text-headline lg:text-headline-lg mt-1 text-[2.1rem] leading-[1.08] font-extrabold">
             Transfer Portal
           </h1>
           <p className="text-muted-foreground mt-2 max-w-2xl text-sm">
@@ -227,7 +226,7 @@ export async function PortalHub({
             >
               <h2
                 id="latest-moves"
-                className="font-display text-xl leading-tight font-extrabold uppercase"
+                className="font-display text-xl leading-tight font-extrabold"
               >
                 Latest moves
               </h2>

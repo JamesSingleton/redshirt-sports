@@ -3,11 +3,9 @@ import { Suspense } from "react";
 
 import { CollegeNewsArchiveFilters } from "@/components/news/college-news-archive-filters";
 import { DivisionConferencePicker } from "@/components/news/division-conference-picker";
+import { NewsArchiveFilterBarPlaceholder } from "@/components/news/news-archive-filter-bar-placeholder";
 import { NewsArchiveFilters } from "@/components/news/news-archive-filters";
-import {
-  ConferencePickerSkeleton,
-  NewsArchiveFilterBarSkeleton,
-} from "@/components/news/news-archive-inline-skeletons";
+import { ConferencePickerSkeleton } from "@/components/news/news-archive-inline-skeletons";
 import { buildCollegeNewsFilterOptions } from "@/lib/college-news-filters";
 import type { NewsArchiveSearchParams } from "@/lib/news-archive";
 import { getCachedGlobalNavigation } from "@/lib/news-archive/cached-global-navigation";
@@ -39,9 +37,7 @@ export function CollegeNewsFiltersSlot({
   stega,
 }: DynamicFetchOptions & { filterParams: NewsArchiveSearchParams }) {
   return (
-    <Suspense
-      fallback={<NewsArchiveFilterBarSkeleton filterBarSize="college" />}
-    >
+    <Suspense fallback={<NewsArchiveFilterBarPlaceholder variant="college" />}>
       <CachedCollegeNewsFiltersInner
         filterParams={filterParams}
         perspective={perspective}
@@ -86,7 +82,7 @@ export function SportNewsFiltersSlot({
   filterParams: NewsArchiveSearchParams;
 }) {
   return (
-    <Suspense fallback={<NewsArchiveFilterBarSkeleton filterBarSize="sport" />}>
+    <Suspense fallback={<NewsArchiveFilterBarPlaceholder variant="sport" />}>
       <CachedSportNewsFiltersInner
         sportSlug={sportSlug}
         filterParams={filterParams}
@@ -161,7 +157,7 @@ export function FolderNewsFiltersBelowHeaderSlot(
   },
 ) {
   return (
-    <Suspense fallback={<NewsArchiveFilterBarSkeleton filterBarSize="sport" />}>
+    <Suspense fallback={<NewsArchiveFilterBarPlaceholder variant="folder" />}>
       <CachedFolderNewsFiltersBelowHeaderInner {...props} />
     </Suspense>
   );

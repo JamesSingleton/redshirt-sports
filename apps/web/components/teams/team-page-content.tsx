@@ -144,7 +144,7 @@ export function TeamPageContent({
               <div className="kicker text-primary">Team hub</div>
             )}
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-display text-[2.2rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+              <h1 className="font-display text-[2.2rem] font-extrabold leading-[1.08] lg:text-headline-lg">
                 {displayName}
               </h1>
               {footballPoll ? (
@@ -176,9 +176,7 @@ export function TeamPageContent({
       <div className="grid grid-cols-1 gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-10">
           <section id="latest" className="scroll-mt-24 border-t pt-6">
-            <h2 className="font-display text-2xl font-extrabold uppercase">
-              Latest
-            </h2>
+            <h2 className="font-display text-2xl font-extrabold">Latest</h2>
             {latestLead ? (
               <div className="mt-4 space-y-5">
                 <TeamFeaturedArticle post={latestLead} />
@@ -218,7 +216,7 @@ export function TeamPageContent({
                 className="scroll-mt-24 border-t pt-6"
               >
                 <div className="flex flex-wrap items-end justify-between gap-3">
-                  <h2 className="font-display text-2xl font-extrabold uppercase">
+                  <h2 className="font-display text-2xl font-extrabold">
                     {section.title}
                   </h2>
                   <Link
@@ -263,7 +261,7 @@ export function TeamPageContent({
           })}
 
           <section id="info" className="scroll-mt-24 border-t pt-6">
-            <h2 className="font-display text-2xl font-extrabold uppercase">
+            <h2 className="font-display text-2xl font-extrabold">
               Info &amp; links
             </h2>
             <TeamInfoLinks school={school} />

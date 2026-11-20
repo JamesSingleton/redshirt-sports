@@ -20,7 +20,7 @@ export function RankingsIndexPollCard({ card }: { card: RankingsIndexCard }) {
           <div className="kicker text-primary">
             Redshirt Sports Poll · {card.label}
           </div>
-          <h2 className="font-display text-3xl font-extrabold uppercase leading-none">
+          <h2 className="font-display text-3xl font-extrabold leading-[1.08]">
             <Link
               href={poll.weekHref}
               className="hover:underline"

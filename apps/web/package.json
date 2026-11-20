@@ -18,7 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:instant": "playwright test e2e/home-shell.instant.spec.ts"
+    "test:instant": "playwright test e2e/home-shell.instant.spec.ts",
+    "test:layout-shift": "playwright test e2e/layout-shift.instant.spec.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.2",

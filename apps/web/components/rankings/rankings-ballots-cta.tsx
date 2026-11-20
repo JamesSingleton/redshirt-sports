@@ -35,7 +35,7 @@ export function RankingsBallotsCta({
           <Grid3x3 className="size-5" aria-hidden />
         </span>
         <span className="flex-1">
-          <span className="block font-display text-lg font-bold uppercase leading-tight">
+          <span className="block font-display text-lg font-bold leading-tight">
             See all {ballotsCounted} {ballotWord}
           </span>
           <span className="block text-sm text-muted-foreground">
@@ -56,7 +56,7 @@ export function RankingsBallotsCta({
           </span>
           <div>
             <div className="kicker text-primary">Ballot transparency</div>
-            <div className="font-display text-2xl font-extrabold uppercase leading-none">
+            <div className="font-display text-2xl font-extrabold leading-[1.08]">
               See all {ballotsCounted} {ballotWord}
             </div>
           </div>

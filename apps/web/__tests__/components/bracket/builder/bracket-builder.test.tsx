@@ -143,14 +143,18 @@ describe("BracketBuilder", () => {
         name: "Build Your 2026 FCS Playoff Bracket",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("How do you want to start?")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Start from scratch" }),
+    ).toBeInTheDocument();
     expect(picks()).toHaveLength(0);
-    expect(screen.queryByLabelText("Bracket name")).toBeNull();
+    expect(screen.queryByRole("textbox", { name: "Bracket name" })).toBeNull();
 
     await userEvent.click(
       screen.getByRole("button", { name: "Start from our Week 7 projection" }),
     );
-    expect(screen.queryByText("How do you want to start?")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Start from scratch" }),
+    ).toBeNull();
     expect(picks().length).toBeGreaterThan(0);
     expect(Object.keys(saved().slots)).toHaveLength(24);
     expect(events("bracket_builder_started")).toEqual([
@@ -185,7 +189,9 @@ describe("BracketBuilder", () => {
 
   it("needs no prompt without a projection, and counts the first team as the start", async () => {
     render(<BracketBuilder model={model({ projection: null })} logo={null} />);
-    expect(screen.queryByText("How do you want to start?")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Start from scratch" }),
+    ).toBeNull();
     const startOver = screen.getByRole("button", { name: "Start over" });
     expect(startOver).toBeDisabled();
 
@@ -232,7 +238,9 @@ describe("BracketBuilder", () => {
   it("restores a saved bracket and records the champion once", async () => {
     save({ ...almostDone(), title: "Chalk" });
     render(<BracketBuilder model={model()} logo={null} />);
-    expect(screen.queryByText("How do you want to start?")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Start from scratch" }),
+    ).toBeNull();
     expect(screen.getByLabelText("Bracket name")).toHaveValue("Chalk");
     expect(frame()).toHaveTextContent("Chalk");
     expect(frame()).toHaveTextContent("Redshirt Sports bracket builder");
