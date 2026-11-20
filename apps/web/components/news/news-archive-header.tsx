@@ -49,7 +49,7 @@ export function NewsArchiveHeader({
       </nav>
       <div className="mt-3">
         <div className="kicker text-primary">{kicker}</div>
-        <h1 className="font-display text-[2.4rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+        <h1 className="font-display text-[2.4rem] font-extrabold leading-[1.08] lg:text-headline-lg">
           {title}
         </h1>
         {description ? (

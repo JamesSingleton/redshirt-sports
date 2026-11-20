@@ -115,7 +115,7 @@ describe("cached news archive nav chrome", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows folder filter skeleton while loading", () => {
+  it("holds the filter bar's space while loading", () => {
     mockSanityFetchPage.mockImplementation(() => new Promise(() => {}));
 
     const { container } = render(
@@ -126,8 +126,7 @@ describe("cached news archive nav chrome", () => {
         stega={false}
       />,
     );
-    expect(
-      container.querySelector('[data-slot="skeleton"]'),
-    ).toBeInTheDocument();
+    // The placeholder is the bar's own fields, inert, so it is the same size.
+    expect(container.querySelector("[inert]")).toBeInTheDocument();
   });
 });

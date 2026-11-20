@@ -61,8 +61,7 @@ import { sportHubPath, sportNavLabel } from "@/lib/sport-nav";
 /** How many journey stops show before "Show all". */
 const JOURNEY_SHOWN = 4;
 
-const sectionTitle =
-  "font-display text-2xl leading-none font-extrabold uppercase";
+const sectionTitle = "font-display text-2xl leading-[1.08] font-extrabold";
 
 function SectionHead({ title, action }: { title: string; action?: ReactNode }) {
   return (
@@ -309,7 +308,7 @@ function Band({
                   Transfer Portal · {sportLabel}
                 </div>
               ) : null}
-              <h1 className="font-display sm:text-headline lg:text-headline-lg mt-1 flex flex-wrap items-center gap-x-3 text-[2.1rem] leading-[0.95] font-extrabold uppercase">
+              <h1 className="font-display sm:text-headline lg:text-headline-lg mt-1 flex flex-wrap items-center gap-x-3 text-[2.1rem] leading-[1.08] font-extrabold">
                 {name}
                 {latest?.isGradTransfer ? (
                   <GradCap iconClassName="size-7" />
@@ -708,7 +707,7 @@ function Stories({ stories }: { stories: HomePost[] }) {
 function QuietSideCard({ lists }: { lists: SideList[] }) {
   return (
     <section className="bg-card rounded-xl border px-5 pt-5 pb-4">
-      <h2 className="font-display text-xl leading-tight font-extrabold uppercase">
+      <h2 className="font-display text-xl leading-tight font-extrabold">
         Around the portal
       </h2>
       <p className="text-muted-foreground mt-0.5 text-sm">
@@ -733,7 +732,7 @@ function QuietSideCard({ lists }: { lists: SideList[] }) {
 function SideListCard({ list }: { list: SideList }) {
   return (
     <section className="bg-card rounded-xl border px-5 pt-5 pb-4">
-      <h2 className="font-display text-xl leading-tight font-extrabold uppercase">
+      <h2 className="font-display text-xl leading-tight font-extrabold">
         {list.title}
       </h2>
       <p className="text-muted-foreground mt-0.5 text-sm">{list.description}</p>
@@ -858,13 +857,16 @@ export function PlayerProfile({
                 .slice(0, 1)
                 .map((list) => <SideListCard key={list.title} list={list} />)
             )}
-            {/* Between the two lists, as the mockup has it. Nothing when unsold. */}
-            {adSlot}
             {quiet
               ? null
               : lists
                   .slice(1)
                   .map((list) => <SideListCard key={list.title} list={list} />)}
+            {/*
+              Last in the column: it streams in after the page paints (nothing
+              when unsold), and nothing below it may move when it arrives.
+            */}
+            {adSlot}
           </aside>
         </div>
       </div>

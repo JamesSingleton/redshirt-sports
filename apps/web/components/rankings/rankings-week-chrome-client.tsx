@@ -61,7 +61,7 @@ export function RankingsWeekChromeClient({
         <div className="kicker text-primary">
           Redshirt Sports Poll · {shell.divisionName}
         </div>
-        <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+        <h1 className="font-display text-[2.3rem] font-extrabold leading-[1.08] lg:text-headline-lg">
           {headingForPath(shell, pathname)}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">

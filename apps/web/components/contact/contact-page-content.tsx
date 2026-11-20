@@ -65,7 +65,7 @@ export function ContactPageContent({
       <section className="border-b pb-10 pt-6" data-block="hero">
         <div className="max-w-3xl">
           <div className="kicker text-primary">Contact</div>
-          <h1 className="mt-2 font-display text-[2.6rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+          <h1 className="mt-2 font-display text-[2.6rem] font-extrabold leading-[1.08] lg:text-headline-lg">
             Get in touch
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
@@ -76,16 +76,14 @@ export function ContactPageContent({
       </section>
 
       <section className="border-b py-10" data-block="cardGrid">
-        <h2 className="font-display text-3xl font-extrabold uppercase">
-          Who to contact
-        </h2>
+        <h2 className="font-display text-3xl font-extrabold">Who to contact</h2>
         <ul className="mt-5 grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(100%,15rem),1fr))]">
           {DEFAULT_OPTIONS.map((option) => (
             <li
               key={option.title}
               className="flex flex-col rounded-xl border bg-card p-4"
             >
-              <h3 className="font-display text-xl font-bold uppercase leading-tight">
+              <h3 className="font-display text-xl font-bold leading-tight">
                 {option.title}
               </h3>
               <p className="mt-1 flex-1 text-sm text-muted-foreground">
@@ -108,7 +106,7 @@ export function ContactPageContent({
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
           <ContactForm contactEmail={contactEmail} />
           <div className="grid content-start gap-4">
-            <h2 className="font-display text-3xl font-extrabold uppercase">
+            <h2 className="font-display text-3xl font-extrabold">
               Before you write
             </h2>
             <ul className="grid gap-2 text-sm text-muted-foreground">
@@ -138,7 +136,7 @@ export function ContactPageContent({
 
       {socialLinks ? (
         <section className="border-b py-10" data-block="socialLinks">
-          <h2 className="font-display text-3xl font-extrabold uppercase">
+          <h2 className="font-display text-3xl font-extrabold">
             Follow Redshirt Sports
           </h2>
           <SiteSocialButtons socialLinks={socialLinks} className="mt-4" />

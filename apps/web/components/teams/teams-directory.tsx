@@ -167,7 +167,7 @@ export function TeamsDirectory({ teams }: { teams: TeamDirectorySchool[] }) {
             >
               <h2
                 id={`letter-${group.letter}`}
-                className="sticky top-14 z-10 -mx-1 mb-3 border-b bg-background/95 px-1 py-2 font-display text-2xl font-extrabold uppercase backdrop-blur lg:top-16"
+                className="sticky top-14 z-10 -mx-1 mb-3 border-b bg-background/95 px-1 py-2 font-display text-2xl font-extrabold backdrop-blur lg:top-16"
               >
                 {group.letter}
               </h2>

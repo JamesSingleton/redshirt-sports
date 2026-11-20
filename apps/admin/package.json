@@ -25,6 +25,7 @@
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tabler/icons-react": "^3.52.0",
     "drizzle-orm": "catalog:",
+    "geist": "1.9.2",
     "lucide-react": "catalog:",
     "next": "catalog:",
     "next-sanity": "catalog:",

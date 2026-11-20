@@ -125,7 +125,7 @@ export async function WirePage({
           <span className="text-foreground">Transfer Portal</span>
         </nav>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
-          <h1 className="font-display text-[2.6rem] leading-[0.9] font-extrabold uppercase md:text-[3.4rem]">
+          <h1 className="font-display text-[2.6rem] leading-[1.08] font-extrabold md:text-[3.4rem]">
             {year} {portalSportLabel(sport)}
             <span className="text-muted-foreground block">Transfer Portal</span>
           </h1>

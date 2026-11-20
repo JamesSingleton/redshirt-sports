@@ -49,14 +49,16 @@ export function DivisionConferencePicker({
   const triggerLabel = active?.name ?? `All conferences`;
 
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2">
+    // One row that scrolls sideways instead of wrapping: always one control
+    // tall, so its loading placeholder (ConferencePickerSkeleton) matches.
+    <div className="mt-3 -mb-1 flex items-center gap-2 overflow-x-auto py-1 [scrollbar-width:none]">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
             <Button
               type="button"
               variant="outline"
-              className="h-9 gap-2 px-3 font-medium"
+              className="h-9 shrink-0 gap-2 px-3 font-medium"
               aria-haspopup="listbox"
               aria-expanded={open}
             />
@@ -122,7 +124,9 @@ export function DivisionConferencePicker({
       </Popover>
       {popular.length > 0 ? (
         <>
-          <span className="text-sm text-muted-foreground">Popular:</span>
+          <span className="shrink-0 text-sm text-muted-foreground">
+            Popular:
+          </span>
           {popular.map((conference) => (
             <Link
               key={conference.slug}

@@ -22,7 +22,7 @@ const CORRECTION_LABEL: Record<string, string> = {
 export function ArticleEditorsNote({ note }: { note: Post["editorsNote"] }) {
   if (!note) return null;
   return (
-    <p className="mx-auto mt-8 max-w-prose border-l-2 border-primary pl-4 font-serif text-base italic text-muted-foreground">
+    <p className="mx-auto mt-8 max-w-article border-l-2 border-primary pl-4 text-base italic text-muted-foreground">
       <span className="font-semibold not-italic">Editor's note: </span>
       {note}
     </p>
@@ -39,12 +39,12 @@ export function ArticleKeyTakeaways({
   return (
     <section
       aria-labelledby="key-takeaways"
-      className="mx-auto mt-8 max-w-prose rounded-xl border bg-muted/40 p-5"
+      className="mx-auto mt-8 max-w-article rounded-xl border bg-muted/40 p-5"
     >
       <h2 id="key-takeaways" className="kicker text-primary">
         Key takeaways
       </h2>
-      <ul className="mt-3 list-disc space-y-2 pl-5 font-serif text-[1.05rem] leading-snug">
+      <ul className="mt-3 list-disc space-y-2 pl-5 text-[1.05rem] leading-snug">
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}
@@ -61,21 +61,16 @@ export function ArticleFaq({ faqs }: { faqs: Post["faqs"] }) {
   return (
     <section
       aria-labelledby="article-faq"
-      className="mx-auto mt-10 max-w-prose"
+      className="mx-auto mt-10 max-w-article"
     >
-      <h2
-        id="article-faq"
-        className="font-display text-2xl font-bold uppercase"
-      >
+      <h2 id="article-faq" className="font-display text-2xl font-bold">
         Questions &amp; answers
       </h2>
       <dl className="mt-4 divide-y border-y">
         {pairs.map((faq) => (
           <div key={faq._key} className="py-4">
             <dt className="font-semibold">{faq.question}</dt>
-            <dd className="mt-2 font-serif text-muted-foreground">
-              {faq.answer}
-            </dd>
+            <dd className="mt-2 text-muted-foreground">{faq.answer}</dd>
           </div>
         ))}
       </dl>
@@ -113,7 +108,7 @@ export function ArticleFooterNotes({
   }
 
   return (
-    <footer className="mx-auto mt-10 max-w-prose space-y-6 border-t pt-6 text-sm text-muted-foreground">
+    <footer className="mx-auto mt-10 max-w-article space-y-6 border-t pt-6 text-sm text-muted-foreground">
       {names.length > 0 ? (
         <p className="italic">
           {listFormat.format(names.map((person) => person.name as string))}{" "}

@@ -14,10 +14,10 @@ export function ArticleRelatedPosts({
 
   return (
     <section
-      className="mx-auto mt-12 max-w-prose border-t pt-8"
+      className="mx-auto mt-12 max-w-article border-t pt-8"
       aria-label="Articles you might also like"
     >
-      <h2 className="font-display text-xl font-bold uppercase tracking-wide">
+      <h2 className="font-display text-xl font-bold">
         Articles you might also like
       </h2>
       <ul className="mt-4 grid gap-4">

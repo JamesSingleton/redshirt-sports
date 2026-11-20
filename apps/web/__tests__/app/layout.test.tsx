@@ -14,16 +14,8 @@ vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
   resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
-vi.mock("next/font/google", () => ({
-  Barlow_Condensed: () => ({ variable: "--font-barlow" }),
-  Inter: () => ({ variable: "--font-inter" }),
-  Source_Serif_4: () => ({ variable: "--font-source-serif" }),
-}));
-
-vi.mock("@/app/fonts", () => ({
-  fontBarlow: { variable: "--font-barlow" },
-  fontInter: { variable: "--font-inter" },
-  fontSourceSerif: { variable: "--font-source-serif" },
+vi.mock("geist/font/sans", () => ({
+  GeistSans: { variable: "--font-geist-sans" },
 }));
 
 vi.mock("next/headers", () => ({

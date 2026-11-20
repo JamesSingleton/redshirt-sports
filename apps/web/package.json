@@ -18,7 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:instant": "playwright test e2e/home-shell.instant.spec.ts"
+    "test:instant": "playwright test e2e/home-shell.instant.spec.ts",
+    "test:layout-shift": "playwright test e2e/layout-shift.instant.spec.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.2",
@@ -44,6 +45,7 @@
     "date-fns-tz": "^3.2.0",
     "drizzle-orm": "catalog:",
     "feed": "^6.0.0",
+    "geist": "1.9.2",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "catalog:",
     "modern-screenshot": "4.7.0",

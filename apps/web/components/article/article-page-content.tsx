@@ -91,14 +91,14 @@ export function ArticlePageContent({
           <div className="kicker text-primary">{articleKicker(post)}</div>
           <h1
             id="article-title"
-            className="mt-2 max-w-4xl font-display text-[2.4rem] font-extrabold uppercase leading-[0.98] lg:text-headline-lg"
+            className="mt-2 max-w-4xl font-display text-[2.4rem] font-extrabold leading-[1.08] lg:text-headline-lg"
           >
             {post.title}
           </h1>
           {post.excerpt ? (
             <p
               id="article-excerpt"
-              className="mt-4 max-w-3xl font-serif text-xl text-muted-foreground"
+              className="mt-4 max-w-3xl text-xl text-muted-foreground"
             >
               {post.excerpt}
             </p>
@@ -141,7 +141,7 @@ export function ArticlePageContent({
 
           <RichText
             richText={post.body}
-            className="prose-headings:font-display prose-headings:font-bold prose-headings:uppercase prose-headings:not-prose prose-a:text-primary prose-a:underline-offset-2 mx-auto mt-8 max-w-prose font-serif text-[1.15rem] leading-[1.7] prose-zinc dark:prose-invert [&_p]:mb-5"
+            className="prose-headings:font-display prose-headings:font-bold prose-headings:not-prose prose-a:text-primary prose-a:underline-offset-2 mx-auto mt-8 max-w-article! text-[1.15rem] leading-[1.7] prose-zinc dark:prose-invert [&_p]:mb-5"
           />
 
           <ArticleFaq faqs={post.faqs} />

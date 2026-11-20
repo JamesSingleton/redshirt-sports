@@ -141,7 +141,7 @@ export function RankingsBeyondTop25({
         )}
       >
         <CardHeader className="px-5 pt-5">
-          <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
+          <CardTitle className="font-display text-xl font-bold leading-[1.08]">
             Others receiving votes
           </CardTitle>
           <CardDescription>Points &gt; 0, outside the Top 25</CardDescription>
@@ -154,7 +154,7 @@ export function RankingsBeyondTop25({
 
   return (
     <section className="pt-8" aria-label="Beyond the Top 25">
-      <h2 className="font-display text-2xl font-extrabold uppercase">
+      <h2 className="font-display text-2xl font-extrabold">
         Beyond the Top 25
       </h2>
       {useStackedSection ? (
@@ -200,7 +200,7 @@ function DroppedOutCard({
   return (
     <Card className="gap-0 py-0 shadow-xs">
       <CardHeader className="px-5 pt-5">
-        <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
+        <CardTitle className="font-display text-xl font-bold leading-[1.08]">
           Dropped out of the Top 25
         </CardTitle>
         <CardDescription>
@@ -259,7 +259,7 @@ function NoLongerCard({ teams }: { teams: RankingTeamRef[] }) {
   return (
     <Card className="gap-0 py-0 shadow-xs">
       <CardHeader className="px-5 pt-5">
-        <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
+        <CardTitle className="font-display text-xl font-bold leading-[1.08]">
           No longer receiving votes
         </CardTitle>
         <CardDescription>Had points last week, none this week</CardDescription>

@@ -161,6 +161,8 @@ describe("WireView", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  // Many simulated clicks in a row: well under a second alone, but it ran past
+  // the 5s default on a busy machine.
   it("loads every player when someone filters, and counts follow the filters", async () => {
     const initial = wireData(many(50));
     const full = wireData([
@@ -213,7 +215,7 @@ describe("WireView", () => {
     expect(window.location.search).toBe("");
     expect(screen.getByText("Showing 1–25 of 51")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledOnce();
-  });
+  }, 15_000);
 
   it("pages, sorts, and keeps both in the URL", async () => {
     mockFetch(wireData(many(60)));

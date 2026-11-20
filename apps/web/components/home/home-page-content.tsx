@@ -172,7 +172,7 @@ export function HomePageContent({
             </div>
           </Link>
           <div className="kicker mt-4 text-primary">{postKicker(lead)}</div>
-          <h2 className="mt-1 font-display text-headline font-extrabold uppercase decoration-4 underline-offset-4 group-hover:underline lg:text-headline-lg">
+          <h2 className="mt-1 font-display text-headline font-extrabold decoration-4 underline-offset-4 group-hover:underline lg:text-headline-lg">
             <Link href={`/${lead.slug}`} prefetch={false}>
               {lead.title}
             </Link>
@@ -247,14 +247,10 @@ export function HomePageContent({
         </div>
       </section>
 
-      {leaderboardAd}
-
       <section className="mt-10 grid gap-8 pb-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="min-w-0">
           <div className="flex items-center justify-between border-b pb-3">
-            <h2 className="font-display text-2xl font-extrabold uppercase">
-              Latest
-            </h2>
+            <h2 className="font-display text-2xl font-extrabold">Latest</h2>
             <Link
               href="/college/news"
               prefetch={false}
@@ -336,7 +332,7 @@ export function HomePageContent({
                 className={cn("min-w-0", wide && "lg:col-span-2")}
               >
                 <div className="mb-4 flex items-end justify-between gap-4 border-b pb-3">
-                  <h2 className="font-display text-xl font-extrabold uppercase leading-none sm:text-2xl">
+                  <h2 className="font-display text-xl font-extrabold leading-[1.08] sm:text-2xl">
                     {section.title}
                   </h2>
                   <Link
@@ -366,6 +362,12 @@ export function HomePageContent({
           })}
         </div>
       ) : null}
+
+      {/*
+        Last on the page: sponsorships stream in after the page paints, and
+        nothing below an ad may move when it arrives.
+      */}
+      {leaderboardAd}
     </div>
   );
 }

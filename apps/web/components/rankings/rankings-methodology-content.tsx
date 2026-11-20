@@ -82,9 +82,7 @@ function MethodSection({
 }) {
   return (
     <section id={id} className="scroll-mt-28 border-b pb-8 last:border-0">
-      <h2 className="font-display text-2xl font-extrabold uppercase">
-        {title}
-      </h2>
+      <h2 className="font-display text-2xl font-extrabold">{title}</h2>
       <div className="mt-3 grid gap-3 text-[15px] leading-relaxed text-foreground/90">
         {children}
       </div>
@@ -106,9 +104,7 @@ function TriCard({
       <span className="flex size-9 items-center justify-center rounded-lg bg-accent text-primary">
         {icon}
       </span>
-      <div className="mt-3 font-display text-xl font-bold uppercase">
-        {title}
-      </div>
+      <div className="mt-3 font-display text-xl font-bold">{title}</div>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   );
@@ -121,10 +117,7 @@ export function RankingsMethodologyContent({
   adSlot?: ReactNode;
 }) {
   return (
-    <div
-      // The third column exists only once a sponsorship has rendered into it.
-      className="grid gap-10 pt-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:has-[[data-ad-slot]]:grid-cols-[240px_minmax(0,1fr)_300px]"
-    >
+    <div className="grid gap-10 pt-6 lg:grid-cols-[240px_minmax(0,1fr)]">
       <aside className="hidden lg:block">
         <MethodologySectionNav sections={SECTIONS} />
       </aside>
@@ -310,11 +303,12 @@ export function RankingsMethodologyContent({
             ))}
           </Accordion>
         </MethodSection>
-      </article>
-
-      <aside className="hidden content-start lg:has-[[data-ad-slot]]:grid">
+        {/*
+          End of the article: the sponsorship streams in after the page paints
+          (nothing when unsold), and nothing below it may move when it does.
+        */}
         {adSlot}
-      </aside>
+      </article>
     </div>
   );
 }

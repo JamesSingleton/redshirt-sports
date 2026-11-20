@@ -20,7 +20,7 @@ export function MoreFromAuthorCard({
   return (
     <Card className="gap-0 py-0 shadow-xs">
       <CardHeader className="px-5 pt-5">
-        <CardTitle className="font-display text-xl font-bold uppercase leading-none tracking-wide">
+        <CardTitle className="font-display text-xl font-bold leading-[1.08]">
           More from {authorName}
         </CardTitle>
       </CardHeader>

@@ -59,7 +59,7 @@ export function ArticleTaggedTeamsRow({
 
   return (
     <section
-      className="mx-auto mt-6 max-w-prose"
+      className="mx-auto mt-6 max-w-article"
       aria-labelledby="article-tagged-teams"
     >
       <h2 id="article-tagged-teams" className="kicker text-muted-foreground">

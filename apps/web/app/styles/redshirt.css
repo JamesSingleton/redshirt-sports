@@ -1,19 +1,20 @@
 @import "@redshirt-sports/ui/globals.css";
 
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-barlow), "Arial Narrow", ui-sans-serif, sans-serif;
-  --font-serif: var(--font-source-serif), Georgia, ui-serif, serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 
   --text-kicker: 0.875rem;
   --text-kicker--letter-spacing: 0.08em;
   --text-headline-sm: 1.375rem;
-  --text-headline-sm--line-height: 1.1;
+  --text-headline-sm--line-height: 1.15;
   --text-headline: 2rem;
-  --text-headline--line-height: 1.05;
+  --text-headline--line-height: 1.1;
   --text-headline-lg: 3.25rem;
-  --text-headline-lg--line-height: 1;
+  --text-headline-lg--line-height: 1.08;
   --container-prose: 42rem;
+  /* The article column: about 70 characters of body text per line. */
+  --container-article: 39rem;
   --container-site: 90rem;
 }
 
@@ -26,6 +27,7 @@
   h3,
   .font-display {
     font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 }
 
@@ -53,6 +55,10 @@
 
 @utility max-w-prose {
   max-width: var(--container-prose);
+}
+
+@utility max-w-article {
+  max-width: var(--container-article);
 }
 
 :root {

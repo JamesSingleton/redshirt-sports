@@ -53,7 +53,7 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
       <section className="border-b pb-10 pt-6" data-block="hero">
         <div className="max-w-3xl">
           <div className="kicker text-primary">About Redshirt Sports</div>
-          <h1 className="mt-2 font-display text-[2.6rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+          <h1 className="mt-2 font-display text-[2.6rem] font-extrabold leading-[1.08] lg:text-headline-lg">
             Every level of college sports
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
@@ -66,9 +66,7 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
 
       <section className="border-b py-10" data-block="richText">
         <div className="max-w-prose">
-          <h2 className="font-display text-3xl font-extrabold uppercase">
-            Our mission
-          </h2>
+          <h2 className="font-display text-3xl font-extrabold">Our mission</h2>
           <p className="mt-3 text-muted-foreground">
             Redshirt Sports covers college athletics at all levels with
             reporting, analysis and rankings, and publishes every poll ballot so
@@ -78,13 +76,11 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
       </section>
 
       <section className="border-b py-10" data-block="featureGrid">
-        <h2 className="font-display text-3xl font-extrabold uppercase">
-          What we cover
-        </h2>
+        <h2 className="font-display text-3xl font-extrabold">What we cover</h2>
         <ul className="mt-5 grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(100%,14rem),1fr))]">
           {COVERAGE.map((item) => (
             <li key={item.title} className="rounded-xl border bg-card p-4">
-              <h3 className="font-display text-2xl font-extrabold uppercase text-primary">
+              <h3 className="font-display text-2xl font-extrabold text-primary">
                 {item.title}
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -99,7 +95,7 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
         <div className="grid gap-6 rounded-xl border bg-muted/40 p-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <div className="kicker text-primary">Redshirt Sports Poll</div>
-            <h2 className="mt-1 font-display text-3xl font-extrabold uppercase">
+            <h2 className="mt-1 font-display text-3xl font-extrabold">
               The Top 25, in the open
             </h2>
             <p className="mt-2 max-w-2xl text-muted-foreground">
@@ -125,9 +121,7 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
       </section>
 
       <section className="border-b py-10" data-block="staffGrid">
-        <h2 className="font-display text-3xl font-extrabold uppercase">
-          Our staff
-        </h2>
+        <h2 className="font-display text-3xl font-extrabold">Our staff</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Writers and editors. Open a name to read their profile.
         </p>
@@ -165,7 +159,7 @@ export function AboutPageContent({ authors }: { authors: AboutAuthor[] }) {
       <section className="py-10" data-block="cta">
         <div className="grid gap-4 rounded-xl bg-ink p-6 text-ink-foreground md:grid-cols-2">
           <div>
-            <h2 className="font-display text-3xl font-extrabold uppercase">
+            <h2 className="font-display text-3xl font-extrabold">
               Work with us
             </h2>
             <p className="mt-2 text-sm text-ink-foreground/75">

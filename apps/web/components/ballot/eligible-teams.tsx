@@ -95,7 +95,7 @@ export function EligibleTeams({
       <div className="shrink-0">
         <h2
           id="eligible-teams-title"
-          className="font-display text-xl font-bold uppercase"
+          className="font-display text-xl font-bold"
         >
           Eligible teams
         </h2>

@@ -57,7 +57,7 @@ async function CachedRankingsMethodologyPage({
         </div>
         <div className="mt-3">
           <div className="kicker text-primary">Redshirt Sports Poll</div>
-          <h1 className="font-display text-[2.3rem] font-extrabold uppercase leading-none lg:text-headline-lg">
+          <h1 className="font-display text-[2.3rem] font-extrabold leading-[1.08] lg:text-headline-lg">
             How the Top 25 works
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">

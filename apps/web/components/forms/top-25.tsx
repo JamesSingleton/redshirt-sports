@@ -392,10 +392,7 @@ function Top25Form({
             className={cn("grid gap-3", view === "teams" && "max-lg:hidden")}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2
-                id="ranking-title"
-                className="font-display text-xl font-bold uppercase"
-              >
+              <h2 id="ranking-title" className="font-display text-xl font-bold">
                 Ranking
               </h2>
               <div className="flex gap-2">

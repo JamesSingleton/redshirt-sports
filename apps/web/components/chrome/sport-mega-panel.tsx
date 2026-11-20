@@ -48,7 +48,7 @@ export function SportMenuContent({ item }: { item: NavSportMenuItem }) {
         }
       >
         <span className="kicker text-primary">News hub</span>
-        <span className="mt-1 font-display text-2xl font-bold uppercase leading-tight">
+        <span className="mt-1 font-display text-2xl font-bold leading-tight">
           {label}
         </span>
         <span className="mt-2 text-sm leading-snug text-muted-foreground">

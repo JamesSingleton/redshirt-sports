@@ -60,7 +60,7 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
       >
         <h3
           id="contact-form-heading"
-          className="font-display text-2xl font-extrabold uppercase"
+          className="font-display text-2xl font-extrabold"
         >
           Send a message
         </h3>
