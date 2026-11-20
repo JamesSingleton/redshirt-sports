@@ -7,6 +7,7 @@ import {
   NavigationMenuList as NavigationMenuListPrimitive,
   NavigationMenu as NavigationMenuPrimitive,
   NavigationMenuTrigger as NavigationMenuTriggerPrimitive,
+  NavigationMenuViewport as NavigationMenuViewportPrimitive,
 } from "@ui-sdk/react/navigation-menu";
 import { cva } from "class-variance-authority";
 import { ChevronDownIcon } from "lucide-react";
@@ -16,10 +17,23 @@ const navigationMenuTriggerStyle = cva(
   "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium outline-none transition-[color,box-shadow] hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 data-disabled:pointer-events-none data-disabled:opacity-50 data-open:bg-accent/50 data-open:text-accent-foreground data-current:bg-accent/50",
 );
 
+/**
+ * Renders a shared viewport by default, so one popup holds whichever panel is
+ * open. Without it each panel is its own popup, and ui-sdk returns focus to
+ * the old trigger when hover switches items, which leaves that trigger
+ * focus-visible (ring and highlight) after the pointer has moved on.
+ */
 function NavigationMenu({
   className,
+  children,
+  viewport = true,
   ...props
-}: WithClassName<ComponentProps<typeof NavigationMenuPrimitive>>) {
+}: WithClassName<
+  Omit<ComponentProps<typeof NavigationMenuPrimitive>, "children">
+> & {
+  children?: ReactNode;
+  viewport?: boolean;
+}) {
   return (
     <NavigationMenuPrimitive
       className={cn(
@@ -27,7 +41,10 @@ function NavigationMenu({
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {viewport ? <NavigationMenuViewport /> : null}
+    </NavigationMenuPrimitive>
   );
 }
 
@@ -69,18 +86,35 @@ function NavigationMenuTrigger({
   );
 }
 
+/** Content sits at the viewport's corner with its own width; the viewport takes its size. */
 function NavigationMenuContent({
   className,
-  sideOffset = 6,
-  align = "start",
   ...props
 }: WithClassName<ComponentProps<typeof NavigationMenuContentPrimitive>>) {
   return (
     <NavigationMenuContentPrimitive
+      className={cn(
+        "absolute start-0 top-0 max-h-(--panel-height) w-max overflow-y-auto p-2 outline-none transition-opacity duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** The popup that holds the open panel, below its trigger and following it between items. */
+function NavigationMenuViewport({
+  className,
+  sideOffset = 6,
+  align = "start",
+  ...props
+}: WithClassName<ComponentProps<typeof NavigationMenuViewportPrimitive>>) {
+  return (
+    <NavigationMenuViewportPrimitive
       sideOffset={sideOffset}
       align={align}
       className={cn(
-        "z-50 max-h-(--available-height) origin-(--transform-origin) overflow-y-auto rounded-md border bg-popover p-2 text-popover-foreground shadow outline-none transition-[opacity,scale] duration-200 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 motion-reduce:transition-none",
+        "z-50 h-(--viewport-height) w-(--viewport-width) origin-(--transform-origin) overflow-hidden rounded-md border bg-popover text-popover-foreground shadow outline-none [--panel-height:var(--available-height)] transition-[width,height,left,top,opacity,scale] duration-200 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 motion-reduce:transition-none",
         className,
       )}
       {...props}
@@ -111,5 +145,6 @@ export {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuViewport,
   navigationMenuTriggerStyle,
 };
