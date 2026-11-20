@@ -14,12 +14,8 @@ vi.mock("@/lib/resolve-dynamic-fetch-options", () => ({
   resolveDynamicFetchOptions: mockResolveDynamicFetchOptions,
 }));
 
-vi.mock("next/font/google", () => ({
-  Geist: () => ({ variable: "--font-geist-sans" }),
-}));
-
-vi.mock("@/app/fonts", () => ({
-  fontGeist: { variable: "--font-geist-sans" },
+vi.mock("geist/font/sans", () => ({
+  GeistSans: { variable: "--font-geist-sans" },
 }));
 
 vi.mock("next/headers", () => ({

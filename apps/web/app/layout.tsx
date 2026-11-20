@@ -5,6 +5,7 @@ import {
   SanityLive,
 } from "@redshirt-sports/sanity/live";
 import { Toaster } from "@redshirt-sports/ui/components/toast";
+import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
 import { draftMode } from "next/headers";
 import { connection } from "next/server";
@@ -12,7 +13,6 @@ import { VisualEditing } from "next-sanity/visual-editing";
 import { Suspense } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 
-import { fontGeist } from "@/app/fonts";
 import {
   CachedBreakingNewsServer,
   DraftAwareBreakingNews,
@@ -53,7 +53,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontGeist.variable} flex min-h-screen flex-col font-sans antialiased`}
+        className={`${GeistSans.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
         <Providers>
           {isDraftMode ? (

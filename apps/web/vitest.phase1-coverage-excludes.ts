@@ -3,7 +3,6 @@
  * Prefer adding tests and removing entries — `lib/**` should stay in scope.
  */
 export const PHASE1_COVERAGE_EXCLUDES = [
-  "app/fonts.ts",
   "app/[slug]/loading.tsx",
   "app/college/news/page.tsx",
   "app/college/[sport]/news/page.tsx",
