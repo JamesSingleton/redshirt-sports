@@ -1,0 +1,322 @@
+"use client";
+
+/**
+ * The Top 25 ballot as it was before the ballot editor, frozen as a rollback
+ * target. The vote page renders it when the PostHog flag `top25-ballot-editor`
+ * is off. Don't change it; delete this folder along with the flag.
+ */
+import { zodResolver } from "@hookform/resolvers/zod";
+import { analytics } from "@redshirt-sports/analytics";
+import type { SchoolsBySportAndSubgroupingStringQueryResult } from "@redshirt-sports/sanity/types";
+import { Button } from "@redshirt-sports/ui/components/button";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@redshirt-sports/ui/components/form";
+import {
+  Meter,
+  MeterLabel,
+  MeterTrack,
+  MeterValue,
+} from "@redshirt-sports/ui/components/meter";
+import { toast } from "@redshirt-sports/ui/components/toast";
+import { Loader2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import type { VoterBallotWithSchool } from "@/types/votes";
+import { VirtualizedCombobox } from "./virtualized-combobox";
+
+export type Top25FormRef = {
+  populateWithPreviousBallot: () => void;
+};
+
+function rankString(rank: number) {
+  return z.string({
+    error: (issue) =>
+      issue.input === undefined
+        ? `Please select a team for rank ${rank}.`
+        : undefined,
+  });
+}
+
+export const formSchema = z
+  .object({
+    division: z
+      .enum(["fbs", "fcs", "d2", "d3", "mid-major", "power-conferences"])
+      .optional(),
+    sport: z.string().optional(),
+    rank_1: rankString(1),
+    rank_2: rankString(2),
+    rank_3: rankString(3),
+    rank_4: rankString(4),
+    rank_5: rankString(5),
+    rank_6: rankString(6),
+    rank_7: rankString(7),
+    rank_8: rankString(8),
+    rank_9: rankString(9),
+    rank_10: rankString(10),
+    rank_11: rankString(11),
+    rank_12: rankString(12),
+    rank_13: rankString(13),
+    rank_14: rankString(14),
+    rank_15: rankString(15),
+    rank_16: rankString(16),
+    rank_17: rankString(17),
+    rank_18: rankString(18),
+    rank_19: rankString(19),
+    rank_20: rankString(20),
+    rank_21: rankString(21),
+    rank_22: rankString(22),
+    rank_23: rankString(23),
+    rank_24: rankString(24),
+    rank_25: rankString(25),
+  })
+  .superRefine((arg, ctx) => {
+    // find which arg items are duplicates
+    const duplicates: string[] = Object.entries(arg).reduce(
+      (acc: string[], [key, value]) => {
+        if (Object.values(arg).filter((v) => v === value).length > 1) {
+          acc.push(key);
+        }
+        return acc;
+      },
+      [],
+    );
+
+    if (duplicates.length) {
+      duplicates.forEach((key) => {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate team selected for rank ${key.split("_")[1]}`,
+          path: [`rank_${key.split("_")[1]}`],
+        });
+      });
+    }
+  });
+
+type Top25Values = z.infer<typeof formSchema>;
+
+type Top25FormProps = {
+  schools: SchoolsBySportAndSubgroupingStringQueryResult;
+  previousBallot?: VoterBallotWithSchool[];
+  currentBallot?: Array<{ teamId: string; rank: number }>;
+  ref?: React.Ref<Top25FormRef>;
+  submit: {
+    button: string;
+    loading: string;
+    method: "PATCH" | "POST";
+    success: string;
+    error: string;
+  };
+};
+
+function Top25Form({
+  schools,
+  previousBallot,
+  currentBallot,
+  ref,
+  submit,
+}: Top25FormProps) {
+  const defaultValues = useMemo(() => {
+    if (!currentBallot?.length) return undefined;
+    return Object.fromEntries(
+      currentBallot.map((entry) => [`rank_${entry.rank}`, entry.teamId]),
+    ) as Partial<z.infer<typeof formSchema>>;
+  }, [currentBallot]);
+
+  const form = useForm<Top25Values>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
+  });
+  const formValues = form.watch();
+  const selectedValues = useMemo(() => {
+    return Object.values(formValues).filter(Boolean) as string[];
+  }, [formValues]);
+
+  const params = useParams();
+  const { sport, division } = params as {
+    sport: string;
+    division?: "fbs" | "fcs" | "d2" | "d3" | "mid-major" | "power-conferences";
+  };
+  const router = useRouter();
+
+  // Fire `ballot_started` once, on the voter's first manual edit. Programmatic
+  // setValue calls (e.g. pre-filling the previous ballot) have no `type`.
+  const ballotStartedRef = useRef(false);
+  useEffect(() => {
+    const subscription = form.watch((_values, { type }) => {
+      if (type !== "change" || ballotStartedRef.current) return;
+      ballotStartedRef.current = true;
+      analytics?.capture("ballot_started", { sport, division });
+    });
+    return () => subscription.unsubscribe();
+  }, [form, sport, division]);
+
+  useImperativeHandle(ref, () => ({
+    populateWithPreviousBallot,
+  }));
+
+  function populateWithPreviousBallot() {
+    if (!previousBallot || previousBallot.length === 0) return;
+
+    previousBallot.forEach((ballot) => {
+      form.setValue(
+        `rank_${ballot.rank}` as keyof z.infer<typeof formSchema>,
+        ballot.teamId,
+        {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        },
+      );
+    });
+
+    toast.success("Form populated with your previous ballot");
+  }
+
+  async function onSubmit(values: Top25Values) {
+    values = { ...values, division, sport };
+
+    await toast.promise(
+      fetch(`/api/vote/college/${sport}/rankings/${division}`, {
+        method: submit.method,
+        body: JSON.stringify(values),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res
+            .json()
+            .catch(() => ({ error: "Unknown error" }));
+          const errorMessage =
+            errorData.error || `HTTP ${res.status}: ${res.statusText}`;
+          analytics?.capture("ballot_submission_error", {
+            sport,
+            division,
+            error_message: errorMessage,
+            status_code: res.status,
+          });
+          throw new Error(errorMessage);
+        }
+
+        const data = await res.json();
+        router.push(`/vote/college/${sport}/${division}/confirmation`);
+        return data;
+      }),
+      {
+        loading: submit.loading,
+        success: (data: { message?: string }) =>
+          data?.message || submit.success,
+        error: (err) => (err instanceof Error && err.message) || submit.error,
+      },
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="mx-auto space-y-6"
+      >
+        <Meter
+          value={selectedValues.length}
+          max={25}
+          format={(value) => `${value} of 25`}
+          className="sticky top-14 z-10 grid gap-2 border-b bg-background/95 py-3 backdrop-blur lg:top-16"
+        >
+          <div className="flex items-center justify-between text-sm">
+            <MeterLabel className="font-medium">Teams ranked</MeterLabel>
+            <MeterValue className="tabular text-muted-foreground" />
+          </div>
+          <MeterTrack />
+        </Meter>
+        {Array.from({ length: 25 }, (_, i) => i + 1).map((rank) => (
+          <FormField
+            key={`rank-${rank}`}
+            control={form.control}
+            // @ts-expect-error zodResolver doesn't support this
+            name={`rank_${rank}`}
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Rank {rank}</FormLabel>
+                <VirtualizedCombobox
+                  aria-label={`Rank ${rank}`}
+                  options={schools}
+                  value={field.value}
+                  onChange={field.onChange}
+                  selectedOptions={selectedValues}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+        <Button
+          className="w-full"
+          type="submit"
+          disabled={form.formState.isSubmitting || !form.formState.isValid}
+        >
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" size={16} />{" "}
+              {submit.loading}
+            </>
+          ) : (
+            submit.button
+          )}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+export function CreateTop25({
+  schools,
+  previousBallot,
+  ref,
+}: Omit<Top25FormProps, "currentBallot" | "submit">) {
+  return (
+    <Top25Form
+      ref={ref}
+      schools={schools}
+      previousBallot={previousBallot}
+      submit={{
+        button: "Submit",
+        loading: "Submitting Ballot",
+        method: "POST",
+        success: "Ballot submitted successfully",
+        error: "An error occurred while submitting your ballot",
+      }}
+    />
+  );
+}
+
+export function EditTop25({
+  schools,
+  currentBallot,
+  ref,
+}: Omit<Top25FormProps, "previousBallot" | "submit">) {
+  return (
+    <Top25Form
+      ref={ref}
+      schools={schools}
+      currentBallot={currentBallot}
+      submit={{
+        button: "Save changes",
+        loading: "Saving Ballot",
+        method: "PATCH",
+        success: "Ballot updated successfully",
+        error: "An error occurred while saving your ballot",
+      }}
+    />
+  );
+}
+
+export default CreateTop25;
