@@ -26,6 +26,14 @@ export const env = createEnv({
     CRON_SECRET: z.string().min(16).optional(),
     UPSTASH_REDIS_REST_URL: z.url(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+    /** Newsletter: a Resend key allowed to manage contacts and send broadcasts. */
+    RESEND_API_KEY_NEWSLETTER: z.string().startsWith("re_").optional(),
+    /** The Resend segment (formerly "audience") subscribers join and broadcasts target. */
+    RESEND_NEWSLETTER_AUDIENCE_ID: z.string().min(1).optional(),
+    /** "Redshirt Sports <newsletter@...>" or a bare address on a verified domain. */
+    NEWSLETTER_FROM_EMAIL: z.string().min(3).optional(),
+    /** HMAC key for the confirm-subscription links (generate: openssl rand -hex 32). */
+    NEWSLETTER_SIGNING_SECRET: z.string().min(32).optional(),
   },
   client: {},
   runtimeEnv: {
@@ -38,5 +46,9 @@ export const env = createEnv({
     CRON_SECRET: process.env.CRON_SECRET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    RESEND_API_KEY_NEWSLETTER: process.env.RESEND_API_KEY_NEWSLETTER,
+    RESEND_NEWSLETTER_AUDIENCE_ID: process.env.RESEND_NEWSLETTER_AUDIENCE_ID,
+    NEWSLETTER_FROM_EMAIL: process.env.NEWSLETTER_FROM_EMAIL,
+    NEWSLETTER_SIGNING_SECRET: process.env.NEWSLETTER_SIGNING_SECRET,
   },
 });

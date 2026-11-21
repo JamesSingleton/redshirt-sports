@@ -21,6 +21,7 @@ import {
   YouTubeIcon,
 } from "./icons";
 import { Logo } from "./logo";
+import { FooterNewsletter } from "./newsletter/footer-newsletter";
 
 interface SocialLinksProps {
   data: NonNullable<NonNullable<QueryGlobalSeoSettingsResult>["socialLinks"]>;
@@ -106,6 +107,9 @@ function SocialLinks({ data }: SocialLinksProps) {
 export function FooterSkeleton() {
   return (
     <section className="mt-16 pb-8">
+      <div className="bg-ink text-ink-foreground">
+        <FooterNewsletter />
+      </div>
       <div className="container mx-auto px-4 md:px-6">
         <footer className="h-[500px] lg:h-auto">
           <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left">
@@ -176,6 +180,7 @@ function Footer({ data, settingsData }: FooterProps) {
       <h2 className="sr-only" id="footer-heading">
         Footer Navigation and Information
       </h2>
+      <FooterNewsletter />
       <div
         className="mx-auto grid max-w-site gap-10 px-4 py-12 lg:grid-cols-[1.4fr_repeat(var(--footer-columns),minmax(0,1fr))] lg:px-6"
         style={gridStyle}

@@ -174,6 +174,7 @@ const STATIC_PATHS = [
   "/",
   "/about",
   "/contact",
+  "/newsletter",
   "/search",
   "/college/news",
   "/college/teams",

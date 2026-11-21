@@ -48,3 +48,14 @@ export const portalSubmissionRatelimit = new Ratelimit({
   analytics: true,
   prefix: "@upstash/ratelimit/portal-submission",
 });
+
+/**
+ * Newsletter signups: 5 an hour per IP and per address. Each one sends a
+ * confirm email, so this keeps the form from being used to spam an inbox.
+ */
+export const newsletterSignupRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "1 h"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/newsletter-signup",
+});

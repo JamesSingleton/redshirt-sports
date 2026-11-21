@@ -1674,7 +1674,7 @@ export type QueryArticleListsResult = {
   relatedPosts: Array<{
     _id: string;
     title: string;
-    publishedAt: string | null;
+    publishedAt: string;
     image: {
       asset?: SanityImageAssetReference;
       media?: unknown;
@@ -1776,7 +1776,7 @@ export type QueryArticleListsResult = {
   upNextInFeed: {
     _id: string;
     title: string;
-    publishedAt: string | null;
+    publishedAt: string;
     image: {
       asset?: SanityImageAssetReference;
       media?: unknown;
@@ -3153,7 +3153,7 @@ export type QueryBreakingNewsResult = {
   article: {
     title: string;
     slug: string;
-  };
+  } | null;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
@@ -3683,7 +3683,7 @@ export type SearchQueryResult = {
     _id: string;
     title: string;
     excerpt: string;
-    publishedAt: string | null;
+    publishedAt: string;
     slug: string;
     image: {
       asset?: SanityImageAssetReference;
@@ -3792,7 +3792,7 @@ export type AuthorBySlugResult = {
   >;
   credentials?: Array<string>;
   studioUserId?: string;
-  archived?: boolean;
+  archived: false;
 } | null;
 
 // Source: ../../packages/sanity/src/queries.ts
@@ -5535,7 +5535,7 @@ export type PostsBySchoolQueryResult = {
       | "opinion"
       | "predictions"
       | "rankings";
-    publishedAt: string | null;
+    publishedAt: string;
     slug: string;
     sport: {
       _id: string;
@@ -5641,7 +5641,7 @@ export type PostsBySchoolAndStoryTypeQueryResult = Array<{
   _id: string;
   title: string;
   excerpt: string;
-  publishedAt: string | null;
+  publishedAt: string;
   slug: string;
   sport: {
     _id: string;
@@ -5758,7 +5758,7 @@ export type PostsByStoryTypeQueryResult = {
       | "opinion"
       | "predictions"
       | "rankings";
-    publishedAt: string | null;
+    publishedAt: string;
     slug: string;
     image: {
       asset?: SanityImageAssetReference;
@@ -5881,7 +5881,7 @@ export type QueryPlacementAdvertisementsResult = Array<{
   openInNewTab: boolean | null;
   href: string | null;
   image: {
-    asset?: SanityImageAssetReference;
+    asset: SanityImageAssetReference;
     media?: unknown;
     hotspot: {
       x: number;
@@ -5897,7 +5897,7 @@ export type QueryPlacementAdvertisementsResult = Array<{
     } | null;
     alt: string;
     _type: "image";
-    id: string | null;
+    id: string;
     width: number | null;
     height: number | null;
     preview: string | null;
@@ -5911,8 +5911,57 @@ export type QueryPlacementAdvertisementsResult = Array<{
 export type NewsSitemapQueryResult = Array<{
   _id: string;
   title: string;
-  publishedAt: string | null;
+  publishedAt: string;
   slug: string;
+}>;
+
+// Source: ../../packages/sanity/src/queries.ts
+// Variable: queryNewsletterPosts
+// Query: *[    _type == "post" &&    defined(slug.current) &&    defined(publishedAt) &&    dateTime(publishedAt) >= dateTime($from) &&    dateTime(publishedAt) < dateTime($to)  ] | order(publishedAt desc, _id desc)[0...50]{    _id,    title,    excerpt,    "slug": slug.current,    publishedAt,      image{    ...,          "id": asset._ref,  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),  "width": asset->metadata.dimensions.width,  "height": asset->metadata.dimensions.height,  // height/width are required — projecting only x/y makes @sanity/image-url emit rect=...,NaN,...  hotspot {    x,    y,    height,    width  },  crop {    bottom,    left,    right,    top  },  "preview": asset->metadata.lqip,  "dominantColor": asset->metadata.palette.dominant.background,  "credit": coalesce(asset->creditLine, attribution)  },    "authors": authors[]->name,    "sport": sport->title  }
+export type QueryNewsletterPostsResult = Array<{
+  _id: string;
+  title: string;
+  excerpt: string;
+  slug: string;
+  publishedAt: string;
+  image: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot: {
+      x: number;
+      y: number;
+      height: number;
+      width: number;
+    } | null;
+    crop: {
+      bottom: number;
+      left: number;
+      right: number;
+      top: number;
+    } | null;
+    alt: string | "Image-Broken";
+    attribution?: string;
+    _type: "image";
+    id: string | null;
+    width: number | null;
+    height: number | null;
+    preview: string | null;
+    dominantColor: string | null;
+    credit: string | null;
+  };
+  authors: Array<string>;
+  sport: string | null;
+}>;
+
+// Source: ../../packages/sanity/src/queries.ts
+// Variable: queryNewsletterPreview
+// Query: *[_type == "post" && defined(slug.current) && defined(publishedAt)]    | order(publishedAt desc, _id desc)[0...5]{      _id,      title,      "slug": slug.current,      publishedAt,      "sport": sport->title    }
+export type QueryNewsletterPreviewResult = Array<{
+  _id: string;
+  title: string;
+  slug: string;
+  publishedAt: string;
+  sport: string | null;
 }>;
 
 // Query TypeMap
@@ -5983,6 +6032,8 @@ declare global {
     '\n  *[_type == "school" && defined(slug.current) && _id in $ids]{\n    _id,\n    "slug": slug.current,\n    "lastModified": coalesce(*[\n  _type == "post" &&\n  defined(publishedAt) &&\n  ^._id in teams[]._ref\n] | order(publishedAt desc)[0].publishedAt, _updatedAt)\n  }\n': SchoolSlugsByIdsQueryResult;
     '\n  *[\n    _type == "advertisement" &&\n    active == true &&\n    defined(image.asset) &&\n    $placement in placements\n  ] | order(priority desc, _updatedAt desc){\n    _id,\n    sponsorName,\n    startsAt,\n    endsAt,\n    "sportSlugs": sports[]->slug.current,\n    "openInNewTab": url.openInNewTab,\n    \n  "href": select(\n    url.type == "external" => url.external,\n    url.type == "internal" && url.internalType == "custom" => url.internalUrl,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "sportNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news",\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "divisionNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current,\n    url.type == "internal" && url.internalType == "sportNews" && url.sportNewsLink.routeDepth == "conferenceNews" =>\n      "/college/" + url.sportNewsLink.sport->slug.current + "/news/" + url.sportNewsLink.segment->slug.current + "/" + url.sportNewsLink.conference->slug.current,\n    url.type == "internal" && url.internal->_type == "post" => "/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "school" => "/college/teams/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "author" => "/people/" + url.internal->slug.current,\n    url.type == "internal" && url.internal->_type == "legal" => "/legal/" + url.internal->slug.current,\n    url.href\n  )\n,\n    image{\n      ...,\n      "id": asset._ref,\n      "alt": coalesce(alt, asset->altText, ^.sponsorName, "Advertisement"),\n      "width": asset->metadata.dimensions.width,\n      "height": asset->metadata.dimensions.height,\n      hotspot { x, y, height, width },\n      crop { bottom, left, right, top },\n      "preview": asset->metadata.lqip,\n      "dominantColor": asset->metadata.palette.dominant.background\n    }\n  }\n': QueryPlacementAdvertisementsResult;
     '\n  *[\n    _type == "post" &&\n    defined(slug.current) &&\n    defined(publishedAt) &&\n    dateTime(publishedAt) > dateTime(now()) - 60 * 60 * 48\n  ] | order(publishedAt desc)[0...1000]{\n    _id,\n    title,\n    publishedAt,\n    "slug": slug.current\n  }\n': NewsSitemapQueryResult;
+    '\n  *[\n    _type == "post" &&\n    defined(slug.current) &&\n    defined(publishedAt) &&\n    dateTime(publishedAt) >= dateTime($from) &&\n    dateTime(publishedAt) < dateTime($to)\n  ] | order(publishedAt desc, _id desc)[0...50]{\n    _id,\n    title,\n    excerpt,\n    "slug": slug.current,\n    publishedAt,\n    \n  image{\n    ...,\n    \n  \n  \n  "id": asset._ref,\n  "alt": coalesce(alt, caption, asset->altText, asset->originalFilename, "Image-Broken"),\n  "width": asset->metadata.dimensions.width,\n  "height": asset->metadata.dimensions.height,\n  // height/width are required \u2014 projecting only x/y makes @sanity/image-url emit rect=...,NaN,...\n  hotspot {\n    x,\n    y,\n    height,\n    width\n  },\n  crop {\n    bottom,\n    left,\n    right,\n    top\n  }\n,\n  "preview": asset->metadata.lqip,\n  "dominantColor": asset->metadata.palette.dominant.background\n,\n  "credit": coalesce(asset->creditLine, attribution)\n\n  }\n,\n    "authors": authors[]->name,\n    "sport": sport->title\n  }\n': QueryNewsletterPostsResult;
+    '\n  *[_type == "post" && defined(slug.current) && defined(publishedAt)]\n    | order(publishedAt desc, _id desc)[0...5]{\n      _id,\n      title,\n      "slug": slug.current,\n      publishedAt,\n      "sport": sport->title\n    }\n': QueryNewsletterPreviewResult;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

@@ -1,0 +1,31 @@
+{
+  "name": "@redshirt-sports/emails",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./confirm-subscription": "./src/confirm-subscription.tsx",
+    "./weekly-digest": "./src/weekly-digest.tsx",
+    "./logo": "./src/logo.tsx",
+    "./top-25-alert": "./src/top-25-alert.tsx"
+  },
+  "scripts": {
+    "dev": "email dev --dir src --port 3003",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "check:types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react-email": "^6.11.16"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@react-email/ui": "6.11.16",
+    "@redshirt-sports/typescript-config": "workspace:*",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "typescript": "catalog:"
+  }
+}

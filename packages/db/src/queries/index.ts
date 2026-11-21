@@ -6,6 +6,7 @@ export * from "./brackets";
 export * from "./conferences";
 export * from "./games";
 export * from "./missed-ballots";
+export * from "./newsletter";
 export * from "./player-duplicates";
 export * from "./player-external-ids";
 export * from "./player-submissions";
