@@ -4,6 +4,7 @@ import { Button } from "@redshirt-sports/ui/components/button";
 import { Input } from "@redshirt-sports/ui/components/input";
 import { Label } from "@redshirt-sports/ui/components/label";
 import { cn } from "@redshirt-sports/ui/lib/utils";
+import { usePathname } from "next/navigation";
 import { type FormEvent, useEffect, useId, useState } from "react";
 
 import { confirmState, type SignupState } from "@/lib/newsletter/signup";
@@ -109,6 +110,15 @@ export function NewsletterSignupForm({
   const colors = TONES[tone];
   const id = useId();
   const [state, setState] = useState<SignupState>({ status: "idle" });
+
+  // The footer's form outlives client navigations (it's in the root layout),
+  // so a message about the last page's attempt clears on the next page.
+  const pathname = usePathname();
+  const [messagePath, setMessagePath] = useState(pathname);
+  if (pathname !== messagePath) {
+    setMessagePath(pathname);
+    setState({ status: "idle" });
+  }
 
   // Read after mount so the page stays static; the status line already has
   // its height, so the message fills it without moving anything.

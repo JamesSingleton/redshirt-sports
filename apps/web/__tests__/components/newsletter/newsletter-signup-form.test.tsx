@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+const { mockPathname } = vi.hoisted(() => ({ mockPathname: vi.fn() }));
+vi.mock("next/navigation", () => ({ usePathname: mockPathname }));
+
 import { NewsletterSignupForm } from "@/components/newsletter/newsletter-signup-form";
 
 function respond(body: unknown) {
@@ -15,6 +18,8 @@ const signUp = () =>
   userEvent.click(screen.getByRole("button", { name: "Sign up" }));
 
 describe("NewsletterSignupForm", () => {
+  beforeEach(() => mockPathname.mockReturnValue("/"));
+
   afterEach(() => vi.restoreAllMocks());
 
   it("posts the address and clears it once the link is sent", async () => {
@@ -173,5 +178,24 @@ describe("NewsletterSignupForm", () => {
       "Pick at least one email to get.",
     );
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("clears its message on the next page", async () => {
+    const { rerender } = render(<NewsletterSignupForm />);
+    await signUp();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Enter a valid email address.",
+    );
+    expect(screen.getByLabelText("Email address")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+
+    mockPathname.mockReturnValue("/college/news");
+    rerender(<NewsletterSignupForm />);
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    expect(screen.getByLabelText("Email address")).not.toHaveAttribute(
+      "aria-invalid",
+    );
   });
 });
