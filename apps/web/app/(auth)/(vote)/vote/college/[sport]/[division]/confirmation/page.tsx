@@ -64,7 +64,9 @@ export default function VoteConfirmationPage({
   params: Promise<{ sport: string; division: string }>;
 }) {
   return (
-    <Suspense>
+    // The ballot streams in after auth and is taller than a screen; holding a
+    // screen's height keeps the footer from painting in view, then moving.
+    <Suspense fallback={<div className="min-h-dvh" aria-hidden />}>
       <VoteConfirmationContent params={params} />
     </Suspense>
   );

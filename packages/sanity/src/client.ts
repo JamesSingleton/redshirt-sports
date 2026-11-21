@@ -77,3 +77,10 @@ export const urlFor = (source: SanityImageSource) =>
  */
 export const urlForJpeg = (source: SanityImageSource) =>
   imageBuilder.image(normalizeImageSource(source)).fit("max").format("jpg");
+
+/**
+ * Always serves PNG, rasterizing SVG logos: email clients won't show SVG or
+ * WebP, and a logo needs transparency.
+ */
+export const urlForPng = (source: SanityImageSource) =>
+  imageBuilder.image(normalizeImageSource(source)).fit("max").format("png");

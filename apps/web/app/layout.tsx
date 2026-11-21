@@ -70,7 +70,7 @@ export default async function RootLayout({
           ) : (
             <CachedBreakingNewsServer {...PUBLISHED_FETCH_OPTIONS} />
           )}
-          <main id="main" className="min-h-dvh min-w-0 flex-1 overflow-x-clip">
+          <main id="main" className="min-w-0 flex-1 overflow-x-clip">
             {children}
           </main>
           <Suspense fallback={null}>

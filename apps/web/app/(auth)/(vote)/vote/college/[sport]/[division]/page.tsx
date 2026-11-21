@@ -162,7 +162,9 @@ async function renderVotePage(
   const { sport, division } = validationResult.data;
 
   return (
-    <Suspense>
+    // The ballot streams in after auth and is taller than a screen; holding a
+    // screen's height keeps the footer from painting in view, then moving.
+    <Suspense fallback={<div className="min-h-dvh" aria-hidden />}>
       <VotePageAuth
         sport={sport}
         division={division}

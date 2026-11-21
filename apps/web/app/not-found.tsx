@@ -12,7 +12,9 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-[calc(100vh-400px)] flex-col items-center justify-center gap-4 p-4">
+    // A screen tall, like the article shell a missing slug streams from, so
+    // the footer stays put when this replaces it.
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4">
       <h1 className="text-foreground animate-bounce text-6xl font-bold">404</h1>
       <p className="text-muted-foreground animate-fade-in text-lg">
         The page you are looking for does not exist.

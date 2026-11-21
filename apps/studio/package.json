@@ -30,7 +30,7 @@
     "@sanity/image-url": "^2.2.0",
     "@sanity/sanity-plugin-async-list": "3.1.0",
     "@sanity/ui": "^4.4.12",
-    "@sanity/vision": "^6.23.0",
+    "@sanity/vision": "^6.24.0",
     "@t3-oss/env-core": "^0.13.11",
     "copy-to-clipboard": "^4.0.2",
     "lucide-react": "catalog:",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "groq-js": "1.30.3",
+    "groq-js": "2.0.3",
     "vite": "catalog:",
     "vitest": "catalog:"
   }

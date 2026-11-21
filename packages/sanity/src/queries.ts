@@ -1476,3 +1476,38 @@ export const newsSitemapQuery = defineQuery(/* groq */ `
     "slug": slug.current
   }
 `);
+
+/**
+ * The weekly newsletter: every article published in [$from, $to), newest
+ * first. An empty result means the week had nothing, and no email goes out.
+ */
+export const queryNewsletterPosts = defineQuery(/* groq */ `
+  *[
+    _type == "post" &&
+    defined(slug.current) &&
+    defined(publishedAt) &&
+    dateTime(publishedAt) >= dateTime($from) &&
+    dateTime(publishedAt) < dateTime($to)
+  ] | order(publishedAt desc, _id desc)[0...50]{
+    _id,
+    title,
+    excerpt,
+    "slug": slug.current,
+    publishedAt,
+    ${postImageFragment},
+    "authors": authors[]->name,
+    "sport": sport->title
+  }
+`);
+
+/** The /newsletter page's sample issue: the newest few headlines. */
+export const queryNewsletterPreview = defineQuery(/* groq */ `
+  *[_type == "post" && defined(slug.current) && defined(publishedAt)]
+    | order(publishedAt desc, _id desc)[0...5]{
+      _id,
+      title,
+      "slug": slug.current,
+      publishedAt,
+      "sport": sport->title
+    }
+`);
