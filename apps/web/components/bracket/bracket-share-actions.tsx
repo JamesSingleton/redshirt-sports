@@ -39,8 +39,9 @@ export function BracketShareActions({
   const frameRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState<ExportKind | null>(null);
 
+  // The buttons are disabled while a file is being made, so this never
+  // overlaps itself.
   async function exportBracket(kind: ExportKind) {
-    if (exporting) return;
     flushSync(() => setExporting(kind));
     const frame = frameRef.current;
     try {
@@ -59,7 +60,8 @@ export function BracketShareActions({
   }
 
   async function share() {
-    const url = window.location.href.split("?")[0] ?? window.location.href;
+    // The page itself, without `?game=` from an open matchup.
+    const url = `${window.location.origin}${window.location.pathname}`;
     // The phone's share sheet where there is one, else the link on the clipboard.
     if (typeof navigator.share === "function") {
       try {
