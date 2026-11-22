@@ -99,6 +99,7 @@ async function EditionContent({ params }: { params: Params }) {
         kickoffAt: state?.kickoffAt
           ? dateToEasternInput(state.kickoffAt)
           : null,
+        kickoffTimeTba: state?.kickoffTimeTba ?? false,
         sideAScore: state?.sideAScore ?? null,
         sideBScore: state?.sideBScore ?? null,
       };

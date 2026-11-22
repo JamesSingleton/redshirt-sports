@@ -239,6 +239,20 @@
       "when": 1794934388759,
       "tag": "0033_player_external_ids",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1795379295605,
+      "tag": "0034_bracket_kickoff_time_tba",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1795379382237,
+      "tag": "0035_fcs_bracket_draw_order",
+      "breakpoints": true
     }
   ]
 }

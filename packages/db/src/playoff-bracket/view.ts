@@ -31,6 +31,8 @@ export type BracketGameState = {
   homeSide: string | null;
   siteLabel: string | null;
   kickoffAt: Date | null;
+  /** Only the date of `kickoffAt` is known; the time is TBA. */
+  kickoffTimeTba?: boolean;
   status: string;
   sideAScore: number | null;
   sideBScore: number | null;
@@ -62,6 +64,8 @@ export type BracketGameView = {
   neutral: boolean;
   siteLabel: string | null;
   kickoffAt: Date | null;
+  /** Only the date of `kickoffAt` is known; the time is TBA. */
+  kickoffTimeTba: boolean;
   sideA: BracketSideView;
   sideB: BracketSideView;
   /** First grid row (0-based) and row count inside its half. */
@@ -69,6 +73,8 @@ export type BracketGameView = {
   span: number;
   /** Which sides are fed by a game in the previous column. */
   fedSides: BracketSide[];
+  /** Draw `sideB` above `sideA`, as its feeders are. */
+  sideBOnTop: boolean;
   /** The game feeding each side, when a side is not a slot. */
   feeders: Partial<Record<BracketSide, string>>;
 };
@@ -256,6 +262,7 @@ export function buildBracketView(
       neutral: game.host === "neutral" && !state?.homeSide,
       siteLabel: state?.siteLabel ?? null,
       kickoffAt: state?.kickoffAt ?? null,
+      kickoffTimeTba: Boolean(state?.kickoffAt && state.kickoffTimeTba),
       sideA: side(a, "a", state?.sideAScore ?? null),
       sideB: side(b, "b", state?.sideBScore ?? null),
       row: 0,
@@ -268,13 +275,18 @@ export function buildBracketView(
         ...("fromGameKey" in game.sideA ? (["a"] as const) : []),
         ...("fromGameKey" in game.sideB ? (["b"] as const) : []),
       ],
+      sideBOnTop: game.sideBOnTop === true,
     };
     views.set(key, view);
     return view;
   }
 
+  // Top to bottom, as drawn.
   function feederKeys(game: BracketGameSpec): string[] {
-    return [game.sideA, game.sideB].flatMap((side) =>
+    const sides = game.sideBOnTop
+      ? [game.sideB, game.sideA]
+      : [game.sideA, game.sideB];
+    return sides.flatMap((side) =>
       "fromGameKey" in side ? [side.fromGameKey] : [],
     );
   }

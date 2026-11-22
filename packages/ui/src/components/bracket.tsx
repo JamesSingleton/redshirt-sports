@@ -30,15 +30,20 @@ export type BracketSideLike<T extends BracketTeamLike> = {
 
 export type BracketGameLike<T extends BracketTeamLike> = {
   key: string;
+  roundKey: string;
   roundLabel: string;
   status: "scheduled" | "final";
   siteLabel: string | null;
   kickoffAt: Date | null;
+  /** Only the date of `kickoffAt` is known; the time shows as TBA. */
+  kickoffTimeTba?: boolean;
   sideA: BracketSideLike<T>;
   sideB: BracketSideLike<T>;
   row: number;
   span: number;
   fedSides: Side[];
+  /** Draw `sideB` above `sideA`, as its feeders are. */
+  sideBOnTop?: boolean;
 };
 
 export type BracketHalfLike<T extends BracketTeamLike> = {
@@ -105,15 +110,29 @@ type BracketProps<T extends BracketTeamLike> = {
   className?: string;
 };
 
-const kickoffFormat = new Intl.DateTimeFormat("en-US", {
+const kickoffDay = new Intl.DateTimeFormat("en-US", {
   weekday: "short",
   month: "short",
   day: "numeric",
+  timeZone: "America/New_York",
+});
+
+const kickoffTime = new Intl.DateTimeFormat("en-US", {
   hour: "numeric",
   minute: "2-digit",
   timeZone: "America/New_York",
-  timeZoneName: "short",
 });
+
+/**
+ * "Sat, Nov 28 · 1 PM ET", short enough for a card: minutes only when they
+ * aren't :00, and "TBA" when only the day is set.
+ */
+export function formatBracketKickoff(at: Date, timeTba = false) {
+  const day = kickoffDay.format(at);
+  if (timeTba) return `${day} · TBA`;
+  const time = kickoffTime.format(at).replace(":00", "");
+  return `${day} · ${time} ET`;
+}
 
 function teamLabel(team: BracketTeamLike) {
   return team.shortName ?? team.name ?? team.abbreviation ?? "TBD";
@@ -238,6 +257,7 @@ function GameCard<T extends BracketTeamLike>({
   selection,
   picking,
   shift,
+  caption,
   className,
   style,
 }: {
@@ -250,6 +270,8 @@ function GameCard<T extends BracketTeamLike>({
   picking?: BracketPicking;
   /** Moves the card so its line meets the slot it feeds head-on. */
   shift?: "up" | "down";
+  /** A label just above the card, for a round with no column of its own. */
+  caption?: { label: string; current: boolean };
   className?: string;
   style?: React.CSSProperties;
 }) {
@@ -264,9 +286,10 @@ function GameCard<T extends BracketTeamLike>({
     game.status === "final"
       ? "Final"
       : game.kickoffAt
-        ? kickoffFormat.format(game.kickoffAt)
+        ? formatBracketKickoff(game.kickoffAt, game.kickoffTimeTba)
         : null;
-  const lines = (["a", "b"] as const).map((which) => {
+  const order = game.sideBOnTop ? (["b", "a"] as const) : (["a", "b"] as const);
+  const lines = order.map((which) => {
     const side = which === "a" ? game.sideA : game.sideB;
     return (
       <TeamLine
@@ -302,6 +325,14 @@ function GameCard<T extends BracketTeamLike>({
       style={style}
       data-game-key={game.key}
     >
+      {caption ? (
+        <RoundCaption
+          current={caption.current}
+          className="absolute inset-x-0 bottom-[calc(50%+var(--bracket-head)/2+var(--bracket-team-h)+0.375rem)] text-center *:bg-background *:px-1.5"
+        >
+          {caption.label}
+        </RoundCaption>
+      ) : null}
       <Card
         {...(selection
           ? {
@@ -321,16 +352,19 @@ function GameCard<T extends BracketTeamLike>({
           shift === "up" && "-translate-y-[calc(var(--bracket-team-h)/2)]",
         )}
       >
+        {/* Two lines, when on top and where below, so neither crowds the
+            other out. Every column (or the caption over a stacked round)
+            names the round, so the card doesn't repeat it. */}
         <div
-          className="flex h-(--bracket-head) items-center justify-between gap-2 border-b border-border bg-muted/50 px-2 text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase"
+          className="flex h-(--bracket-head) flex-col justify-center border-b border-border bg-muted/50 px-2 text-[0.65rem] leading-tight text-muted-foreground"
           title={[status, site].filter(Boolean).join(" · ") || undefined}
         >
           {/* nowrap: an image capture pins this to its measured width, and
               text a hair wider there would otherwise break onto two lines. */}
-          <span className="shrink-0 whitespace-nowrap">
-            {status ?? game.roundLabel}
+          <span className="truncate whitespace-nowrap font-medium tracking-wide uppercase">
+            {status ?? "Date TBA"}
           </span>
-          {site ? <span className="truncate normal-case">{site}</span> : null}
+          <span className="truncate whitespace-nowrap">{site ?? "\u00a0"}</span>
         </div>
         <div className="divide-y divide-border">{lines}</div>
       </Card>
@@ -339,6 +373,47 @@ function GameCard<T extends BracketTeamLike>({
 }
 
 const line = "absolute border-border";
+
+/**
+ * A round's name over its column. The round being played is in full colour
+ * with a bar under it, so a reader can see where the playoffs are.
+ */
+function RoundCaption({
+  current,
+  className,
+  children,
+}: {
+  current: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        // pb-1: room for the current round's underline, which `truncate`
+        // would otherwise clip.
+        "truncate px-1 pb-1 text-xs font-semibold tracking-wide uppercase",
+        current ? "text-foreground" : "text-muted-foreground",
+        className,
+      )}
+    >
+      <span
+        className={cn(
+          current &&
+            "underline decoration-2 decoration-primary underline-offset-4",
+        )}
+        aria-current={current ? "step" : undefined}
+      >
+        {children}
+      </span>
+    </div>
+  );
+}
+
+/** Whether a side is the card's upper row. */
+function onTop(game: { sideBOnTop?: boolean }, side: Side) {
+  return (side === "a") !== (game.sideBOnTop === true);
+}
 
 /**
  * Lines from one column's games into a game of the next. Two feeders merge
@@ -357,7 +432,7 @@ function Connector({
   const rows = { gridRow: `${game.row + 1} / span ${game.span}` };
 
   if (game.fedSides.length === 1) {
-    const y = game.fedSides[0] === "a" ? UPPER_ROW : LOWER_ROW;
+    const y = onTop(game, game.fedSides[0]!) ? UPPER_ROW : LOWER_ROW;
     return (
       <div aria-hidden className="relative" style={rows}>
         <span
@@ -429,9 +504,11 @@ function Half<T extends BracketTeamLike>({
   tightSeeds,
   selection,
   picking,
+  currentRound,
 }: {
   selection?: BracketSelection;
   picking?: BracketPicking;
+  currentRound: string | null;
   half: BracketHalfLike<T>;
   side: "left" | "right";
   renderTeam: (team: T) => React.ReactNode;
@@ -455,7 +532,7 @@ function Half<T extends BracketTeamLike>({
       if (!previous || game.fedSides.length !== 1) continue;
       const feeder = previous.games.find((item) => item.row === game.row);
       if (feeder)
-        shifts.set(feeder.key, game.fedSides[0] === "a" ? "up" : "down");
+        shifts.set(feeder.key, onTop(game, game.fedSides[0]!) ? "up" : "down");
     }
   });
 
@@ -524,6 +601,14 @@ function Half<T extends BracketTeamLike>({
               selection={selection}
               picking={picking}
               shift={shifts.get(game.key)}
+              caption={
+                isStackColumn && game.roundKey === stacked.roundKey
+                  ? {
+                      label: stacked.roundLabel.replace(/s$/, ""),
+                      current: currentRound === stacked.roundKey,
+                    }
+                  : undefined
+              }
               style={{
                 gridRow: `${game.row + 1} / span ${game.span}`,
                 gridColumn: 1,
@@ -536,12 +621,13 @@ function Half<T extends BracketTeamLike>({
     // Column captions, not headings: a bracket sits under any heading level
     // (an article's h2, the page's h1), and each card names its round itself.
     labels.push(
-      <div
+      <RoundCaption
         key={`${column.roundKey}-label`}
-        className="w-(--bracket-card) shrink-0 truncate px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+        current={currentRound === column.roundKey}
+        className="w-(--bracket-card) shrink-0"
       >
         {column.roundLabel}
-      </div>,
+      </RoundCaption>,
     );
   });
 
@@ -565,6 +651,36 @@ function Half<T extends BracketTeamLike>({
   );
 }
 
+/**
+ * The earliest round with a game still to play, once the bracket is under
+ * way (any game has a kickoff or a result). Null before then, and once the
+ * championship is final.
+ */
+export function roundInProgress<T extends BracketTeamLike>(
+  view: BracketViewLike<T>,
+): string | null {
+  const games = [
+    ...view.left.columns.flatMap((column) => column.games),
+    ...view.right.columns.flatMap((column) => column.games),
+    view.final,
+  ];
+  const live = games.some(
+    (game) => game.status === "final" || game.kickoffAt !== null,
+  );
+  if (!live) return null;
+  const order = [
+    ...view.left.columns.map((column) => column.roundKey),
+    view.final.roundKey,
+  ];
+  return (
+    order.find((roundKey) =>
+      games.some(
+        (game) => game.roundKey === roundKey && game.status !== "final",
+      ),
+    ) ?? null
+  );
+}
+
 export function Bracket<T extends BracketTeamLike>({
   view,
   renderTeam,
@@ -583,20 +699,30 @@ export function Bracket<T extends BracketTeamLike>({
     selection,
     picking,
   };
+  // A reader's own picks have no round in progress.
+  const currentRound = picking ? null : roundInProgress(view);
   return (
     <div
       className={cn(
-        "[--bracket-card:11.5rem] [--bracket-gap:1.25rem] [--bracket-head:1.375rem] [--bracket-team-h:2.25rem] [--bracket-unit:9.5rem]",
+        "[--bracket-card:11.5rem] [--bracket-gap:1.25rem] [--bracket-head:2.125rem] [--bracket-team-h:2.25rem] [--bracket-unit:9.5rem]",
         "overflow-x-auto overscroll-x-contain pb-3",
         className,
       )}
     >
       <div className="mx-auto flex w-max items-stretch">
-        <Half half={view.left} side="left" {...shared} />
+        <Half
+          half={view.left}
+          side="left"
+          currentRound={currentRound}
+          {...shared}
+        />
         <div className="flex flex-col gap-3">
-          <div className="w-(--bracket-card) truncate px-1 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <RoundCaption
+            current={currentRound === view.final.roundKey}
+            className="w-(--bracket-card) text-center"
+          >
             {view.final.roundLabel}
-          </div>
+          </RoundCaption>
           <div className="relative flex flex-1 flex-col justify-center">
             <div className="absolute inset-x-0 bottom-[calc(50%+var(--bracket-team-h)+var(--bracket-head)/2+1rem)] flex flex-col items-center gap-1 text-center">
               <span className="text-[0.65rem] font-semibold tracking-[0.18em] whitespace-nowrap text-muted-foreground uppercase">
@@ -611,7 +737,12 @@ export function Bracket<T extends BracketTeamLike>({
             <GameCard game={view.final} {...shared} />
           </div>
         </div>
-        <Half half={view.right} side="right" {...shared} />
+        <Half
+          half={view.right}
+          side="right"
+          currentRound={currentRound}
+          {...shared}
+        />
       </div>
     </div>
   );

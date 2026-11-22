@@ -26,6 +26,13 @@ const kickoffFormat = new Intl.DateTimeFormat("en-US", {
   timeZoneName: "short",
 });
 
+const dayFormat = new Intl.DateTimeFormat("en-US", {
+  weekday: "long",
+  month: "short",
+  day: "numeric",
+  timeZone: "America/New_York",
+});
+
 const shortDate = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
@@ -390,7 +397,9 @@ export function MatchupPanel({
   const when = final
     ? "Final"
     : game.kickoffAt
-      ? kickoffFormat.format(game.kickoffAt)
+      ? game.kickoffTimeTba
+        ? `${dayFormat.format(game.kickoffAt)}, time TBA`
+        : kickoffFormat.format(game.kickoffAt)
       : "Date and time TBA";
   const rows = comparisonRows(a, b);
   const { asOf } = stats;

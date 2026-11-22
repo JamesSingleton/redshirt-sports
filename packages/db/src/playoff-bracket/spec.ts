@@ -96,14 +96,15 @@ function fcsSpec(): BracketFormatSpec {
     });
   }
 
-  const quarterfinals: [string, string, string][] = [
-    ["qf-1", "r2-1", "r2-8"],
-    ["qf-4", "r2-4", "r2-5"],
-    ["qf-2", "r2-2", "r2-7"],
-    ["qf-3", "r2-3", "r2-6"],
+  // The NCAA draws the 5 above the 4 and the 6 above the 3.
+  const quarterfinals: [string, string, string, boolean][] = [
+    ["qf-1", "r2-1", "r2-8", false],
+    ["qf-4", "r2-4", "r2-5", true],
+    ["qf-2", "r2-2", "r2-7", false],
+    ["qf-3", "r2-3", "r2-6", true],
   ];
 
-  for (const [key, left, right] of quarterfinals) {
+  for (const [key, left, right, sideBOnTop] of quarterfinals) {
     games.push({
       key,
       roundKey: "quarterfinal",
@@ -111,6 +112,7 @@ function fcsSpec(): BracketFormatSpec {
       host: "higherSeed",
       sideA: feed(left),
       sideB: feed(right),
+      ...(sideBOnTop ? { sideBOnTop } : {}),
     });
   }
 

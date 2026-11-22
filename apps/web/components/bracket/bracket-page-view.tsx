@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { BracketEditionPicker } from "@/components/bracket/bracket-edition-picker";
 import { BracketExplorer } from "@/components/bracket/bracket-explorer";
+import { BracketShareActions } from "@/components/bracket/bracket-share-actions";
 import {
   type BracketPageModel,
   bracketEditionPath,
@@ -35,15 +36,31 @@ export function bracketDescription(edition: Edition) {
     : `If the playoffs started after Week ${edition.weekNumber}: our projected ${name}, with every seed, first-round matchup and host.`;
 }
 
-/** Title, edition label, note, article link, season/bracket picker, bracket. */
-export function BracketPageView({ model }: { model: BracketPageModel }) {
+function editionLabel(edition: Edition) {
+  return edition.kind === "official"
+    ? "Official bracket"
+    : `Week ${edition.weekNumber} projection`;
+}
+
+/**
+ * Title, edition label, note, article link, season/bracket picker, print and
+ * share, bracket.
+ */
+export function BracketPageView({
+  model,
+  logo,
+}: {
+  model: BracketPageModel;
+  /** The site wordmark for the printable PDF and image. */
+  logo?: React.ComponentProps<typeof BracketShareActions>["logo"];
+}) {
   const { edition, view, stats, official, projections, seasons } = model;
   const paths = bracketPaths(edition.sportSlug, edition.divisionSlug ?? "");
   const editions = [...(official ? [official] : []), ...projections];
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <header className="mx-auto flex w-full min-w-0 max-w-site flex-col gap-3 px-4 pt-6 lg:px-6">
+      <header className="mx-auto flex w-full min-w-0 max-w-site flex-col gap-3 px-4 pt-6 lg:px-6 print:hidden">
         <p className="text-muted-foreground text-xs font-medium tracking-[0.18em] uppercase">
           {edition.kind === "official" ? "Official bracket" : "Projection"}
         </p>
@@ -74,25 +91,33 @@ export function BracketPageView({ model }: { model: BracketPageModel }) {
           year={edition.year}
           editions={editions.map((item) => ({
             href: bracketEditionPath(item),
-            label:
-              item.kind === "official"
-                ? "Official bracket"
-                : `Week ${item.weekNumber} projection`,
+            label: editionLabel(item),
           }))}
           currentHref={bracketEditionPath(edition)}
         />
-        <p className="text-sm">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <BracketShareActions
+            view={view}
+            title={bracketTitle(edition)}
+            subtitle={editionLabel(edition)}
+            division={edition.divisionSlug ?? edition.sportSlug}
+            year={edition.year}
+            logo={logo}
+          />
           <Link
             href={paths.builder}
             prefetch={false}
-            className="font-medium underline underline-offset-4"
+            className="text-sm font-medium underline underline-offset-4"
           >
             Make your own bracket
           </Link>
-        </p>
+        </div>
       </header>
 
-      <section aria-label="Bracket" className="w-full min-w-0 px-4">
+      <section
+        aria-label="Bracket"
+        className="w-full min-w-0 px-4 print:hidden"
+      >
         <p className="mx-auto mb-3 w-full max-w-site text-muted-foreground text-xs">
           Select a game for kickoff, site and how the teams compare.
         </p>
