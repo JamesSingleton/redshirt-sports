@@ -36,6 +36,17 @@
       "timezone": "America/Denver",
       "path": "/api/cron/portal-push",
       "requestMethod": "GET"
+    },
+    "newsletter-sunday-morning": {
+      "schedule": "0 8 * * 0",
+      "timezone": "America/New_York",
+      "path": "/api/cron/newsletter",
+      "requestMethod": "GET"
+    },
+    "poll-alerts": {
+      "schedule": "*/15 * * * *",
+      "path": "/api/cron/poll-alerts",
+      "requestMethod": "GET"
     }
   }
 }

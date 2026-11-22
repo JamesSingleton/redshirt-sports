@@ -104,6 +104,11 @@ describe("CachedFooterServer", () => {
     expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(
       0,
     );
+    // The signup band has no data, so it's real in the skeleton too.
+    expect(
+      screen.getByRole("heading", { name: "The Week in College Sports" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Email address")).toBeInTheDocument();
   });
 
   it("renders footer content with social links and columns", async () => {
@@ -117,6 +122,9 @@ describe("CachedFooterServer", () => {
     render(component);
 
     expect(screen.getByText("College sports coverage")).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "The Week in College Sports" }),
+    ).toContainElement(screen.getByLabelText("Email address"));
     expect(screen.getByText("About")).toHaveAttribute("href", "/about");
     expect(screen.getByText("Contact")).toHaveAttribute(
       "href",

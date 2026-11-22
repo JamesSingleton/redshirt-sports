@@ -1,0 +1,9 @@
+{
+  "extends": "@redshirt-sports/typescript-config/react-library.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", ".react-email"]
+}

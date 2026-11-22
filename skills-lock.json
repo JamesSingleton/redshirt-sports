@@ -1,95 +1,110 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
     "clerk-nextjs-patterns": {
       "source": "clerk/skills",
       "sourceType": "github",
       "skillPath": "skills/clerk-nextjs-patterns/SKILL.md",
-      "computedHash": "dbd12076e3f36815bdb967312184723e78d829278dcf0df366a77cabde1f5fbf"
+      "computedHash": "5775102acceae0b132c1818a51147623da645880aa27ee2d9e3aa2a6358af357",
+      "commit": "78092a74297dac3fb2c64efab3dbe86b581eaea8"
     },
     "content-modeling-best-practices": {
       "source": "sanity-io/agent-toolkit",
       "sourceType": "github",
       "skillPath": "skills/content-modeling-best-practices/SKILL.md",
-      "computedHash": "9f0c62274cf8ccf41dd32fc2f2629f4c9a8e5a920826f30c2eb226d7e796b031"
+      "computedHash": "327f5f5e44e831a74b9541ed2dccb4df3d687f54c99de752c74e5cee9c406e7b",
+      "commit": "828641ff3bae87327ec73844d9c72f38e591842e"
     },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/productivity/grill-me/SKILL.md",
-      "computedHash": "9cdbb4b8f7a3aeaef82e6230c9e823500d4a8a1214c726cf342cf9829d34fc7d"
+      "computedHash": "ab1acb9fbd9eaee03da254abb8a8de228d1e7a07475fe959da4a5eefa34ea4b9",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "improve-codebase-architecture": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
-      "computedHash": "f768cb44209e0d30e3449b8f95ea3dc8293093f73cfe02127d530db43412cf76"
+      "computedHash": "f0820b18426a7d9a6c823a890988ba0ac70bf0fd596d30d7ef07c88558728c23",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "portable-text-serialization": {
       "source": "sanity-io/agent-toolkit",
       "sourceType": "github",
       "skillPath": "skills/portable-text-serialization/SKILL.md",
-      "computedHash": "a4cec92378298c8ef502bf9698112f054d86fc03e814257fa07d6aaac12b9376"
+      "computedHash": "53d298581e63c4cf36ef7ac3b51e15fdaa065b17ea38ed5f65147fba24b85bde",
+      "commit": "828641ff3bae87327ec73844d9c72f38e591842e"
     },
     "sanity-best-practices": {
       "source": "sanity-io/agent-toolkit",
       "sourceType": "github",
       "skillPath": "skills/sanity-best-practices/SKILL.md",
-      "computedHash": "49a68b09b36e2e682c9cb17fdcddb16c71dcbda7af51fa31d1a7d293da103c14"
+      "computedHash": "a07693266bf4683136b9446a315203a74ddd3245b33acb5ad31cd368b131c129",
+      "commit": "828641ff3bae87327ec73844d9c72f38e591842e"
     },
     "sanity-live-cache-components": {
       "source": "sanity-io/next-sanity",
       "sourceType": "github",
       "skillPath": "skills/sanity-live-cache-components/SKILL.md",
-      "computedHash": "6ca6b6034d8f297b6984794480686a1b67badf8e7b157b8634751d4f4d263894"
+      "computedHash": "1965e1f58c9646bfff3a694795ca971da823dfac4b0ea5ceba801532dee21ac6",
+      "commit": "5c3cd9e00ec3268856d9b3d966898a8d50c138d7"
     },
     "seo-aeo-best-practices": {
       "source": "sanity-io/agent-toolkit",
       "sourceType": "github",
       "skillPath": "skills/seo-aeo-best-practices/SKILL.md",
-      "computedHash": "edb99db85683ff99678fcb1bebc3a5653c3ea927eea9ee2534f19be86c7b8b81"
+      "computedHash": "3dd0a23b819eb148b81ebc609dfe0827491018591afc0c35dc0401013300b5a1",
+      "commit": "828641ff3bae87327ec73844d9c72f38e591842e"
     },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
       "skillPath": "skills/shadcn/SKILL.md",
-      "computedHash": "b864a958765563321f485a96f4d59c0bb6539f4286ab6d8b8b66895b7ebd302d"
+      "computedHash": "388962d16c7a4f13aaeee0d8f128e50a87df8553d42ef7988c39c0e1c74a40e8",
+      "commit": "45bbf9ba23c9c0f63d38887947e5fb06f59c7da3"
     },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/supabase/SKILL.md",
-      "computedHash": "211141fd078b4b3645803868528d54221bc7755d24d5c8af45a366785c151dba"
+      "computedHash": "2fbff32fd63b7d31585cacf0ed43e5bf8d05dd20d6c0c751d256cb967a00eec1",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7"
     },
     "supabase-postgres-best-practices": {
       "source": "supabase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
-      "computedHash": "e14e276241805c97dbcfe40dcbea1a3035269cc7293cac4b1832dda41a835e60"
+      "computedHash": "3eb972c2d7c818e544e35cc33ea8d7147d4d78ae08142ef40037b0fbac7a2505",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7"
     },
     "tdd": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/tdd/SKILL.md",
-      "computedHash": "daf55026f456af104a72fa43247f7bcec89e5127316dc5b1b8d675d6a9d8ce94"
+      "computedHash": "e3e0f78ff1c2d52ffefa0378baa1e80e129d359288cf9a56f4e59afcd2aac86c",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     },
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",
       "skillPath": "skills/turborepo/SKILL.md",
-      "computedHash": "c83a6ff75c62092f71da91408164ed3426f11749b032fd23ecc855e27c2fb538"
+      "computedHash": "49bb6427015253ce5d93f15dfa6c9ade3f8528f0fbe54769b6da1e1458f058d4",
+      "commit": "b911d19d45f60c96cb33c756b6e238ad4d32bb73"
     },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/composition-patterns/SKILL.md",
-      "computedHash": "f98931159fa9c7fed043bcd18a891a46dcf89ababa38df13a4c5b7b30dc0ce07"
+      "computedHash": "f711ed8b16162eaa712abbcdbbae6c926f86c57e60127735fecc3ad0dd85b3fa",
+      "commit": "5a37a6329fbad3666c3207392a6a7c0110e92efb"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/react-best-practices/SKILL.md",
-      "computedHash": "3219a1944e404ffc14d1d9d6aef6dd2e3855b81387ee0a044ccbfe14d34c2357"
+      "computedHash": "7991ed4fbecdac23f47c1a40c243e00a212a9e7f3604db93959b3ae11dffe299",
+      "commit": "5a37a6329fbad3666c3207392a6a7c0110e92efb"
     }
   }
 }

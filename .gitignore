@@ -61,3 +61,4 @@ scripts/
 /.sanity/*
 !/.sanity/blueprint.config.json
 .env*
+.react-email
