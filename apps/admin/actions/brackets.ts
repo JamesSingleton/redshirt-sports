@@ -93,13 +93,18 @@ export async function saveBracketGameAction(input: {
   homeSide: "a" | "b" | null;
   siteLabel: string | null;
   kickoffAt: string | null;
+  /** Keep only the day of `kickoffAt`; the time shows as TBA. */
+  kickoffTimeTba: boolean;
   sideAScore: number | null;
   sideBScore: number | null;
 }): Promise<BracketActionResult> {
   await requireArea("admin");
-  const kickoffAt = input.kickoffAt
-    ? easternInputToDate(input.kickoffAt)
-    : null;
+  // A TBA time is stored as noon Eastern, so the day can't slip either way.
+  const kickoffInput =
+    input.kickoffAt && input.kickoffTimeTba
+      ? `${input.kickoffAt.slice(0, 10)}T12:00`
+      : input.kickoffAt;
+  const kickoffAt = kickoffInput ? easternInputToDate(kickoffInput) : null;
   if (input.kickoffAt && !kickoffAt) {
     return { ok: false, message: "Kickoff is not a valid date" };
   }

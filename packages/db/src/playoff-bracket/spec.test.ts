@@ -3,7 +3,11 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { BRACKET_FORMAT_SEEDS, resolveFormat } from "./spec";
-import type { BracketFormatSeed, BracketGameSpec } from "./types";
+import type {
+  BracketFormatSeed,
+  BracketFormatSpec,
+  BracketGameSpec,
+} from "./types";
 import { rootGame, validateBracketSpec } from "./validate-spec";
 
 function formatByKey(key: string): BracketFormatSeed {
@@ -136,6 +140,14 @@ describe("resolveFormat", () => {
   });
 });
 
+/** The spec as 0023 seeded it, before 0035 added the draw order. */
+function withoutDrawOrder(spec: BracketFormatSpec): BracketFormatSpec {
+  return {
+    ...spec,
+    games: spec.games.map(({ sideBOnTop: _drawOrder, ...game }) => game),
+  };
+}
+
 describe("bracket migrations", () => {
   it("0023 seeds the same format specs the resolver uses", () => {
     const seeded = [
@@ -156,8 +168,22 @@ describe("bracket migrations", () => {
       const match = seeded.find((item) => item.key === row.key);
       expect(match?.effectiveFromYear).toBe(row.effectiveFromYear);
       expect(match?.effectiveToYear).toBe(row.effectiveToYear);
-      expect(match?.spec).toEqual(row.spec);
+      expect(match?.spec).toEqual(withoutDrawOrder(row.spec));
     }
+  });
+
+  it("0035 draws on top exactly the games the specs mark sideBOnTop", () => {
+    const sql = migration("0035_fcs_bracket_draw_order.sql");
+    const keys = /IN \(([^)]*)\)/.exec(sql)?.[1]?.match(/'[^']+'/g) ?? [];
+    const format = /WHERE "key" = '([^']+)'/.exec(sql)?.[1];
+    const marked = BRACKET_FORMAT_SEEDS.flatMap((row) =>
+      row.spec.games
+        .filter((game) => game.sideBOnTop)
+        .map((game) => `${row.key}:${game.key}`),
+    );
+    expect(keys.map((key) => `${format}:${key.slice(1, -1)}`).sort()).toEqual(
+      marked.sort(),
+    );
   });
 
   it("0026 backfills division_slug before dropping bracket_divisions", () => {

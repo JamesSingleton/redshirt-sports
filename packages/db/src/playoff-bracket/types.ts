@@ -16,6 +16,12 @@ export type BracketGameSpec = {
   host: BracketHost;
   sideA: BracketSideSpec;
   sideB: BracketSideSpec;
+  /**
+   * Drawing only: put `sideB` and the games feeding it above `sideA`, to
+   * match the official printed bracket. Sides keep their keys, so stored
+   * scores and picks are untouched.
+   */
+  sideBOnTop?: boolean;
 };
 
 export type BracketFormatSpec = {

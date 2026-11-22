@@ -2,6 +2,7 @@
 
 import { Badge } from "@redshirt-sports/ui/components/badge";
 import { Button } from "@redshirt-sports/ui/components/button";
+import { Checkbox } from "@redshirt-sports/ui/components/checkbox";
 import {
   Combobox,
   ComboboxContent,
@@ -58,6 +59,7 @@ export type EditorGame = {
   homeSide: "a" | "b" | null;
   siteLabel: string | null;
   kickoffAt: string | null;
+  kickoffTimeTba: boolean;
   sideAScore: number | null;
   sideBScore: number | null;
 };
@@ -303,6 +305,8 @@ function GameRow({ editionId, game }: { editionId: string; game: EditorGame }) {
   const [homeSide, setHomeSide] = useState(game.homeSide ?? "");
   const [site, setSite] = useState(game.siteLabel ?? "");
   const [kickoff, setKickoff] = useState(game.kickoffAt ?? "");
+  const [timeTba, setTimeTba] = useState(game.kickoffTimeTba);
+  const tbaId = useId();
   const [a, setA] = useState(game.sideAScore?.toString() ?? "");
   const [b, setB] = useState(game.sideBScore?.toString() ?? "");
 
@@ -360,13 +364,26 @@ function GameRow({ editionId, game }: { editionId: string; game: EditorGame }) {
         />
       </td>
       <td className="py-2 pr-3">
-        <DateTimePicker
-          value={kickoff || null}
-          onChange={(next) => setKickoff(next ?? "")}
-          defaultTime="14:00"
-          dateLabel={`${game.key} kickoff date`}
-          timeLabel={`${game.key} kickoff time`}
-        />
+        <div className="flex flex-col gap-1.5">
+          <DateTimePicker
+            value={kickoff || null}
+            onChange={(next) => setKickoff(next ?? "")}
+            defaultTime="14:00"
+            dateLabel={`${game.key} kickoff date`}
+            timeLabel={`${game.key} kickoff time`}
+          />
+          {/* The date stands; the site shows "TBA" in place of the time. */}
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id={tbaId}
+              checked={timeTba}
+              onCheckedChange={(on) => setTimeTba(on === true)}
+            />
+            <Label htmlFor={tbaId} className="text-xs font-normal">
+              Time TBA
+            </Label>
+          </div>
+        </div>
       </td>
       <td className="py-2">
         <Button
@@ -381,6 +398,7 @@ function GameRow({ editionId, game }: { editionId: string; game: EditorGame }) {
                 homeSide: (homeSide || null) as EditorGame["homeSide"],
                 siteLabel: site || null,
                 kickoffAt: kickoff || null,
+                kickoffTimeTba: timeTba,
                 sideAScore: scoreValue(a),
                 sideBScore: scoreValue(b),
               }),

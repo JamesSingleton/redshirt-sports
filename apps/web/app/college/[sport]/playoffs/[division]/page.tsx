@@ -8,7 +8,10 @@ import {
 } from "@/components/bracket/bracket-page-view";
 import { BracketSkeleton } from "@/components/bracket/bracket-skeleton";
 import { bracketPaths, loadLatestBracketPage } from "@/lib/bracket-data";
-import { getPageMetadata } from "@/lib/global-seo-settings";
+import {
+  fetchGlobalSeoSettings,
+  getPageMetadata,
+} from "@/lib/global-seo-settings";
 
 type Params = Promise<{ sport: string; division: string }>;
 
@@ -33,8 +36,12 @@ export async function generateMetadata({
 
 async function LatestBracket({ params }: { params: Params }) {
   const { sport, division } = await params;
-  const model = await loadLatestBracketPage({ sport, division });
-  return <BracketPageView model={model} />;
+  // The settings are already fetched for this page's metadata.
+  const [model, settings] = await Promise.all([
+    loadLatestBracketPage({ sport, division }),
+    fetchGlobalSeoSettings(),
+  ]);
+  return <BracketPageView model={model} logo={settings?.footerLogo} />;
 }
 
 export default function LatestBracketPage({ params }: { params: Params }) {

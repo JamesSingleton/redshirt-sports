@@ -289,6 +289,24 @@ describe("MatchupPanel", () => {
     expect(screen.getByText("Site TBA")).toBeInTheDocument();
   });
 
+  it("says time TBA when only the date is set", () => {
+    const view = buildBracketView(FCS_SPEC, bracketSlots(), [
+      {
+        gameKey: "r2-1",
+        homeSide: null,
+        siteLabel: null,
+        kickoffAt: new Date("2026-12-05T17:00:00Z"),
+        kickoffTimeTba: true,
+        status: "scheduled",
+        sideAScore: null,
+        sideBScore: null,
+        winnerSide: null,
+      },
+    ]);
+    renderPanel("r2-1", view);
+    expect(screen.getByText("Saturday, Dec 5, time TBA")).toBeInTheDocument();
+  });
+
   it("lists a possible team even without its stats", () => {
     const view = buildBracketView(FCS_SPEC, bracketSlots(), []);
     const stats = bracketStats();

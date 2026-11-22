@@ -8,7 +8,10 @@ import {
 } from "@/components/bracket/bracket-page-view";
 import { BracketSkeleton } from "@/components/bracket/bracket-skeleton";
 import { loadBracketPage } from "@/lib/bracket-data";
-import { getPageMetadata } from "@/lib/global-seo-settings";
+import {
+  fetchGlobalSeoSettings,
+  getPageMetadata,
+} from "@/lib/global-seo-settings";
 
 type Params = Promise<{
   sport: string;
@@ -34,8 +37,12 @@ export async function generateMetadata({
 
 async function ProjectionBracket({ params }: { params: Params }) {
   const { sport, division, year, week } = await params;
-  const model = await loadBracketPage({ sport, division, year, week });
-  return <BracketPageView model={model} />;
+  // The settings are already fetched for this page's metadata.
+  const [model, settings] = await Promise.all([
+    loadBracketPage({ sport, division, year, week }),
+    fetchGlobalSeoSettings(),
+  ]);
+  return <BracketPageView model={model} logo={settings?.footerLogo} />;
 }
 
 export default function ProjectionBracketPage({ params }: { params: Params }) {

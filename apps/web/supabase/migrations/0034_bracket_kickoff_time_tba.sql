@@ -1,0 +1,1 @@
+ALTER TABLE "bracket_games" ADD COLUMN "kickoff_time_tba" boolean DEFAULT false NOT NULL;

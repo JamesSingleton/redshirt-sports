@@ -849,6 +849,11 @@ export const bracketGamesTable = pgTable(
     homeSide: text("home_side"),
     siteLabel: text("site_label"),
     kickoffAt: timestamp("kickoff_at", { withTimezone: true }),
+    /**
+     * The date is set but the time isn't: `kickoff_at` holds noon Eastern on
+     * that day and the time shows as TBA.
+     */
+    kickoffTimeTba: boolean("kickoff_time_tba").notNull().default(false),
     status: text("status").notNull().default("scheduled"),
     sideAScore: integer("side_a_score"),
     sideBScore: integer("side_b_score"),

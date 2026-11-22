@@ -187,6 +187,7 @@ export async function getBracketEdition(
         homeSide: bracketGamesTable.homeSide,
         siteLabel: bracketGamesTable.siteLabel,
         kickoffAt: bracketGamesTable.kickoffAt,
+        kickoffTimeTba: bracketGamesTable.kickoffTimeTba,
         status: bracketGamesTable.status,
         sideAScore: bracketGamesTable.sideAScore,
         sideBScore: bracketGamesTable.sideBScore,
@@ -659,6 +660,7 @@ export async function setBracketGame({
   homeSide,
   siteLabel,
   kickoffAt,
+  kickoffTimeTba = false,
   sideAScore,
   sideBScore,
 }: {
@@ -667,6 +669,8 @@ export async function setBracketGame({
   homeSide: "a" | "b" | null;
   siteLabel: string | null;
   kickoffAt: Date | null;
+  /** Only the date of `kickoffAt` is known. */
+  kickoffTimeTba?: boolean;
   sideAScore: number | null;
   sideBScore: number | null;
 }) {
@@ -700,6 +704,7 @@ export async function setBracketGame({
         homeSide,
         siteLabel,
         kickoffAt,
+        kickoffTimeTba: kickoffAt !== null && kickoffTimeTba,
         sideAScore,
         sideBScore,
         winnerSide,
