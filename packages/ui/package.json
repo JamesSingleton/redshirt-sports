@@ -13,9 +13,9 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@hookform/resolvers": "^6.0.2",
-    "@ui-sdk/core": "0.1.0-beta.10",
-    "@ui-sdk/react": "0.1.0-beta.10",
+    "@hookform/resolvers": "^7.0.8",
+    "@ui-sdk/core": "0.1.0-beta.14",
+    "@ui-sdk/react": "0.1.0-beta.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cn": "^0.5.2",
