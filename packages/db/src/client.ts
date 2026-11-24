@@ -28,6 +28,11 @@ const client = postgres(keys().DATABASE_URL, {
   // request path (pgbouncer.get_auth ran ~230k times before 2026-11-02), and
   // the cap above, not this, is what keeps a burst under the limit.
   idle_timeout: 30,
+  // One query in flight per connection. postgres v4 pipelines queries on a
+  // busy connection, and through Supavisor's transaction pooler two pipelined
+  // queries never resolve, even `select 1`. That hung every prerender that ran
+  // queries in parallel (2026-11-24). Extra queries wait for a free connection.
+  max_pipeline: 1,
   max_lifetime: 0,
   // Default is 30s; keep tighter so hung pooler connects fail fast on serverless.
   connect_timeout: 10,
