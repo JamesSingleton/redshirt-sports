@@ -1,4 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "pnpm install --store-dir ../../.pnpm-store --filter @redshirt-sports/admin..."
+  "installCommand": "pnpm install --store-dir .pnpm-store --filter @redshirt-sports/admin..."
 }
