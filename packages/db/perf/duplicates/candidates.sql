@@ -1,0 +1,2 @@
+set search_path = public, extensions;
+\copy (select q.qid, q.kind, q.label, p.id, similarity(p.name_search, dup_norm(q.first,q.last)) sim, (p.sport=q.sport)::int same_sport, (p.school=q.school)::int same_school, (p.hs=q.hs)::int same_hs from dup_queries q cross join lateral (select p.* from dup_players p where p.name_search % dup_norm(q.first,q.last) order by similarity(p.name_search, dup_norm(q.first,q.last)) desc, p.id limit 20) p) to 'cands.csv' csv header

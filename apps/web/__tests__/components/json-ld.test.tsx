@@ -509,7 +509,7 @@ describe("article entities and newsroom policies", () => {
       teams: [{ name: "Montana", slug: "montana-grizzlies" }],
       conferences: [{ name: "Big Sky Conference" }],
       game: "espn:401|Montana at Montana State",
-      players: ["espn:5|Keali'i Ah Yat · Montana"],
+      players: [{ ref: "espn:5|Keali'i Ah Yat · Montana", key: "espn:5" }],
       corrections: [{ text: "Fixed the score.", date: "2026-11-02T00:00:00Z" }],
       editorsNote: "The author attended Montana.",
     });

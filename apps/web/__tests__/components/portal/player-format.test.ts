@@ -87,38 +87,7 @@ describe("portal history wording", () => {
       status: "committed",
       statusLine: "Committed Jan 5, 2026",
       details: ["Entered Jan 2, 2026", "Undergraduate transfer"],
-      storySlug: null,
     });
-    // The story on the move that put them where they stand.
-    expect(
-      move({
-        events: [
-          {
-            id: 1,
-            type: "entered",
-            occurredAt: "2026-01-02T17:00:00.000Z",
-            superseded: false,
-            storySlug: "qb-enters-portal",
-          },
-          {
-            id: 2,
-            type: "committed",
-            occurredAt: "2026-01-03T17:00:00.000Z",
-            schoolId: "idaho",
-            superseded: true,
-            storySlug: "dropped-commitment",
-          },
-          {
-            id: 3,
-            type: "committed",
-            occurredAt: "2026-01-05T17:00:00.000Z",
-            schoolId: "boise",
-            superseded: false,
-            storySlug: "why-boise",
-          },
-        ],
-      }).storySlug,
-    ).toBe("why-boise");
     expect(move({ status: "entered" })).toMatchObject({
       labels: ["Previous school", "Next school"],
       to: { kind: "undecided" },

@@ -1,6 +1,18 @@
-import { parseExternalRef } from "@redshirt-sports/sanity/external-refs";
+import {
+  type ExternalProvider,
+  externalKey,
+  type PlayerTag,
+  parseExternalRef,
+} from "@redshirt-sports/sanity/external-refs";
 import { createAsyncListInput } from "@sanity/sanity-plugin-async-list";
-import { defineType } from "sanity";
+import { useEffect } from "react";
+import {
+  defineField,
+  defineType,
+  type ObjectInputProps,
+  set,
+  unset,
+} from "sanity";
 
 import { env } from "@/env";
 import {
@@ -59,7 +71,9 @@ export const gameRef = defineType({
   validation: (rule) => rule.custom(externalRefRule("game")),
 });
 
-async function searchPortalPlayers(query: string): Promise<PickerOption[]> {
+export async function searchPortalPlayers(
+  query: string,
+): Promise<PickerOption[]> {
   try {
     const url = new URL(
       "/api/v1/players/search",
@@ -77,7 +91,9 @@ async function searchPortalPlayers(query: string): Promise<PickerOption[]> {
   }
 }
 
-async function searchEspnPlayers(query: string): Promise<PickerOption[]> {
+export async function searchEspnPlayers(
+  query: string,
+): Promise<PickerOption[]> {
   try {
     const url = new URL("https://site.web.api.espn.com/apis/search/v2");
     url.searchParams.set("query", query);
@@ -91,31 +107,80 @@ async function searchEspnPlayers(query: string): Promise<PickerOption[]> {
   }
 }
 
+/**
+ * Keeps `key` equal to the provider and id in `ref`, so the player page's
+ * exact-match lookup finds the article. Only patches when they differ.
+ */
+function PlayerTagInput(props: ObjectInputProps<PlayerTag>) {
+  const { value, onChange } = props;
+  const parsed = parseExternalRef(value?.ref);
+  const want = parsed ? externalKey(parsed) : undefined;
+  const have = value?.key ?? undefined;
+  useEffect(() => {
+    if (want === have) return;
+    onChange(want ? set(want, ["key"]) : unset(["key"]));
+  }, [want, have, onChange]);
+  return props.renderDefault(props);
+}
+
+const playerSearchInput = createAsyncListInput<PickerOption>({
+  loaderType: "search",
+  loader: async ({ query }) => {
+    if (!query || query.trim().length < 3) return [];
+    // Our transfer portal players first (they have a page on the site),
+    // then ESPN's. Either search failing still leaves the other.
+    const [portal, espn] = await Promise.all([
+      searchPortalPlayers(query.trim()),
+      searchEspnPlayers(query.trim()),
+    ]);
+    return [...portal, ...espn];
+  },
+  autocompleteProps: {
+    placeholder: "Type a player's name",
+    renderOption: (option) => <div style={{ padding: 8 }}>{option.label}</div>,
+    renderValue: showLabel,
+  },
+});
+
+const PROVIDER_NAMES: Record<ExternalProvider, string> = {
+  espn: "ESPN",
+  ncaa: "NCAA",
+  redshirt: "Redshirt player page",
+};
+
+/**
+ * A player an article is about: `ref` is what the editor picked, `key` the
+ * same provider and id without the label (see `PlayerTag`).
+ */
 export const playerRef = defineType({
   name: "playerRef",
   title: "Player",
-  type: "string",
-  components: {
-    input: createAsyncListInput<PickerOption>({
-      loaderType: "search",
-      loader: async ({ query }) => {
-        if (!query || query.trim().length < 3) return [];
-        // Our transfer portal players first (they have a page on the site),
-        // then ESPN's. Either search failing still leaves the other.
-        const [portal, espn] = await Promise.all([
-          searchPortalPlayers(query.trim()),
-          searchEspnPlayers(query.trim()),
-        ]);
-        return [...portal, ...espn];
-      },
-      autocompleteProps: {
-        placeholder: "Type a player's name",
-        renderOption: (option) => (
-          <div style={{ padding: 8 }}>{option.label}</div>
-        ),
-        renderValue: showLabel,
-      },
+  type: "object",
+  fields: [
+    defineField({
+      name: "ref",
+      title: "Player",
+      type: "string",
+      components: { input: playerSearchInput },
+      validation: (rule) => rule.required().custom(externalRefRule("player")),
     }),
+    defineField({
+      name: "key",
+      title: "Key",
+      type: "string",
+      hidden: true,
+      readOnly: true,
+    }),
+  ],
+  components: { input: PlayerTagInput },
+  preview: {
+    select: { ref: "ref" },
+    prepare: ({ ref }: { ref?: string }) => {
+      const parsed = parseExternalRef(ref);
+      return {
+        title: parsed?.label ?? ref ?? "No player picked",
+        subtitle: parsed ? PROVIDER_NAMES[parsed.provider] : undefined,
+      };
+    },
   },
-  validation: (rule) => rule.custom(externalRefRule("player")),
 });

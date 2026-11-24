@@ -1,4 +1,5 @@
 import { parsePlayerSlugId, playerPath } from "@redshirt-sports/db/portal";
+import { redshirtPlayerKeys } from "@redshirt-sports/sanity/external-refs";
 import { queryPlayerStories } from "@redshirt-sports/sanity/queries";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -83,10 +84,10 @@ export async function PlayerRoute({ params }: { params: PlayerParams }) {
           wire ? { wire, currentCycle: cycles.current } : null,
         )
       : null,
-    // Articles an editor tagged with this player in Studio.
+    // Articles an editor tagged with this player, or a player merged into them.
     sanityFetchPage({
       query: queryPlayerStories,
-      params: { ref: `redshirt:${data.doc.id}|` },
+      params: { keys: redshirtPlayerKeys([data.doc.id, ...data.mergedIds]) },
       perspective: "published",
       stega: false,
     }),

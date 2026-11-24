@@ -4,6 +4,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { reduceRecruitment } from "../src/portal/reduce-recruitment";
 import {
+  addPlayerExternalId,
+  matchEspnIds,
+} from "../src/queries/player-external-ids";
+import {
   createPlayer,
   findSimilarPlayers,
   PortalWriteError,
@@ -12,6 +16,7 @@ import {
   getRecruitmentEvents,
   openRecruitment,
   recordRecruitmentEvent,
+  recordRecruitmentEvents,
   voidRecruitmentEvent,
 } from "../src/queries/recruitments";
 import {
@@ -25,6 +30,7 @@ import {
   recruitmentEventsTable,
   recruitmentsTable,
   schoolConferenceAffiliationsTable,
+  schoolExternalIdsTable,
   schoolsTable,
   sportsTable,
 } from "../src/schema";
@@ -150,6 +156,8 @@ describe("players", () => {
     const matches = await findSimilarPlayers("Jaylen Brooks");
     expect(matches.map((match) => match.id)).toEqual([jalen.id]);
     expect(matches[0]!.currentSchools).toEqual(["Montana (football)"]);
+    expect(matches[0]!.sportIds).toHaveLength(1);
+    expect(matches[0]!.currentSchoolIds).toEqual([school.montana]);
     expect(await findSimilarPlayers("Zz")).toEqual([]);
   });
 
@@ -661,5 +669,81 @@ describe("database constraints", () => {
       order by c.relname
     `);
     expect(open.map((row) => row.relname)).toEqual([]);
+  });
+});
+
+describe("intake shortcuts", () => {
+  it("records several moves at once, or none of them", async () => {
+    const player = await newPlayer();
+    await enter(player.id);
+    const [recruitment] = await db.select().from(recruitmentsTable);
+    const offer = (schoolId: string, n: number) => ({
+      recruitmentId: recruitment!.id,
+      type: "offered" as const,
+      occurredAt: day(n),
+      school: { schoolId },
+    });
+
+    await recordRecruitmentEvents([
+      offer(school.idaho, 3),
+      offer(school.sacState, 3),
+    ]);
+    const offers = async () =>
+      (await db.select().from(recruitmentEventsTable)).filter(
+        (e) => e.type === "offered",
+      );
+    expect((await offers()).map((e) => e.schoolId).sort()).toEqual(
+      [school.idaho, school.sacState].sort(),
+    );
+
+    // Idaho already has a live offer: the Boise State offer beside it is not kept.
+    await expect(
+      recordRecruitmentEvents([
+        offer(school.boiseState, 4),
+        offer(school.idaho, 4),
+      ]),
+    ).rejects.toThrow();
+    expect(await offers()).toHaveLength(2);
+
+    const other = await newPlayer("Marcus", "Hill");
+    await enter(other.id);
+    const [, otherRecruitment] = await db
+      .select()
+      .from(recruitmentsTable)
+      .orderBy(recruitmentsTable.id);
+    await expect(
+      recordRecruitmentEvents([
+        offer(school.idaho, 5),
+        { ...offer(school.idaho, 5), recruitmentId: otherRecruitment!.id },
+      ]),
+    ).rejects.toMatchObject({ code: "mixed_recruitments" });
+    expect(await recordRecruitmentEvents([])).toEqual([]);
+  });
+
+  it("finds an ESPN player already on file and our school for ESPN's team", async () => {
+    const player = await newPlayer();
+    await addPlayerExternalId({
+      playerId: player.id,
+      provider: "espn",
+      externalId: "5225414",
+    });
+    await db.insert(schoolExternalIdsTable).values({
+      schoolId: school.montana,
+      provider: "espn",
+      externalId: "149",
+    });
+
+    expect(
+      await matchEspnIds({ espnPlayerId: "5225414", espnTeamId: "149" }),
+    ).toMatchObject({
+      existingPlayer: { id: player.id, lastName: "Brooks" },
+      school: { id: school.montana, name: "Montana" },
+    });
+    expect(await matchEspnIds({ espnPlayerId: "1", espnTeamId: null })).toEqual(
+      {
+        existingPlayer: null,
+        school: null,
+      },
+    );
   });
 });

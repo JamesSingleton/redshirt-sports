@@ -1,4 +1,8 @@
-import { parseExternalRef } from "@redshirt-sports/sanity/external-refs";
+import {
+  type PlayerTag,
+  parseExternalRef,
+  parsePlayerTag,
+} from "@redshirt-sports/sanity/external-refs";
 import type {
   CorrectionComment,
   Person,
@@ -30,7 +34,7 @@ export type ArticleEntityInput = {
   teams?: Array<{ name?: MaybeString; slug?: MaybeString } | null> | null;
   conferences?: Array<{ name?: MaybeString } | null> | null;
   game?: MaybeString;
-  players?: MaybeString[] | null;
+  players?: Array<PlayerTag | null> | null;
   corrections?: Array<{
     kind?: MaybeString;
     date?: MaybeString;
@@ -101,8 +105,8 @@ export function buildArticleMentions(article: ArticleEntityInput): Thing[] {
       "@type": "SportsOrganization",
       name: conference.name as string,
     }));
-  const players: Person[] = present(article.players).flatMap((value) => {
-    const player = parseExternalRef(value);
+  const players: Person[] = present(article.players).flatMap((tag) => {
+    const player = parsePlayerTag(tag);
     if (!player) return [];
     // The label is "Name · Team"; the name is the part before the dot.
     const name = player.label.replace(/ · .*$/, "");

@@ -5,7 +5,12 @@ import {
   PLAYER_ID_PROVIDER_LABELS,
   type PlayerIdProvider,
 } from "../portal/constants";
-import { playerExternalIdsTable, playersTable } from "../schema";
+import {
+  playerExternalIdsTable,
+  playersTable,
+  schoolExternalIdsTable,
+  schoolsTable,
+} from "../schema";
 import { lockPlayer, PortalWriteError, writePlayerAudit } from "./players";
 
 // Public ids a player has elsewhere (ESPN, stats.ncaa.org). Internal only:
@@ -28,6 +33,54 @@ export function listPlayerExternalIds(playerId: number) {
 export type PlayerExternalId = Awaited<
   ReturnType<typeof listPlayerExternalIds>
 >[number];
+
+/**
+ * What an ESPN profile points at here: our school for ESPN's team id, and the
+ * player who already has this ESPN id (the same person, entered before).
+ */
+export async function matchEspnIds(input: {
+  espnPlayerId: string;
+  espnTeamId: string | null;
+}) {
+  const [existing, school] = await Promise.all([
+    db
+      .select({
+        id: playersTable.id,
+        firstName: playersTable.firstName,
+        lastName: playersTable.lastName,
+        mergedIntoId: playersTable.mergedIntoId,
+      })
+      .from(playerExternalIdsTable)
+      .innerJoin(
+        playersTable,
+        eq(playersTable.id, playerExternalIdsTable.playerId),
+      )
+      .where(
+        and(
+          eq(playerExternalIdsTable.provider, "espn"),
+          eq(playerExternalIdsTable.externalId, input.espnPlayerId),
+        ),
+      )
+      .limit(1),
+    input.espnTeamId
+      ? db
+          .select({ id: schoolsTable.id, name: schoolsTable.name })
+          .from(schoolExternalIdsTable)
+          .innerJoin(
+            schoolsTable,
+            eq(schoolsTable.id, schoolExternalIdsTable.schoolId),
+          )
+          .where(
+            and(
+              eq(schoolExternalIdsTable.provider, "espn"),
+              eq(schoolExternalIdsTable.externalId, input.espnTeamId),
+            ),
+          )
+          .limit(1)
+      : [],
+  ]);
+  return { existingPlayer: existing[0] ?? null, school: school[0] ?? null };
+}
 
 /**
  * Add a provider's id to a player. Refused when the player already has one

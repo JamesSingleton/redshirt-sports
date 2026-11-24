@@ -171,7 +171,6 @@ describe("prefilling the entry form from a submission", () => {
         sourceType: "submission",
         sourceUrl: "https://example.test/post",
         sourceNote: "Submission #7 from a coach",
-        storySlug: "",
       },
     });
     // A commitment's date isn't when they entered.

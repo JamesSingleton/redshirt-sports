@@ -13,6 +13,11 @@ export interface PortalPlayerData {
   schools: Record<string, WireSchool>;
   levels: Record<string, WireLevel>;
   conferences: Record<string, WireConference>;
+  /**
+   * Players merged into this one, oldest id first. Articles tagged with any of
+   * them belong on this page.
+   */
+  mergedIds: number[];
 }
 
 /** What `/players/[slugId]` resolves to. */

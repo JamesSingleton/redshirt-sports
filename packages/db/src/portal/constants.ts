@@ -65,9 +65,6 @@ export function isInterestEventType(type: string): type is InterestEventType {
   return (INTEREST_EVENT_TYPES as readonly string[]).includes(type);
 }
 
-/** An article's slug on the site: lowercase words joined by hyphens. */
-export const STORY_SLUG_PATTERN = "^[a-z0-9]+(-[a-z0-9]+)*$";
-
 /** Where we learned of a move. Internal only: never published. */
 export const EVENT_SOURCE_TYPES = [
   "social",

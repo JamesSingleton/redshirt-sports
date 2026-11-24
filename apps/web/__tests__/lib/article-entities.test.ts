@@ -100,7 +100,11 @@ describe("buildArticleMentions", () => {
     expect(
       buildArticleMentions({
         conferences: [{ name: "Big Sky Conference" }, { name: null }],
-        players: ["espn:5081234|Keali'i Ah Yat · Montana", "garbage", null],
+        players: [
+          { ref: "espn:5081234|Keali'i Ah Yat · Montana", key: "espn:5081234" },
+          { ref: "garbage" },
+          null,
+        ],
       }),
     ).toEqual([
       { "@type": "SportsOrganization", name: "Big Sky Conference" },

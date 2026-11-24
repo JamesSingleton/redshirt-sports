@@ -32,6 +32,8 @@ const db = vi.hoisted(() => {
     openRecruitment: vi.fn(),
     pushPortal: vi.fn(),
     recordRecruitmentEvent: vi.fn(),
+    recordRecruitmentEvents: vi.fn(),
+    matchEspnIds: vi.fn(),
     resolvePortalActor: vi.fn(),
     searchPortalSchools: vi.fn(),
     updatePlayerBio: vi.fn(),
@@ -62,6 +64,11 @@ vi.mock("@/lib/revalidate-web-portal", () => ({
   expireWebPortalTags: mockExpireWeb,
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
+const { mockFetchAthlete } = vi.hoisted(() => ({ mockFetchAthlete: vi.fn() }));
+vi.mock("@redshirt-sports/clients/espn", async (importActual) => ({
+  ...(await importActual<typeof import("@redshirt-sports/clients/espn")>()),
+  fetchEspnAthlete: mockFetchAthlete,
+}));
 vi.mock("@sentry/nextjs", () => ({
   captureException: mockCapture,
   captureMessage: mockMessage,
@@ -81,8 +88,10 @@ import {
   getSubmissionForEntry,
   getSubmissionInbox,
   mergePortalPlayers,
+  prefillFromEspn,
   pushPortalToSite,
   recordPortalMove,
+  recordPortalMoves,
   removePlayerExternalIdAction,
   reviewSubmission,
   savePlayerBio,
@@ -140,10 +149,179 @@ describe("portal admin actions", () => {
     });
 
     it("caps search input", async () => {
+      db.findSimilarPlayers.mockResolvedValue([]);
       await findPortalDuplicates("x".repeat(500));
-      expect(db.findSimilarPlayers).toHaveBeenCalledWith("x".repeat(200));
+      expect(db.findSimilarPlayers).toHaveBeenCalledWith("x".repeat(200), {
+        limit: 20,
+      });
       await findPortalSchools("y".repeat(200));
       expect(db.searchPortalSchools).toHaveBeenCalledWith("y".repeat(80));
+    });
+  });
+
+  describe("intake helpers", () => {
+    const similar = (id: number, similarity: number, extra = {}) => ({
+      id,
+      similarity,
+      sportIds: ["sport-football"],
+      currentSchoolIds: ["school-montana"],
+      hsGradYear: 2022,
+      ...extra,
+    });
+
+    it("tiers duplicates with what the form knows", async () => {
+      db.findSimilarPlayers.mockResolvedValue([
+        similar(1, 0.55),
+        similar(2, 0.9),
+        similar(3, 0.32, { sportIds: ["sport-mbb"] }),
+      ]);
+      const found = await findPortalDuplicates("Jalen Brooks", {
+        sportId: "sport-football",
+        schoolId: "school-montana",
+        hsGradYear: "",
+      });
+      expect(found.map((row) => [row.id, row.tier])).toEqual([
+        [2, "likely"],
+        [1, "likely"],
+      ]);
+      // Without context, a looser name is only possible.
+      const bare = await findPortalDuplicates("Jalen Brooks", "junk");
+      expect(bare.map((row) => [row.id, row.tier])).toEqual([
+        [2, "likely"],
+        [1, "possible"],
+      ]);
+    });
+
+    it("prefills from an ESPN link, with our school and any player on file", async () => {
+      expect(await prefillFromEspn("https://example.com/x")).toMatchObject({
+        ok: false,
+      });
+      mockFetchAthlete.mockResolvedValue({
+        id: "5225414",
+        firstName: "Ty",
+        lastName: "Pennington",
+        displayHeight: "6' 2\"",
+        displayWeight: "220 lbs",
+        displayExperience: "Senior",
+        position: { abbreviation: "QB" },
+        team: { id: "2464", displayName: "Northern Arizona Lumberjacks" },
+      });
+      db.matchEspnIds.mockResolvedValue({
+        existingPlayer: {
+          id: 7,
+          firstName: "Ty",
+          lastName: "Pennington",
+          mergedIntoId: 9,
+        },
+        school: { id: "school-nau", name: "Northern Arizona" },
+      });
+      const result = await prefillFromEspn(
+        "https://www.espn.com/college-football/player/_/id/5225414/ty-pennington",
+      );
+      expect(mockFetchAthlete).toHaveBeenCalledWith("football", "5225414");
+      expect(db.matchEspnIds).toHaveBeenCalledWith({
+        espnPlayerId: "5225414",
+        espnTeamId: "2464",
+      });
+      expect(result).toMatchObject({
+        ok: true,
+        sportSlug: "football",
+        school: { id: "school-nau" },
+        // A merged player points at the survivor.
+        existingPlayer: { id: 9 },
+        profile: { heightIn: 74, weightLb: 220, classCode: "SR" },
+      });
+      mockFetchAthlete.mockRejectedValue(new Error("404"));
+      expect(
+        await prefillFromEspn(
+          "https://www.espn.com/college-football/player/_/id/1",
+        ),
+      ).toMatchObject({ ok: false, message: expect.stringContaining("ESPN") });
+    });
+
+    it("records the ESPN id on a new player, and refuses one already on file", async () => {
+      db.createPortalPlayer.mockResolvedValue({ id: 100002, slug: "ty" });
+      db.matchEspnIds.mockResolvedValue({ existingPlayer: null, school: null });
+      expect(
+        (
+          await createPortalPlayerAction({
+            bio,
+            entry: null,
+            espnId: "5225414",
+          })
+        ).ok,
+      ).toBe(true);
+      expect(db.addPlayerExternalId).toHaveBeenCalledWith({
+        playerId: 100002,
+        provider: "espn",
+        externalId: "5225414",
+        actorUserId: "user_admin",
+      });
+
+      vi.clearAllMocks();
+      db.matchEspnIds.mockResolvedValue({
+        existingPlayer: {
+          id: 7,
+          firstName: "Ty",
+          lastName: "Pennington",
+          mergedIntoId: null,
+        },
+        school: null,
+      });
+      const refused = await createPortalPlayerAction({
+        bio,
+        entry: null,
+        espnId: "5225414",
+      });
+      expect(refused).toMatchObject({
+        ok: false,
+        message: expect.stringContaining("#7"),
+      });
+      expect(db.createPortalPlayer).not.toHaveBeenCalled();
+      expect(
+        (await createPortalPlayerAction({ bio, entry: null, espnId: "abc" }))
+          .ok,
+      ).toBe(false);
+    });
+
+    it("records several moves in one save", async () => {
+      const move = (schoolId: string) => ({
+        recruitmentId: 7,
+        type: "offered",
+        occurredAt: "2026-11-05T17:00:00.000Z",
+        school: { schoolId, schoolName: "" },
+      });
+      const result = await recordPortalMoves({
+        playerId: 1,
+        moves: [move("school-idaho"), move("school-montana")],
+      });
+      expect(result).toMatchObject({ ok: true, message: "Saved 2 moves." });
+      expect(db.recordRecruitmentEvents).toHaveBeenCalledWith([
+        expect.objectContaining({
+          school: expect.objectContaining({ schoolId: "school-idaho" }),
+          actorUserId: "user_admin",
+        }),
+        expect.objectContaining({
+          school: expect.objectContaining({ schoolId: "school-montana" }),
+        }),
+      ]);
+      expect((await recordPortalMoves({ playerId: 1, moves: [] })).ok).toBe(
+        false,
+      );
+      db.recordRecruitmentEvents.mockRejectedValueOnce(
+        new db.PortalWriteError(
+          "invalid_transition",
+          "Already offered by Idaho.",
+        ),
+      );
+      expect(
+        (
+          await recordPortalMoves({
+            playerId: 1,
+            moves: [move("school-idaho")],
+          })
+        ).message,
+      ).toBe("Already offered by Idaho.");
     });
   });
 
@@ -310,34 +488,22 @@ describe("portal admin actions", () => {
       );
     });
 
-    it("records visits and contact, with a public story link", async () => {
+    it("records visits and contact, and never a story link", async () => {
+      // Articles reach the player page through Studio tags, not the desk.
       const move = {
         recruitmentId: 7,
         type: "visited",
         occurredAt: "2026-11-05T17:00:00.000Z",
         school: { schoolId: "school-idaho", schoolName: "" },
-        storySlug: " https://www.redshirtsports.com/portal-qb-visits-idaho/ ",
+        storySlug: "portal-qb-visits-idaho",
       };
       expect((await recordPortalMove({ playerId: 1, move })).ok).toBe(true);
       expect(db.recordRecruitmentEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "visited",
-          storySlug: "portal-qb-visits-idaho",
-        }),
+        expect.objectContaining({ type: "visited" }),
       );
-      // Blank means no story.
-      await recordPortalMove({ playerId: 1, move: { ...move, storySlug: "" } });
       expect(db.recordRecruitmentEvent).toHaveBeenLastCalledWith(
-        expect.objectContaining({ storySlug: null }),
+        expect.not.objectContaining({ storySlug: expect.anything() }),
       );
-      const bad = await recordPortalMove({
-        playerId: 1,
-        move: { ...move, storySlug: "Some Story Title" },
-      });
-      expect(bad).toMatchObject({
-        ok: false,
-        message: expect.stringContaining("Paste the article's link"),
-      });
     });
 
     it("dates only a scheduled visit ahead, and not past a year", async () => {

@@ -15,6 +15,7 @@ import {
   lockPlayer,
   markPlayerPending,
   PortalWriteError,
+  refreshDuplicatePairs,
   requireActivePlayer,
   writePlayerAudit,
 } from "./players";
@@ -34,9 +35,8 @@ export interface DuplicateCandidate {
 
 /** How far back the queue looks for newly added players. */
 const DEFAULT_RECENT_DAYS = 90;
-/** Bounds the work: at most this many recent players, each compared with its closest names. */
+/** Bounds the work: pairs touching at most this many recently added players. */
 const MAX_RECENT_PLAYERS = 500;
-const MATCHES_PER_PLAYER = 10;
 /** Name similarity needed when the only other thing in common is the high school class. */
 const CLASS_ONLY_MIN_SCORE = 0.6;
 
@@ -47,9 +47,9 @@ const CLASS_ONLY_MIN_SCORE = 0.6;
  * different people are left out. Best match first.
  *
  * Duplicates are made by adding a player, so only pairs where at least one
- * player was added in the last `recentDays` are checked. Each recent player
- * is compared with its closest names through the index, never with the whole
- * table, so the cost tracks how many players were added, not how many exist.
+ * player was added in the last `recentDays` are checked. The pairs themselves
+ * are stored when a player is added or renamed (`refreshDuplicatePairs`), so
+ * the queue's cost doesn't grow with how many players exist.
  */
 export async function listDuplicateCandidates({
   limit = 25,
@@ -67,27 +67,22 @@ export async function listDuplicateCandidates({
     same_class: boolean;
   }>(sql`
     with recent as (
-      select id, name_search
+      select id
       from public.players
       where created_at > now() - make_interval(days => ${recentDays})
         and merged_into_id is null
       order by created_at desc
       limit ${MAX_RECENT_PLAYERS}
     ),
+    -- Look-alikes are stored when a player is added or renamed
+    -- (refreshDuplicatePairs), so this reads rows instead of searching names.
     pairs as (
-      select least(r.id, m.id) as a_id, greatest(r.id, m.id) as b_id,
-             max(m.score) as score
-      from recent r
-      cross join lateral (
-        select o.id, extensions.similarity(o.name_search, r.name_search) as score
-        from public.players o
-        where o.name_search operator(extensions.%) r.name_search
-          and o.id <> r.id
-          and o.merged_into_id is null
-        order by score desc
-        limit ${MATCHES_PER_PLAYER}
-      ) m
-      group by 1, 2
+      select d.player_a_id as a_id, d.player_b_id as b_id, d.score
+      from public.player_duplicate_pairs d
+      join public.players a on a.id = d.player_a_id and a.merged_into_id is null
+      join public.players b on b.id = d.player_b_id and b.merged_into_id is null
+      where d.player_a_id in (select id from recent)
+         or d.player_b_id in (select id from recent)
     ),
     involved as (
       select a_id as player_id from pairs union select b_id from pairs
@@ -381,6 +376,8 @@ export async function mergePlayers(input: {
       .update(playersTable)
       .set({ mergedIntoId: survivorId })
       .where(eq(playersTable.id, loserId));
+    // A merged-away player is nobody's look-alike any more.
+    await refreshDuplicatePairs(tx, loserId);
     // Earlier tombstones pointing at the loser now point at the survivor, and
     // republish so their redirect skips the extra hop.
     const repointed = await tx

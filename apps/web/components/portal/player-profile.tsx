@@ -12,7 +12,6 @@ import {
   ChevronRight,
   GraduationCap,
   Info,
-  Newspaper,
   PenLine,
   School,
   Undo2,
@@ -105,21 +104,6 @@ function Note({
   );
 }
 
-/** The article a fact came from. `about` says which fact, for screen readers. */
-function StoryLink({ slug, about }: { slug: string; about: string }) {
-  return (
-    <Link
-      href={`/${slug}`}
-      prefetch={false}
-      aria-label={`Story: ${about}`}
-      className="text-primary hover:bg-accent inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold"
-    >
-      <Newspaper className="size-3.5" aria-hidden />
-      Story
-    </Link>
-  );
-}
-
 function SchoolCell({
   view,
   muted = false,
@@ -200,11 +184,6 @@ function MoveCardView({ move }: { move: MoveCard }) {
       <div className="text-muted-foreground mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2.5 text-xs">
         <StatusPill status={move.status} />
         <span className="tabular">{move.statusLine}</span>
-        {move.storySlug ? (
-          <span className="ml-auto">
-            <StoryLink slug={move.storySlug} about={move.statusLine} />
-          </span>
-        ) : null}
         <span className="tabular basis-full">{move.details.join(" · ")}</span>
       </div>
     </div>
@@ -452,9 +431,6 @@ function StopItem({ stop, last }: { stop: JourneyStop; last: boolean }) {
                   <span className="text-muted-foreground tabular">
                     {event.date}
                   </span>
-                  {event.storySlug ? (
-                    <StoryLink slug={event.storySlug} about={event.label} />
-                  ) : null}
                   {/* Strikethrough isn't announced; the word is. */}
                   {event.superseded ? (
                     <span className="text-muted-foreground text-[10px] font-semibold uppercase">
@@ -573,12 +549,9 @@ function Interest({
             <tr className="text-muted-foreground border-b text-left text-[11px] tracking-wide uppercase">
               <th className="h-9 p-2 pl-4 font-semibold">School</th>
               <th className="h-9 p-2 font-semibold">Status</th>
-              <th className="h-9 p-2 font-semibold">Date</th>
-              <th className="hidden h-9 p-2 font-semibold md:table-cell">
+              <th className="h-9 p-2 pr-4 font-semibold md:pr-2">Date</th>
+              <th className="hidden h-9 p-2 pr-4 font-semibold md:table-cell">
                 Detail
-              </th>
-              <th className="h-9 p-2 pr-4">
-                <span className="sr-only">Story</span>
               </th>
             </tr>
           </thead>
@@ -610,22 +583,14 @@ function Interest({
                     </span>
                   )}
                 </td>
-                <td className="text-muted-foreground tabular p-2 whitespace-nowrap">
+                <td className="text-muted-foreground tabular p-2 pr-4 whitespace-nowrap md:pr-2">
                   {row.date}
                   {row.cycleYear !== sport.recruitments[0]?.cycleYear ? (
                     <span className="ml-1 text-[11px]">({row.cycleYear})</span>
                   ) : null}
                 </td>
-                <td className="text-muted-foreground hidden p-2 md:table-cell">
+                <td className="text-muted-foreground hidden p-2 pr-4 md:table-cell">
                   {row.detail}
-                </td>
-                <td className="p-2 pr-4 text-right">
-                  {row.storySlug ? (
-                    <StoryLink
-                      slug={row.storySlug}
-                      about={`${row.view?.name ?? "Undisclosed"}, ${INTEREST_LABELS[row.status]}`}
-                    />
-                  ) : null}
                 </td>
               </tr>
             ))}

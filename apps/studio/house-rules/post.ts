@@ -1,4 +1,9 @@
-import { parseExternalRef } from "@redshirt-sports/sanity/external-refs";
+import {
+  externalKey,
+  type PlayerTag,
+  parseExternalRef,
+  parsePlayerTag,
+} from "@redshirt-sports/sanity/external-refs";
 import {
   GAME_STORY_TYPES,
   type StoryType,
@@ -75,7 +80,7 @@ export type PostLike = {
   publishedAt?: string;
   /** "<provider>:<id>|<label>"; see external-refs. */
   game?: string;
-  players?: string[];
+  players?: PlayerTag[];
 };
 
 const refs = (list: Reference[] | undefined) =>
@@ -210,7 +215,7 @@ export function externalRefFindings(post: PostLike): Finding[] {
     );
   }
   const players = post.players ?? [];
-  if (players.some((player) => !parseExternalRef(player))) {
+  if (players.some((player) => !parsePlayerTag(player))) {
     findings.push(
       error(
         "coverage.player-format",
@@ -220,9 +225,20 @@ export function externalRefFindings(post: PostLike): Finding[] {
   }
   // Provider and id together: an ESPN id and one of ours can share a number.
   const ids = players.map((player) => {
-    const ref = parseExternalRef(player);
-    return ref ? `${ref.provider}:${ref.id}` : undefined;
+    const ref = parsePlayerTag(player);
+    return ref ? externalKey(ref) : undefined;
   });
+  // The player page finds the article by `key`; a stale one hides it there.
+  if (
+    players.some((player, i) => ids[i] !== undefined && player.key !== ids[i])
+  ) {
+    findings.push(
+      error(
+        "coverage.player-key",
+        "A player tag is out of date. Remove it and pick the player again.",
+      ),
+    );
+  }
   if (new Set(ids).size !== ids.length) {
     findings.push(
       error("coverage.player-duplicate", "A player is listed twice."),

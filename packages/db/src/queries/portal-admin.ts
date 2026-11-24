@@ -22,6 +22,7 @@ import {
   lockPlayer,
   markPlayerPending,
   type PlayerSportAttributes,
+  refreshDuplicatePairs,
   requireActivePlayer,
   writePlayerAudit,
 } from "./players";
@@ -281,7 +282,6 @@ export async function getPortalPlayer(playerId: number) {
             sourceType: recruitmentEventsTable.sourceType,
             sourceUrl: recruitmentEventsTable.sourceUrl,
             sourceNote: recruitmentEventsTable.sourceNote,
-            storySlug: recruitmentEventsTable.storySlug,
             voidedAt: recruitmentEventsTable.voidedAt,
             voidReason: recruitmentEventsTable.voidReason,
           })
@@ -423,6 +423,14 @@ export async function updatePlayerBio(input: UpdatePlayerBioInput) {
       })
       .where(eq(playersTable.id, input.playerId))
       .returning({ ...bioColumns, slug: playersTable.slug });
+    if (
+      before &&
+      after &&
+      normalizePlayerName(before.firstName, before.lastName, before.suffix) !==
+        normalizePlayerName(after.firstName, after.lastName, after.suffix)
+    ) {
+      await refreshDuplicatePairs(tx, input.playerId);
+    }
 
     await writePlayerAudit(tx, {
       playerId: input.playerId,
