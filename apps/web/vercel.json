@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "pnpm install --filter @redshirt-sports/web...",
+  "installCommand": "pnpm install --store-dir ../../.pnpm-store --filter @redshirt-sports/web...",
   "ignoreCommand": "npx --yes turbo@^2.11.10 query affected --packages @redshirt-sports/web --base \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^1}\" --exit-code",
   "schedules": {
     "ratings-sunday-overnight": {
