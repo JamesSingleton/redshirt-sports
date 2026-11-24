@@ -567,7 +567,7 @@ describe("player profile page", () => {
     expect(watermark).not.toBeNull();
   });
 
-  it("lists visits and contact with the offers, and links each fact's story", async () => {
+  it("lists visits and contact with the offers", async () => {
     const doc = playerDoc({
       sports: [
         playerSport({
@@ -579,7 +579,6 @@ describe("player profile page", () => {
                   type: "entered",
                   occurredAt: "2026-01-02T17:00:00.000Z",
                   superseded: false,
-                  storySlug: "qb-enters-portal",
                 },
                 {
                   id: 2,
@@ -587,7 +586,6 @@ describe("player profile page", () => {
                   occurredAt: "2026-01-05T17:00:00.000Z",
                   schoolId: "boise",
                   superseded: false,
-                  storySlug: "why-boise",
                 },
               ],
               interest: [
@@ -596,7 +594,6 @@ describe("player profile page", () => {
                   type: "visited",
                   occurredAt: "2026-01-04T17:00:00.000Z",
                   schoolName: "Idaho",
-                  storySlug: "qb-visits-idaho",
                 },
                 {
                   eventId: 6,
@@ -614,7 +611,6 @@ describe("player profile page", () => {
                   eventId: 8,
                   type: "contacted",
                   occurredAt: "2026-01-03T17:00:00.000Z",
-                  storySlug: "mystery-school-calls",
                 },
               ],
             }),
@@ -638,19 +634,8 @@ describe("player profile page", () => {
     // The committed school's other facts are its detail.
     expect(within(table).getByText("Offered Jan 3")).toBeInTheDocument();
 
-    // Every fact with a story links to it, and says which fact.
-    const story = (name: RegExp) =>
-      screen.getByRole("link", { name }).getAttribute("href");
-    expect(story(/Story: Committed Jan 5, 2026/)).toBe("/why-boise");
-    expect(story(/Story: Entered portal/)).toBe("/qb-enters-portal");
-    expect(story(/Story: Idaho, Visited/)).toBe("/qb-visits-idaho");
-    expect(story(/Story: Boise State University, Committed/)).toBe(
-      "/why-boise",
-    );
-    expect(story(/Story: Committed$/)).toBe("/why-boise");
-    expect(story(/Story: Undisclosed, Reported contact/)).toBe(
-      "/mystery-school-calls",
-    );
+    // Moves don't link articles: those are the Stories section, from Studio tags.
+    expect(screen.queryByRole("link", { name: /^Story/ })).toBeNull();
   });
 
   it("says one visit scheduled in the singular", async () => {
@@ -680,6 +665,21 @@ describe("player profile page", () => {
     expect(screen.getByText("1 visit scheduled")).toBeInTheDocument();
   });
 
+  it("also finds stories tagged with players merged into this one", async () => {
+    mockPlayer.mockResolvedValue(
+      player(playerData({ mergedIds: [100003, 100009] })),
+    );
+    mockStories.mockResolvedValue({ data: [] });
+    await content("jalen-brooks-100000");
+    expect(mockStories).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: {
+          keys: ["redshirt:100000", "redshirt:100003", "redshirt:100009"],
+        },
+      }),
+    );
+  });
+
   it("shows the stories that tag the player", async () => {
     mockStories.mockResolvedValue({
       data: [
@@ -704,7 +704,7 @@ describe("player profile page", () => {
     render(await content("jalen-brooks-100000"));
     expect(mockStories).toHaveBeenCalledWith({
       query: "PLAYER_STORIES",
-      params: { ref: "redshirt:100000|" },
+      params: { keys: ["redshirt:100000"] },
       perspective: "published",
       stega: false,
     });

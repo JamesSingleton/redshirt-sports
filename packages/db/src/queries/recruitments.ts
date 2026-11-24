@@ -48,8 +48,6 @@ export interface EventSource {
   sourceType?: EventSourceType | null;
   sourceUrl?: string | null;
   sourceNote?: string | null;
-  /** The Redshirt article this came from. Public, unlike the source fields. */
-  storySlug?: string | null;
 }
 
 const toSchool = (ref: SchoolRef | null | undefined): RecruitmentSchool => ({
@@ -474,7 +472,6 @@ export async function openRecruitmentLocked(
       sourceType: input.sourceType ?? null,
       sourceUrl: input.sourceUrl ?? null,
       sourceNote: input.sourceNote ?? null,
-      storySlug: input.storySlug ?? null,
       createdByUserId: input.actorUserId ?? null,
     })
     .returning({ id: recruitmentEventsTable.id });
@@ -505,6 +502,70 @@ export interface RecordEventInput extends EventSource {
  * Record the next thing that happened in a recruitment. The whole history is
  * re-reduced with the new event; an impossible sequence writes nothing.
  */
+/** Record one event on a recruitment whose player is already locked in `tx`. */
+async function insertEventLocked(
+  tx: DbTransaction,
+  playerId: number,
+  input: RecordEventInput,
+) {
+  const loaded = await loadRecruitmentForUpdate(tx, input.recruitmentId);
+  if (!loaded) {
+    throw new PortalWriteError(
+      "recruitment_not_found",
+      "Portal entry not found.",
+    );
+  }
+  const existing = await tx
+    .select(reducerEventColumns)
+    .from(recruitmentEventsTable)
+    .where(eq(recruitmentEventsTable.recruitmentId, input.recruitmentId));
+
+  const school = toSchool(input.school);
+  const state = reduceOrReject([
+    ...existing.map(toReducerEvent),
+    {
+      // Sorts after every stored event that shares its timestamp.
+      id: Number.MAX_SAFE_INTEGER,
+      type: input.type,
+      occurredAt: input.occurredAt,
+      ...school,
+    },
+  ]);
+
+  const [event] = await tx
+    .insert(recruitmentEventsTable)
+    .values({
+      recruitmentId: input.recruitmentId,
+      type: input.type,
+      occurredAt: input.occurredAt,
+      ...school,
+      sourceType: input.sourceType ?? null,
+      sourceUrl: input.sourceUrl ?? null,
+      sourceNote: input.sourceNote ?? null,
+      createdByUserId: input.actorUserId ?? null,
+    })
+    .returning({ id: recruitmentEventsTable.id });
+  if (!event) throw new Error("Event insert returned no row.");
+
+  const recruitment = await applyState(
+    tx,
+    loaded.recruitment,
+    loaded.sportId,
+    state,
+  );
+  await writePlayerAudit(tx, {
+    playerId,
+    entity: "recruitment_events",
+    entityId: event.id,
+    action: input.type,
+    before: { status: loaded.recruitment.status },
+    after: { status: recruitment.status, ...school },
+    actorUserId: input.actorUserId,
+  });
+  await markPlayerPending(tx, playerId);
+  return { recruitment, event, state };
+}
+
 export async function recordRecruitmentEvent(input: RecordEventInput) {
   const playerId = await findPlayerIdForRecruitment(input.recruitmentId);
   if (playerId === null) {
@@ -515,63 +576,37 @@ export async function recordRecruitmentEvent(input: RecordEventInput) {
   }
   return db.transaction(async (tx) => {
     await lockPlayer(tx, playerId);
-    const loaded = await loadRecruitmentForUpdate(tx, input.recruitmentId);
-    if (!loaded) {
-      throw new PortalWriteError(
-        "recruitment_not_found",
-        "Portal entry not found.",
-      );
-    }
-    const existing = await tx
-      .select(reducerEventColumns)
-      .from(recruitmentEventsTable)
-      .where(eq(recruitmentEventsTable.recruitmentId, input.recruitmentId));
+    return insertEventLocked(tx, playerId, input);
+  });
+}
 
-    const school = toSchool(input.school);
-    const state = reduceOrReject([
-      ...existing.map(toReducerEvent),
-      {
-        // Sorts after every stored event that shares its timestamp.
-        id: Number.MAX_SAFE_INTEGER,
-        type: input.type,
-        occurredAt: input.occurredAt,
-        ...school,
-      },
-    ]);
-
-    const [event] = await tx
-      .insert(recruitmentEventsTable)
-      .values({
-        recruitmentId: input.recruitmentId,
-        type: input.type,
-        occurredAt: input.occurredAt,
-        ...school,
-        sourceType: input.sourceType ?? null,
-        sourceUrl: input.sourceUrl ?? null,
-        sourceNote: input.sourceNote ?? null,
-        storySlug: input.storySlug ?? null,
-        createdByUserId: input.actorUserId ?? null,
-      })
-      .returning({ id: recruitmentEventsTable.id });
-    if (!event) throw new Error("Event insert returned no row.");
-
-    const recruitment = await applyState(
-      tx,
-      loaded.recruitment,
-      loaded.sportId,
-      state,
+/**
+ * Several events on one recruitment, all or none: offers from three schools,
+ * say. Each is checked against the ones before it, in the order given.
+ */
+export async function recordRecruitmentEvents(inputs: RecordEventInput[]) {
+  const [first] = inputs;
+  if (!first) return [];
+  if (inputs.some((input) => input.recruitmentId !== first.recruitmentId)) {
+    throw new PortalWriteError(
+      "mixed_recruitments",
+      "Record moves for one portal entry at a time.",
     );
-    await writePlayerAudit(tx, {
-      playerId,
-      entity: "recruitment_events",
-      entityId: event.id,
-      action: input.type,
-      before: { status: loaded.recruitment.status },
-      after: { status: recruitment.status, ...school },
-      actorUserId: input.actorUserId,
-    });
-    await markPlayerPending(tx, playerId);
-    return { recruitment, event, state };
+  }
+  const playerId = await findPlayerIdForRecruitment(first.recruitmentId);
+  if (playerId === null) {
+    throw new PortalWriteError(
+      "recruitment_not_found",
+      "Portal entry not found.",
+    );
+  }
+  return db.transaction(async (tx) => {
+    await lockPlayer(tx, playerId);
+    const results = [];
+    for (const input of inputs) {
+      results.push(await insertEventLocked(tx, playerId, input));
+    }
+    return results;
   });
 }
 

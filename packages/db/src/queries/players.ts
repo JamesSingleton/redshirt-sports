@@ -24,6 +24,7 @@ export class PortalWriteError extends Error {
       | "invalid_position"
       | "recruitment_not_found"
       | "recruitment_open"
+      | "mixed_recruitments"
       | "current_school_mismatch"
       | "invalid_transition"
       | "event_not_found"
@@ -134,6 +135,7 @@ export async function createPlayer(
       pendingSince: playersTable.pendingSince,
     });
   if (!player) throw new Error("Player insert returned no row.");
+  await refreshDuplicatePairs(tx, player.id);
   await writePlayerAudit(tx, {
     playerId: player.id,
     entity: "players",
@@ -143,6 +145,44 @@ export async function createPlayer(
     actorUserId: input.actorUserId,
   });
   return player;
+}
+
+/** Trigram similarity a stored look-alike needs (pg_trgm's own default is 0.3). */
+export const DUPLICATE_PAIR_SIMILARITY = 0.4;
+/** Closest names kept per player. */
+export const DUPLICATE_PAIRS_PER_PLAYER = 10;
+
+/**
+ * Replace a player's stored look-alikes with their closest names now on file.
+ * Run when a player is added or renamed, inside that write's transaction, so
+ * the duplicate queue reads pairs instead of searching every name on load.
+ * A merged-away player keeps none.
+ */
+export async function refreshDuplicatePairs(
+  tx: DbTransaction,
+  playerId: number,
+) {
+  await tx.execute(sql`
+    delete from public.player_duplicate_pairs
+    where player_a_id = ${playerId} or player_b_id = ${playerId}
+  `);
+  await tx.execute(sql`
+    insert into public.player_duplicate_pairs (player_a_id, player_b_id, score)
+    select least(p.id, m.id), greatest(p.id, m.id), m.score
+    from public.players p
+    cross join lateral (
+      select o.id, extensions.similarity(o.name_search, p.name_search) as score
+      from public.players o
+      where o.name_search operator(extensions.%) p.name_search
+        and o.id <> p.id
+        and o.merged_into_id is null
+        and extensions.similarity(o.name_search, p.name_search) >= ${DUPLICATE_PAIR_SIMILARITY}
+      order by score desc, o.id
+      limit ${DUPLICATE_PAIRS_PER_PLAYER}
+    ) m
+    where p.id = ${playerId} and p.merged_into_id is null
+    on conflict (player_a_id, player_b_id) do update set score = excluded.score
+  `);
 }
 
 /** Refuses ids that don't exist or were merged away. */
@@ -220,6 +260,9 @@ export interface SimilarPlayer {
   similarity: number;
   /** Current school per sport, e.g. "Montana (football)". */
   currentSchools: string[];
+  /** Sports the player is on file for, and their current school ids: to tell namesakes apart. */
+  sportIds: string[];
+  currentSchoolIds: string[];
 }
 
 /**
@@ -258,10 +301,19 @@ export async function findSimilarPlayers(
     .limit(limit);
   if (matches.length === 0) return [];
 
+  const ids = matches.map((match) => match.id);
+  const sports = await executor
+    .select({
+      playerId: playerSportsTable.playerId,
+      sportId: playerSportsTable.sportId,
+    })
+    .from(playerSportsTable)
+    .where(inArray(playerSportsTable.playerId, ids));
   const schools = await executor
     .select({
       playerId: playerSportsTable.playerId,
       sportSlug: sportsTable.slug,
+      schoolId: playerEnrollmentsTable.schoolId,
       schoolName: sql<string>`coalesce(${schoolsTable.name}, ${playerEnrollmentsTable.schoolName})`,
     })
     .from(playerEnrollmentsTable)
@@ -276,10 +328,7 @@ export async function findSimilarPlayers(
     )
     .where(
       and(
-        inArray(
-          playerSportsTable.playerId,
-          matches.map((match) => match.id),
-        ),
+        inArray(playerSportsTable.playerId, ids),
         isNull(playerEnrollmentsTable.endYear),
       ),
     );
@@ -290,5 +339,11 @@ export async function findSimilarPlayers(
     currentSchools: schools
       .filter((school) => school.playerId === match.id)
       .map((school) => `${school.schoolName} (${school.sportSlug})`),
+    sportIds: sports
+      .filter((sport) => sport.playerId === match.id)
+      .map((sport) => sport.sportId),
+    currentSchoolIds: schools.flatMap((school) =>
+      school.playerId === match.id && school.schoolId ? [school.schoolId] : [],
+    ),
   }));
 }

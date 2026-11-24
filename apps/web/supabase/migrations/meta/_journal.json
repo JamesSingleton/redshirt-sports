@@ -253,6 +253,20 @@
       "when": 1795379382237,
       "tag": "0035_fcs_bracket_draw_order",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1795553316370,
+      "tag": "0036_drop_event_story_slug",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1795557117226,
+      "tag": "0037_player_duplicate_pairs",
+      "breakpoints": true
     }
   ]
 }

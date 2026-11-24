@@ -159,6 +159,7 @@ describe("getPublishedPlayer", () => {
       [ids.bigSky]: { name: "Big Sky Conference", shortName: "Big Sky" },
     });
     expect(Date.parse(page.data.publishedAt)).not.toBeNaN();
+    expect(page.data.mergedIds).toEqual([]);
   });
 
   it("is not indexable before a commitment", async () => {
@@ -181,6 +182,11 @@ describe("getPublishedPlayer", () => {
       kind: "redirect",
       id: survivor.id,
       slug: "test-same",
+    });
+    // The survivor's page lists the merged id, so it shows that player's articles.
+    expect(await getPublishedPlayer(survivor.id)).toMatchObject({
+      kind: "player",
+      data: { mergedIds: [loser.id] },
     });
   });
 
@@ -248,19 +254,17 @@ describe("reported interest and story links", () => {
     const record = (
       type: "contacted" | "visit_scheduled" | "visited" | "offered",
       n: number,
-      storySlug?: string,
     ) =>
       recordRecruitmentEvent({
         recruitmentId: recruitment!.id,
         type,
         occurredAt: day(n),
         school: { schoolId: ids.idaho },
-        storySlug,
       });
     await record("contacted", 6);
     await record("visit_scheduled", 7);
-    await record("visited", 8, "portal-qb-visits-idaho");
-    await record("offered", 9, "idaho-offers-portal-qb");
+    await record("visited", 8);
+    await record("offered", 9);
     await pushPortal({ trigger: "admin" });
 
     const page = await getPublishedPlayer(player.id);
@@ -269,16 +273,9 @@ describe("reported interest and story links", () => {
     expect(entry!.interest).toMatchObject([
       { type: "contacted", schoolId: ids.idaho },
       { type: "visit_scheduled", schoolId: ids.idaho },
-      {
-        type: "visited",
-        schoolId: ids.idaho,
-        storySlug: "portal-qb-visits-idaho",
-      },
+      { type: "visited", schoolId: ids.idaho },
     ]);
-    expect(entry!.interest![0]).not.toHaveProperty("storySlug");
-    expect(entry!.offers).toMatchObject([
-      { schoolId: ids.idaho, storySlug: "idaho-offers-portal-qb" },
-    ]);
+    expect(entry!.offers).toMatchObject([{ schoolId: ids.idaho }]);
     // The timeline holds only the moves that change where they stand.
     expect(entry!.events.map((event) => event.type)).toEqual([
       "entered",
@@ -291,23 +288,6 @@ describe("reported interest and story links", () => {
       "committed",
       "entered",
     ]);
-  });
-
-  it("refuses a story link that isn't a slug", async () => {
-    await enter("Slug");
-    const [recruitment] = await db
-      .select({ id: recruitmentsTable.id })
-      .from(recruitmentsTable)
-      .limit(1);
-    await expect(
-      recordRecruitmentEvent({
-        recruitmentId: recruitment!.id,
-        type: "contacted",
-        occurredAt: day(6),
-        school: { schoolId: ids.idaho },
-        storySlug: "https://redshirtsports.com/Some Story",
-      }),
-    ).rejects.toThrow();
   });
 });
 

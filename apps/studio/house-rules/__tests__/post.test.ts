@@ -10,6 +10,8 @@ import {
 } from "../post";
 
 const ref = (id: string) => ({ _type: "reference", _ref: id });
+/** A player tag as the Studio input saves it: `key` is `ref` without the label. */
+const tag = (value: string) => ({ ref: value, key: value.split("|")[0] });
 const rules = (findings: Array<{ rule: string }>) =>
   findings.map((finding) => finding.rule);
 
@@ -77,7 +79,11 @@ describe("coverageFindings", () => {
       rules(
         coverageFindings({
           ...base,
-          players: ["espn:1|A", "espn:1|A again", "not a ref"],
+          players: [
+            tag("espn:1|A"),
+            tag("espn:1|A again"),
+            { ref: "not a ref" },
+          ],
         }),
       ),
     ).toEqual(["coverage.player-format", "coverage.player-duplicate"]);
@@ -86,7 +92,10 @@ describe("coverageFindings", () => {
       rules(
         coverageFindings({
           ...base,
-          players: ["espn:100007|An ESPN player", "redshirt:100007|Our player"],
+          players: [
+            tag("espn:100007|An ESPN player"),
+            tag("redshirt:100007|Our player"),
+          ],
         }),
       ),
     ).toEqual([]);
@@ -95,13 +104,27 @@ describe("coverageFindings", () => {
         coverageFindings({
           ...base,
           players: [
-            "redshirt:100007|Darnell",
-            "redshirt:100007|Darnell Okafor",
+            tag("redshirt:100007|Darnell"),
+            tag("redshirt:100007|Darnell Okafor"),
           ],
         }),
       ),
     ).toEqual(["coverage.player-duplicate"]);
-    const many = Array.from({ length: 9 }, (_, i) => `espn:${i}|Player ${i}`);
+    // The page finds articles by `key`: one missing or stale hides the article.
+    expect(
+      rules(
+        coverageFindings({
+          ...base,
+          players: [
+            { ref: "redshirt:7|Darnell Okafor" },
+            { ref: "redshirt:8|Ty Ames", key: "redshirt:7" },
+          ],
+        }),
+      ),
+    ).toEqual(["coverage.player-key"]);
+    const many = Array.from({ length: 9 }, (_, i) =>
+      tag(`espn:${i}|Player ${i}`),
+    );
     expect(rules(coverageFindings({ ...base, players: many }))).toEqual([
       "coverage.players-max",
     ]);

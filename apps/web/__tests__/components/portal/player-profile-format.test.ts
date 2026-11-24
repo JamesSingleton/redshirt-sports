@@ -240,7 +240,6 @@ describe("offers and reported interest", () => {
               eventId: 3,
               occurredAt: at(3),
               schoolId: "boise",
-              storySlug: "boise-offers",
             },
             { eventId: 4, occurredAt: at(4), schoolName: "Carroll College" },
           ],
@@ -280,7 +279,6 @@ describe("offers and reported interest", () => {
               type: "visited",
               occurredAt: at(7),
               schoolName: "Rocky",
-              storySlug: "second-rocky-visit",
             },
           ],
         }),
@@ -301,10 +299,6 @@ describe("offers and reported interest", () => {
     expect(rows[1]!.detail).toBe("Visited Jan 2");
     expect(rows[2]!.detail).toBeNull();
     expect(rows[3]!.detail).toBe("Reported contact Jan 1");
-    // The lead's story, else any story about the school.
-    expect(rows[0]!.storySlug).toBe("boise-offers");
-    expect(rows[1]!.storySlug).toBe("second-rocky-visit");
-    expect(rows[2]!.storySlug).toBeNull();
     expect(rows[0]!.key).toBe("1-boise-state");
   });
 
@@ -318,7 +312,7 @@ describe("offers and reported interest", () => {
     expect(offered("withdrawn")).toBe("offered");
   });
 
-  it("uses the commitment's own story and keeps entries apart", () => {
+  it("adds the commitment and keeps entries apart", () => {
     const sport = playerSport({
       recruitments: [
         recruitment({
@@ -332,7 +326,6 @@ describe("offers and reported interest", () => {
               occurredAt: at(5),
               schoolId: "boise",
               superseded: false,
-              storySlug: "why-boise",
             },
           ],
         }),
@@ -355,7 +348,6 @@ describe("offers and reported interest", () => {
       ["1-undisclosed-31", "contacted", 2024],
       ["1-undisclosed-30", "contacted", 2024],
     ]);
-    expect(rows[0]!.storySlug).toBe("why-boise");
     expect(rows[1]!.view).toBeNull();
   });
 

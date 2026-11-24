@@ -10,6 +10,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   serial,
   smallint,
   text,
@@ -32,7 +33,6 @@ import {
   RECRUITMENT_KINDS,
   RECRUITMENT_STATUSES,
   SCHOOL_EVENT_TYPES,
-  STORY_SLUG_PATTERN,
 } from "./portal/constants";
 
 const timestamps = {
@@ -1699,8 +1699,6 @@ export const recruitmentEventsTable = pgTable(
     sourceType: text("source_type"),
     sourceUrl: text("source_url"),
     sourceNote: text("source_note"),
-    /** The Redshirt article this move came from. Public: published with the move. */
-    storySlug: text("story_slug"),
     voidedAt: timestamp("voided_at", { withTimezone: true }),
     voidReason: text("void_reason"),
     createdByUserId: text("created_by_user_id").references(
@@ -1721,10 +1719,6 @@ export const recruitmentEventsTable = pgTable(
     check(
       "recruitment_events_school_check",
       sql`(${inList(table.type, SCHOOL_EVENT_TYPES)}) = ${hasSchool(table.schoolId, table.schoolName)}`,
-    ),
-    check(
-      "recruitment_events_story_slug_check",
-      sql`${table.storySlug} is null or ${table.storySlug} ~ ${sql.raw(`'${STORY_SLUG_PATTERN}'`)}`,
     ),
     check(
       "recruitment_events_source_url_check",
@@ -1832,6 +1826,38 @@ export const playerDuplicateDismissalsTable = pgTable(
     index("player_duplicate_dismissals_dismissed_by_user_id_index").on(
       table.dismissedByUserId,
     ),
+  ],
+);
+
+/**
+ * Players whose names look alike, found once when one of them is added or
+ * renamed (its 10 closest names at trigram similarity 0.4 or more). The
+ * duplicate queue reads these instead of searching names on every load,
+ * which grew with the table: 6.8 s at 200,000 players.
+ */
+export const playerDuplicatePairsTable = pgTable(
+  "player_duplicate_pairs",
+  {
+    playerAId: bigint("player_a_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    playerBId: bigint("player_b_id", { mode: "number" })
+      .notNull()
+      .references(() => playersTable.id, { onDelete: "cascade" }),
+    /** Trigram similarity of the two names, 0 to 1. */
+    score: doublePrecision("score").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    // Stored smaller id first so a pair has exactly one row.
+    check(
+      "player_duplicate_pairs_order_check",
+      sql`${table.playerAId} < ${table.playerBId}`,
+    ),
+    primaryKey({ columns: [table.playerAId, table.playerBId] }),
+    index("player_duplicate_pairs_player_b_id_index").on(table.playerBId),
   ],
 );
 

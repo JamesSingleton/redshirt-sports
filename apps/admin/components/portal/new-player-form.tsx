@@ -11,8 +11,10 @@ import { useEffect, useId, useState, useTransition } from "react";
 
 import {
   createPortalPlayerAction,
+  type EspnPrefill,
   findPortalDuplicates,
   type PortalDesk,
+  prefillFromEspn,
 } from "@/actions/portal";
 import {
   EntryFields,
@@ -109,8 +111,16 @@ export function BioFields({
   );
 }
 
-/** Similar names already on file, so a duplicate is caught before it's made. */
-function useSimilarPlayers(name: string) {
+/**
+ * Players already on file who may be this one, so a duplicate is caught
+ * before it's made. Sport, origin school, and class tell namesakes apart.
+ */
+function useSimilarPlayers(
+  name: string,
+  sportId: string,
+  schoolId: string | null,
+  hsGradYear: string,
+) {
   const [similar, setSimilar] = useState<Similar>([]);
   useEffect(() => {
     if (name.trim().length < 3) {
@@ -119,14 +129,18 @@ function useSimilarPlayers(name: string) {
     }
     let cancelled = false;
     const timer = setTimeout(async () => {
-      const found = await findPortalDuplicates(name);
+      const found = await findPortalDuplicates(name, {
+        sportId: sportId || null,
+        schoolId,
+        hsGradYear: hsGradYear || null,
+      });
       if (!cancelled) setSimilar(found);
     }, 250);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [name]);
+  }, [name, sportId, schoolId, hsGradYear]);
   return similar;
 }
 
@@ -151,11 +165,73 @@ export function NewPlayerForm({
   );
   const [confirmedNew, setConfirmedNew] = useState(false);
   const [saving, startSave] = useTransition();
+  const [espnLink, setEspnLink] = useState("");
+  const [espn, setEspn] = useState<Extract<EspnPrefill, { ok: true }> | null>(
+    null,
+  );
+  const [filling, startFill] = useTransition();
 
-  const similar = useSimilarPlayers(`${bio.firstName} ${bio.lastName}`);
-  const needsConfirm = similar.length > 0 && !confirmedNew;
+  /** Fill what's still empty from the player's ESPN profile. */
+  const fillFromEspn = () =>
+    startFill(async () => {
+      const result = await prefillFromEspn(espnLink);
+      if (!result.ok) {
+        toast.error(result.message);
+        return;
+      }
+      setEspn(result);
+      const { profile } = result;
+      const keep = (current: string, next: string) => current || next;
+      setBio((current) => ({
+        ...current,
+        firstName: keep(current.firstName, profile.firstName),
+        lastName: keep(current.lastName, profile.lastName),
+        suffix: keep(current.suffix, profile.suffix),
+        hometownCity: keep(current.hometownCity, profile.hometownCity),
+        hometownState: keep(current.hometownState, profile.hometownState),
+      }));
+      const sport = sports.find((s) => s.slug === result.sportSlug);
+      setEntry((current) => ({
+        ...current,
+        sportId: sport?.id ?? current.sportId,
+        position: keep(current.position, profile.position),
+        heightIn: keep(
+          current.heightIn,
+          profile.heightIn ? String(profile.heightIn) : "",
+        ),
+        weightLb: keep(
+          current.weightLb,
+          profile.weightLb ? String(profile.weightLb) : "",
+        ),
+        classAtEntry: keep(current.classAtEntry, profile.classCode),
+        origin:
+          current.origin.schoolId || current.origin.schoolName || !result.school
+            ? current.origin
+            : {
+                schoolId: result.school.id,
+                schoolName: null,
+                label: result.school.name ?? profile.teamName,
+              },
+      }));
+      if (!result.school && profile.teamName) {
+        toast.warning(
+          `Pick ${profile.teamName} in "Leaving" by hand: its ESPN team isn't linked to a school here.`,
+        );
+      }
+    });
 
-  useEffect(() => setConfirmedNew(false), [similar]);
+  const similar = useSimilarPlayers(
+    `${bio.firstName} ${bio.lastName}`,
+    withEntry ? entry.sportId : "",
+    withEntry ? entry.origin.schoolId : null,
+    bio.hsGradYear,
+  );
+  const likely = similar.filter((player) => player.tier === "likely");
+  const needsConfirm = likely.length > 0 && !confirmedNew;
+  const likelyIds = likely.map((player) => player.id).join(",");
+
+  // A new likely match needs a fresh look; a reordered list doesn't.
+  useEffect(() => setConfirmedNew(false), [likelyIds]);
 
   const save = () =>
     startSave(async () => {
@@ -163,8 +239,9 @@ export function NewPlayerForm({
         bio,
         entry: withEntry ? entryPayload(entry) : null,
         // Remembered so the duplicate queue doesn't flag these pairs again.
-        notDuplicateOf: confirmedNew ? similar.map((player) => player.id) : [],
+        notDuplicateOf: confirmedNew ? likely.map((player) => player.id) : [],
         submissionId: submission?.id,
+        espnId: espn?.profile.espnId ?? null,
       });
       if (!result.ok || !result.playerId) {
         toast.error(result.message);
@@ -184,14 +261,45 @@ export function NewPlayerForm({
     >
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Player</h2>
+        <div className="flex flex-wrap items-end gap-3">
+          <TextField
+            label="ESPN profile link (optional)"
+            type="url"
+            placeholder="https://www.espn.com/college-football/player/_/id/…"
+            className="w-[28rem] max-w-full"
+            value={espnLink}
+            onChange={setEspnLink}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            disabled={filling || !espnLink.trim()}
+            onClick={fillFromEspn}
+          >
+            {filling ? "Filling in…" : "Fill in"}
+          </Button>
+        </div>
+        {espn?.existingPlayer ? (
+          <p className="text-sm">
+            This ESPN player is already on file:{" "}
+            <Link
+              href={`/portal/players/${espn.existingPlayer.id}`}
+              className="font-medium underline underline-offset-4"
+            >
+              {espn.existingPlayer.firstName} {espn.existingPlayer.lastName} (#
+              {espn.existingPlayer.id})
+            </Link>
+          </p>
+        ) : null}
         <BioFields value={bio} onChange={setBio} />
       </section>
 
       {similar.length > 0 ? (
         <section className="flex flex-col gap-2 rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
           <p className="text-sm font-medium">
-            Already on file? Open the existing player instead of adding a new
-            one.
+            {likely.length > 0
+              ? "Likely already on file. Open the existing player instead of adding a new one."
+              : "Similar names on file. Check them, or carry on if this is someone new."}
           </p>
           <ul className="flex flex-col gap-1">
             {similar.map((player) => (
@@ -207,6 +315,9 @@ export function NewPlayerForm({
                   {player.suffix ? ` ${player.suffix}` : ""}
                 </Link>
                 <span className="text-muted-foreground">#{player.id}</span>
+                {player.tier === "likely" ? (
+                  <Badge variant="outline">Likely match</Badge>
+                ) : null}
                 {player.currentSchools.map((school) => (
                   <Badge key={school} variant="secondary">
                     {school}
@@ -227,16 +338,18 @@ export function NewPlayerForm({
               </li>
             ))}
           </ul>
-          <div className="flex items-center gap-2 pt-1">
-            <Checkbox
-              id={confirmId}
-              checked={confirmedNew}
-              onCheckedChange={(checked) => setConfirmedNew(checked === true)}
-            />
-            <Label htmlFor={confirmId}>
-              None of these: this is a different person
-            </Label>
-          </div>
+          {likely.length > 0 ? (
+            <div className="flex items-center gap-2 pt-1">
+              <Checkbox
+                id={confirmId}
+                checked={confirmedNew}
+                onCheckedChange={(checked) => setConfirmedNew(checked === true)}
+              />
+              <Label htmlFor={confirmId}>
+                None of these: this is a different person
+              </Label>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -257,12 +370,15 @@ export function NewPlayerForm({
       </section>
 
       <div>
-        <Button type="submit" disabled={saving || needsConfirm}>
+        <Button
+          type="submit"
+          disabled={saving || needsConfirm || !!espn?.existingPlayer}
+        >
           {saving ? "Saving…" : "Save player"}
         </Button>
         {needsConfirm ? (
           <p className="text-muted-foreground mt-2 text-sm">
-            Check the similar players above first.
+            Check the likely matches above first.
           </p>
         ) : null}
       </div>

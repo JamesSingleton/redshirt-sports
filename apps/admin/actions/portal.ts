@@ -2,13 +2,19 @@
 
 import { auth } from "@redshirt-sports/auth/server";
 import {
+  type EspnPlayerProfile,
+  espnPlayerProfile,
+  fetchEspnAthlete,
+  parseEspnPlayerUrl,
+} from "@redshirt-sports/clients/espn";
+import {
   EVENT_SOURCE_TYPES,
   PLAYER_CLASS_CODES,
   PLAYER_ID_PROVIDERS,
   PLAYER_SUBMISSION_STATUSES,
   parsePlayerExternalId,
-  parseStorySlug,
   RECRUITMENT_EVENT_TYPES,
+  rankDuplicates,
 } from "@redshirt-sports/db/portal";
 import {
   addPlayerExternalId,
@@ -24,6 +30,7 @@ import {
   listPlayerSubmissions,
   listPortalPlayers,
   listPortalSports,
+  matchEspnIds,
   mergePlayers,
   openRecruitment,
   PortalWriteError,
@@ -31,6 +38,7 @@ import {
   previewMergeIdConflicts,
   pushPortal,
   recordRecruitmentEvent,
+  recordRecruitmentEvents,
   removePlayerExternalId,
   resolvePortalActor,
   reviewPlayerSubmission,
@@ -88,24 +96,6 @@ const sourceSchema = z.object({
       message: "Source link must start with https://",
     }),
   sourceNote: optionalText(500),
-  // Public, unlike the fields above: the article this move came from.
-  storySlug: z
-    .string()
-    .max(500)
-    .optional()
-    .nullable()
-    .transform((value, context) => {
-      const slug = parseStorySlug(value);
-      if (slug === undefined) {
-        context.addIssue({
-          code: "custom",
-          message:
-            "Paste the article's link on the site, or its slug (like portal-qb-visits-idaho).",
-        });
-        return z.NEVER;
-      }
-      return slug;
-    }),
 });
 
 /** An event can't be dated more than a day ahead: catches a mistyped year. */
@@ -276,9 +266,85 @@ export type PortalPlayerPage = NonNullable<
 >;
 
 /** Existing players whose names look like this one, shown before creating a new one. */
-export async function findPortalDuplicates(name: string) {
+const duplicateContextSchema = z
+  .object({
+    sportId: z.string().max(64).nullish(),
+    schoolId: z.string().max(64).nullish(),
+    hsGradYear: z.coerce
+      .number()
+      .int()
+      .min(1990)
+      .max(2100)
+      .nullish()
+      .catch(null),
+  })
+  .catch({});
+
+/**
+ * Players already on file who may be the one being entered, likely first.
+ * `context` (sport, origin school, high-school class) tells namesakes apart.
+ */
+export async function findPortalDuplicates(name: string, context?: unknown) {
   await requireArea("portal");
-  return findSimilarPlayers(name.slice(0, 200));
+  const matches = await findSimilarPlayers(name.slice(0, 200), { limit: 20 });
+  return rankDuplicates(matches, duplicateContextSchema.parse(context ?? {}));
+}
+
+export type EspnPrefill =
+  | { ok: false; message: string }
+  | {
+      ok: true;
+      profile: EspnPlayerProfile;
+      sportSlug: string;
+      /** Our school for the player's ESPN team; null when ESPN's team isn't mapped. */
+      school: { id: string; name: string | null } | null;
+      /** The player already on file with this ESPN id. */
+      existingPlayer: {
+        id: number;
+        firstName: string;
+        lastName: string;
+      } | null;
+    };
+
+/** A new player's details from their ESPN profile link. */
+export async function prefillFromEspn(url: string): Promise<EspnPrefill> {
+  await requireArea("portal");
+  const parsed = parseEspnPlayerUrl(String(url ?? ""));
+  if (!parsed) {
+    return {
+      ok: false,
+      message:
+        "Paste an ESPN college player link, like espn.com/college-football/player/_/id/…",
+    };
+  }
+  try {
+    const profile = espnPlayerProfile(
+      await fetchEspnAthlete(parsed.sport, parsed.id),
+    );
+    const { existingPlayer, school } = await matchEspnIds({
+      espnPlayerId: profile.espnId,
+      espnTeamId: profile.espnTeamId,
+    });
+    return {
+      ok: true,
+      profile,
+      sportSlug: parsed.sport,
+      school,
+      existingPlayer: existingPlayer
+        ? {
+            id: existingPlayer.mergedIntoId ?? existingPlayer.id,
+            firstName: existingPlayer.firstName,
+            lastName: existingPlayer.lastName,
+          }
+        : null,
+    };
+  } catch (error) {
+    Sentry.captureException(error);
+    return {
+      ok: false,
+      message: "ESPN didn't return that player. Check the link.",
+    };
+  }
 }
 
 export async function findPortalSchools(query: string) {
@@ -295,8 +361,16 @@ export async function createPortalPlayerAction(input: {
   notDuplicateOf?: unknown;
   /** The public submission this player was entered from, to mark it accepted. */
   submissionId?: unknown;
+  /** The ESPN id the form was filled from, recorded on the new player. */
+  espnId?: unknown;
 }): Promise<PortalActionResult> {
   await requireArea("portal");
+  const espnId = z
+    .string()
+    .regex(/^\d{1,12}$/)
+    .nullish()
+    .safeParse(input.espnId);
+  if (!espnId.success) return invalid(espnId.error);
   const bio = bioSchema.safeParse(input.bio);
   if (!bio.success) return invalid(bio.error);
   const entry =
@@ -315,12 +389,32 @@ export async function createPortalPlayerAction(input: {
   if (!submissionId.success) return invalid(submissionId.error);
   try {
     const actorUserId = await actorId();
+    if (espnId.data) {
+      const { existingPlayer } = await matchEspnIds({
+        espnPlayerId: espnId.data,
+        espnTeamId: null,
+      });
+      if (existingPlayer) {
+        return {
+          ok: false,
+          message: `This ESPN player is already on file as ${existingPlayer.firstName} ${existingPlayer.lastName} (#${existingPlayer.mergedIntoId ?? existingPlayer.id}).`,
+        };
+      }
+    }
     const player = await createPortalPlayer({
       notDuplicateOf: notDuplicateOf.data,
       ...bio.data,
       actorUserId,
       entry: entry?.data ?? null,
     });
+    if (espnId.data) {
+      await addPlayerExternalId({
+        playerId: player.id,
+        provider: "espn",
+        externalId: espnId.data,
+        actorUserId,
+      });
+    }
     if (submissionId.data) {
       await reviewPlayerSubmission({
         id: submissionId.data,
@@ -375,6 +469,36 @@ export async function recordPortalMove(input: {
     });
     refresh(id.data);
     return { ok: true, message: "Saved.", playerId: id.data };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/**
+ * Several moves on one portal entry in one save, all or none: offers from
+ * three schools on the same day, say.
+ */
+export async function recordPortalMoves(input: {
+  playerId: unknown;
+  moves: unknown;
+}): Promise<PortalActionResult> {
+  await requireArea("portal");
+  const id = playerId.safeParse(input.playerId);
+  if (!id.success) return invalid(id.error);
+  const moves = z.array(moveSchema).min(1).max(12).safeParse(input.moves);
+  if (!moves.success) return invalid(moves.error);
+  try {
+    const actorUserId = await actorId();
+    await recordRecruitmentEvents(
+      moves.data.map((move) => ({ ...move, actorUserId })),
+    );
+    refresh(id.data);
+    const count = moves.data.length;
+    return {
+      ok: true,
+      message: count === 1 ? "Saved." : `Saved ${count} moves.`,
+      playerId: id.data,
+    };
   } catch (error) {
     return failure(error);
   }

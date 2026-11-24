@@ -1,3 +1,4 @@
+import type { PlayerTag } from "@redshirt-sports/sanity/external-refs";
 import { CheckmarkCircleIcon } from "@sanity/icons/CheckmarkCircle";
 import { ComposeIcon } from "@sanity/icons/Compose";
 import { DocumentTextIcon } from "@sanity/icons/DocumentText";
@@ -13,6 +14,7 @@ import {
 } from "sanity";
 
 import { BodyInput } from "@/components/body-input";
+import { PlayerSuggestionsInput } from "@/components/player-suggestions-input";
 import { budgetInput } from "@/components/text-budget-input";
 import { bodyFindings } from "@/house-rules/body";
 import { LIMITS } from "@/house-rules/limits";
@@ -386,8 +388,9 @@ export const post = defineType({
       description:
         'Players the article is about. Search by name. Picking a "Redshirt player page" result puts the article on that player\'s transfer portal page; other results come from ESPN. Players are never stored in Sanity.',
       of: [defineArrayMember({ type: "playerRef" })],
+      components: { input: PlayerSuggestionsInput },
       validation: (rule) =>
-        houseRule<string[], typeof rule>(rule, (_, context) =>
+        houseRule<PlayerTag[], typeof rule>(rule, (_, context) =>
           only(coverageFindings(postOf(context)), "coverage.player"),
         ),
     }),

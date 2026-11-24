@@ -84,7 +84,10 @@ export async function getCachedArticleLists({
       [
         ...lists.relatedPosts.map((post) => post._id),
         lists.upNextInFeed?._id,
-        ...lists.moreFromAuthor.map((post) => post._id),
+        // Typegen reads this list as never[] (see queryArticleLists).
+        ...(lists.moreFromAuthor as Array<{ _id: string }>).map(
+          (post) => post._id,
+        ),
       ]
         .filter((id): id is string => Boolean(id))
         .map(postTag),

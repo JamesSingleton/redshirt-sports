@@ -124,8 +124,7 @@ const playerDocSql = sql.raw(`jsonb_strip_nulls(jsonb_build_object(
             select jsonb_agg(jsonb_build_object(
               'id', e.id, 'type', e.type, 'occurredAt', e.occurred_at,
               'schoolId', e.school_id, 'schoolName', e.school_name,
-              'superseded', ${supersededText},
-              'storySlug', e.story_slug
+              'superseded', ${supersededText}
             ) order by e.occurred_at, e.id)
             from public.recruitment_events e
             where e.recruitment_id = r.id and e.voided_at is null
@@ -134,8 +133,7 @@ const playerDocSql = sql.raw(`jsonb_strip_nulls(jsonb_build_object(
           'offers', coalesce((
             select jsonb_agg(jsonb_build_object(
               'eventId', e.id, 'occurredAt', e.occurred_at,
-              'schoolId', e.school_id, 'schoolName', e.school_name,
-              'storySlug', e.story_slug
+              'schoolId', e.school_id, 'schoolName', e.school_name
             ) order by e.occurred_at, e.id)
             from public.recruitment_events e
             where e.recruitment_id = r.id and e.voided_at is null and e.type = 'offered'
@@ -143,8 +141,7 @@ const playerDocSql = sql.raw(`jsonb_strip_nulls(jsonb_build_object(
           'interest', coalesce((
             select jsonb_agg(jsonb_build_object(
               'eventId', e.id, 'type', e.type, 'occurredAt', e.occurred_at,
-              'schoolId', e.school_id, 'schoolName', e.school_name,
-              'storySlug', e.story_slug
+              'schoolId', e.school_id, 'schoolName', e.school_name
             ) order by e.occurred_at, e.id)
             from public.recruitment_events e
             where e.recruitment_id = r.id and e.voided_at is null

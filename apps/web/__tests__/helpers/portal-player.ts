@@ -90,6 +90,7 @@ export function playerData(
     schools,
     levels,
     conferences,
+    mergedIds: [],
     ...overrides,
   };
 }

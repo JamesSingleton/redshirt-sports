@@ -13,10 +13,12 @@ import {
   createPortalPlayer,
   getPortalPlayer,
   type PortalEntryInput,
+  updatePlayerBio,
 } from "../src/queries/portal-admin";
 import { pushPortal } from "../src/queries/portal-publish";
 import { recordRecruitmentEvent } from "../src/queries/recruitments";
 import {
+  playerDuplicatePairsTable,
   playerSportsTable,
   playersTable,
   publishedPlayersTable,
@@ -204,6 +206,40 @@ describe("listDuplicateCandidates", () => {
       .where(eq(playersTable.id, b.id));
     expect(await listDuplicateCandidates()).toEqual([]);
     expect(await listDuplicateCandidates({ recentDays: 365 })).toHaveLength(1);
+  });
+
+  it("keeps stored look-alikes current when a player is renamed or merged", async () => {
+    const a = await player("Jalen", "Brooks", { entry: entry() });
+    const b = await player("Jaylen", "Brooks", { entry: entry() });
+    const pairs = () =>
+      db
+        .select({
+          a: playerDuplicatePairsTable.playerAId,
+          b: playerDuplicatePairsTable.playerBId,
+        })
+        .from(playerDuplicatePairsTable);
+    expect(await pairs()).toEqual([{ a: a.id, b: b.id }]);
+
+    // Renamed to someone else: the pair goes, and the queue with it.
+    await updatePlayerBio({
+      playerId: b.id,
+      firstName: "Marcus",
+      lastName: "Hill",
+    });
+    expect(await pairs()).toEqual([]);
+    expect(await listDuplicateCandidates()).toEqual([]);
+
+    // Renamed back: found again.
+    await updatePlayerBio({
+      playerId: b.id,
+      firstName: "Jaylen",
+      lastName: "Brooks",
+    });
+    expect(await listDuplicateCandidates()).toHaveLength(1);
+
+    // Merged away: nobody's look-alike any more.
+    await mergePlayers({ survivorId: a.id, loserId: b.id });
+    expect(await pairs()).toEqual([]);
   });
 
   it("refuses to dismiss a player against themselves", async () => {

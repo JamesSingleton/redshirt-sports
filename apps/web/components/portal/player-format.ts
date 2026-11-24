@@ -269,8 +269,6 @@ export interface MoveCard {
   statusLine: string;
   /** What the status line doesn't say: when they entered, and the transfer type. */
   details: string[];
-  /** The article that reported where they stand now. */
-  storySlug: string | null;
 }
 
 const STATUS_VERBS: Record<PublishedRecruitment["status"], string> = {
@@ -279,17 +277,6 @@ const STATUS_VERBS: Record<PublishedRecruitment["status"], string> = {
   signed: "Signed",
   enrolled: "Enrolled",
   withdrawn: "Withdrew",
-};
-
-const STATUS_EVENT_TYPES: Record<
-  PublishedRecruitment["status"],
-  PlayerEvent["type"]
-> = {
-  entered: "entered",
-  committed: "committed",
-  signed: "signed",
-  enrolled: "enrolled",
-  withdrawn: "withdrew",
 };
 
 /** The header's previous school → next school card. */
@@ -305,20 +292,11 @@ export function moveCard(
       : `Entered ${formatWireDate(recruitment.enteredAt)}`,
     recruitment.isGradTransfer ? "Graduate transfer" : "Undergraduate transfer",
   ].filter((detail): detail is string => detail !== null);
-  // The move that put them where they stand: its story is the card's story.
-  const statusEvent = [...recruitment.events]
-    .reverse()
-    .find(
-      (event) =>
-        !event.superseded &&
-        STATUS_EVENT_TYPES[recruitment.status] === event.type,
-    );
   const base = {
     from,
     status: recruitment.status,
     statusLine,
     details,
-    storySlug: statusEvent?.storySlug ?? null,
   };
   if (recruitment.status === "withdrawn") {
     return {
@@ -355,8 +333,6 @@ export interface JourneyEvent {
   label: string;
   date: string;
   superseded: boolean;
-  /** The article this move came from, when one is attached. */
-  storySlug: string | null;
 }
 
 export interface JourneyStop {
@@ -417,7 +393,6 @@ function journeyEvent(
       label,
       date: formatWireDate(event.occurredAt),
       superseded: event.superseded,
-      storySlug: event.storySlug ?? null,
     },
   ];
 }
@@ -565,14 +540,12 @@ export interface InterestRow {
   date: string;
   /** The rest of what's reported for the school: "Offered Oct 4 · Visited Oct 8". */
   detail: string | null;
-  storySlug: string | null;
   cycleYear: number;
 }
 
 interface InterestFact {
   type: InterestStatus;
   occurredAt: string;
-  storySlug: string | null;
   place: Place;
   eventId: number;
 }
@@ -592,14 +565,12 @@ export function profileInterest(
       ...recruitment.offers.map((offer) => ({
         type: "offered" as const,
         occurredAt: offer.occurredAt,
-        storySlug: offer.storySlug ?? null,
         place: offer,
         eventId: offer.eventId,
       })),
       ...(recruitment.interest ?? []).map((item) => ({
         type: item.type,
         occurredAt: item.occurredAt,
-        storySlug: item.storySlug ?? null,
         place: item,
         eventId: item.eventId,
       })),
@@ -626,7 +597,6 @@ export function profileInterest(
           all.push({
             type: "committed",
             occurredAt: commitment.occurredAt,
-            storySlug: commitment.storySlug ?? null,
             place: group[0]!.place,
             eventId: commitment.id,
           });
@@ -652,11 +622,6 @@ export function profileInterest(
           status: lead.type,
           date: formatWireDate(lead.occurredAt, true),
           detail: rest.length ? rest.join(" · ") : null,
-          // The lead's story, else any story about this school.
-          storySlug:
-            lead.storySlug ??
-            all.find((fact) => fact.storySlug)?.storySlug ??
-            null,
           cycleYear: recruitment.cycleYear,
           rank: INTEREST_RANK.indexOf(lead.type),
           at: Date.parse(lead.occurredAt),

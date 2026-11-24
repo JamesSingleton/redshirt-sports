@@ -28,6 +28,7 @@ import {
   type PortalActionResult,
   type PortalPlayerPage,
   recordPortalMove,
+  recordPortalMoves,
   removePlayerExternalIdAction,
   savePlayerBio,
   savePlayerSport,
@@ -295,11 +296,6 @@ function EventRow({ playerId, event }: { playerId: number; event: Event }) {
           </Button>
         )}
       </div>
-      {event.storySlug ? (
-        <p className="text-muted-foreground text-xs">
-          Story (public): /{event.storySlug}
-        </p>
-      ) : null}
       {event.sourceType || event.sourceUrl || event.sourceNote ? (
         <p className="text-muted-foreground text-xs">
           Source:{" "}
@@ -376,11 +372,15 @@ function MoveForm({
   const [school, setSchool] = useState<SchoolValue>(
     recruitment.status === "entered" ? EMPTY_SCHOOL : destination,
   );
+  // Offers, contact, and visits often come from several schools at once.
+  const [moreSchools, setMoreSchools] = useState<SchoolValue[]>([]);
+  const manySchools = type === "offered" || isInterestEventType(type);
   const [occurredAt, setOccurredAt] = useState(localNow());
   const [source, setSource] = useState<SourceValue>(EMPTY_SOURCE);
 
   const reset = () => {
     setSchool(EMPTY_SCHOOL);
+    setMoreSchools([]);
     setOccurredAt(localNow());
     setSource(EMPTY_SOURCE);
   };
@@ -410,6 +410,9 @@ function MoveForm({
             ) {
               setSchool(EMPTY_SCHOOL);
             }
+            if (!(nextType === "offered" || isInterestEventType(nextType))) {
+              setMoreSchools([]);
+            }
           }}
           options={MOVE_TYPES.map((value) => ({
             value,
@@ -418,6 +421,32 @@ function MoveForm({
         />
         {needsSchool(type) ? (
           <SchoolPicker label="School" value={school} onChange={setSchool} />
+        ) : null}
+        {manySchools
+          ? moreSchools.map((extra, index) => (
+              <SchoolPicker
+                key={index}
+                label={`School ${index + 2}`}
+                value={extra}
+                onChange={(next) =>
+                  setMoreSchools((current) =>
+                    current.map((value, i) => (i === index ? next : value)),
+                  )
+                }
+              />
+            ))
+          : null}
+        {manySchools && moreSchools.length < 11 ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() =>
+              setMoreSchools((current) => [...current, EMPTY_SCHOOL])
+            }
+          >
+            + Another school
+          </Button>
         ) : null}
         <TextField
           label="When"
@@ -432,27 +461,48 @@ function MoveForm({
         <Button
           size="sm"
           disabled={pending}
-          onClick={() =>
+          onClick={() => {
+            const base = {
+              recruitmentId: recruitment.id,
+              type,
+              occurredAt: localToIso(occurredAt),
+              ...sourcePayload(source),
+            };
+            const schools = [
+              school,
+              ...(manySchools ? moreSchools : []),
+            ].filter(
+              (value, index) =>
+                index === 0 || value.schoolId || value.schoolName,
+            );
             run(
               () =>
-                recordPortalMove({
-                  playerId,
-                  move: {
-                    recruitmentId: recruitment.id,
-                    type,
-                    occurredAt: localToIso(occurredAt),
-                    school: needsSchool(type)
-                      ? {
-                          schoolId: school.schoolId,
-                          schoolName: school.schoolName,
-                        }
-                      : null,
-                    ...sourcePayload(source),
-                  },
-                }),
+                schools.length > 1
+                  ? recordPortalMoves({
+                      playerId,
+                      moves: schools.map((value) => ({
+                        ...base,
+                        school: {
+                          schoolId: value.schoolId,
+                          schoolName: value.schoolName,
+                        },
+                      })),
+                    })
+                  : recordPortalMove({
+                      playerId,
+                      move: {
+                        ...base,
+                        school: needsSchool(type)
+                          ? {
+                              schoolId: school.schoolId,
+                              schoolName: school.schoolName,
+                            }
+                          : null,
+                      },
+                    }),
               reset,
-            )
-          }
+            );
+          }}
         >
           Save
         </Button>

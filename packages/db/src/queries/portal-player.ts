@@ -64,10 +64,17 @@ export async function getPublishedPlayer(
   }
   const refs = playerReferences(parsed.data);
   const levelIds = [...refs.levels];
-  const [schools, levels, conferences] = await Promise.all([
+  const [schools, levels, conferences, merged] = await Promise.all([
     schoolDictionary([...refs.schools]),
     levelIds.length === 0 ? [] : levelsById(levelIds),
     conferenceDictionary([...refs.conferences]),
+    // Merges re-point earlier merges at the survivor, so every absorbed id
+    // redirects here directly. Reads `published_players_redirect_to_player_id_index`.
+    db
+      .select({ id: publishedPlayersTable.playerId })
+      .from(publishedPlayersTable)
+      .where(eq(publishedPlayersTable.redirectToPlayerId, playerId))
+      .orderBy(publishedPlayersTable.playerId),
   ]);
   return {
     kind: "player",
@@ -78,6 +85,7 @@ export async function getPublishedPlayer(
       schools,
       levels: levelDictionary(levels),
       conferences,
+      mergedIds: merged.map((row) => row.id),
     },
   };
 }
