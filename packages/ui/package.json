@@ -13,9 +13,9 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@hookform/resolvers": "^6.0.2",
-    "@ui-sdk/core": "0.1.0-beta.10",
-    "@ui-sdk/react": "0.1.0-beta.10",
+    "@hookform/resolvers": "^7.0.8",
+    "@ui-sdk/core": "0.1.0-beta.16",
+    "@ui-sdk/react": "0.1.0-beta.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cn": "^0.5.2",
@@ -24,8 +24,8 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "^7.92.0",
-    "recharts": "^3.10.1",
-    "tailwind-merge": "^3.7.0",
+    "recharts": "^3.11.0",
+    "tailwind-merge": "^3.7.1",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -35,12 +35,12 @@
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@testing-library/user-event": "catalog:",
-    "@turbo/gen": "^2.11.11",
+    "@turbo/gen": "^2.11.13",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "autoprefixer": "^10.6.2",
+    "autoprefixer": "^10.7.0",
     "happy-dom": "^21.0.4",
     "postcss": "^8.5.33",
     "tailwindcss": "catalog:",
