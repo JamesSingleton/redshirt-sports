@@ -4,6 +4,7 @@ import {
   desc,
   eq,
   getTableColumns,
+  inArray,
   type SQL,
   sql,
 } from "drizzle-orm";
@@ -541,10 +542,7 @@ async function readListTeamRatings(
       powerRank: ratingSnapshotsTable.powerRank,
       sos: ratingSnapshotsTable.sos,
       sosRank: ratingSnapshotsTable.sosRank,
-      teamCount: sql<number>`(
-        select count(*)::int from ${ratingSnapshotsTable} as all_teams
-        where all_teams.run_id = ${ratingRunsTable.id}
-      )`,
+      runId: ratingRunsTable.id,
     })
     .from(ratingSnapshotsTable)
     .innerJoin(schoolsTable, eq(schoolsTable.id, ratingSnapshotsTable.schoolId))
@@ -582,9 +580,30 @@ async function readListTeamRatings(
     list.push(row);
     byPool.set(row.poolId, list);
   }
-  return [...byPool.values()].map((poolRows) => {
+  const seasons = [...byPool.values()].map((poolRows) => {
     const year = Math.max(...poolRows.map((row) => row.year));
-    const season = poolRows.filter((row) => row.year === year);
+    return { year, season: poolRows.filter((row) => row.year === year) };
+  });
+  if (seasons.length === 0) {
+    return [];
+  }
+
+  // Only the latest week's run needs a team count, so count those runs once
+  // here rather than once per returned row.
+  const latestRunIds = seasons.map(({ season }) => season.at(-1)!.runId);
+  const counts = await db
+    .select({
+      runId: ratingSnapshotsTable.runId,
+      teamCount: sql<number>`count(*)::int`,
+    })
+    .from(ratingSnapshotsTable)
+    .where(inArray(ratingSnapshotsTable.runId, latestRunIds))
+    .groupBy(ratingSnapshotsTable.runId);
+  const teamCountByRun = new Map(
+    counts.map((row) => [row.runId, row.teamCount]),
+  );
+
+  return seasons.map(({ year, season }) => {
     const first = season[0]!;
     return {
       pool: {
@@ -593,7 +612,7 @@ async function readListTeamRatings(
         sportSlug: first.sportSlug,
       },
       year,
-      teamCount: season.at(-1)!.teamCount,
+      teamCount: teamCountByRun.get(season.at(-1)!.runId) ?? 0,
       weeks: season.map((row) => ({
         segment: ratingWeekSegment(row.seasonType, row.number),
         label: ratingWeekLabel(row.seasonType, row.number),

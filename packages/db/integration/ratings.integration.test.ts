@@ -216,7 +216,7 @@ describe("rating runs", () => {
 
 describe("team ratings", () => {
   it("returns one point per published week, oldest first, from public pools only", async () => {
-    const [first, second] = fixture.schoolIds;
+    const [first, second, third] = fixture.schoolIds;
     const [school] = await db
       .select({ sanityId: schoolsTable.sanityId })
       .from(schoolsTable)
@@ -231,6 +231,8 @@ describe("team ratings", () => {
     const two = await createRun(fixture.weekIds[1]!);
     await addSnapshot(two, first!, 1);
     await addSnapshot(two, second!, 2);
+    // The team count is the latest week's, not the first week's.
+    await addSnapshot(two, third!, 3);
     // A draft run is never shown.
     const draft = await createRun(fixture.weekIds[1]!);
     await addSnapshot(draft, first!, 5);
@@ -241,7 +243,7 @@ describe("team ratings", () => {
     expect(rest).toEqual([]);
     expect(history).toMatchObject({
       pool: { slug: "fcs", name: "FCS" },
-      teamCount: 2,
+      teamCount: 3,
     });
     expect(history!.weeks.map((week) => week.powerRank)).toEqual([2, 1]);
     expect(history!.weeks.map((week) => week.label)).toEqual([
